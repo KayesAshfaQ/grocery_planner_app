@@ -46,3 +46,6 @@ app.*.map.json
 
 # project specific files
 /lib/features/demo
+
+# FVM Version Cache
+.fvm/
