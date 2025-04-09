@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/home/presentation/widgets/grocery_item_card.dart';
 
 class GroceryListPage extends StatefulWidget {
   const GroceryListPage({super.key});
@@ -29,8 +30,7 @@ class _GroceryListPageState extends State<GroceryListPage>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<GroceryBloc>()
-        ..add(GetAllGroceryItemsEvent()),
+      create: (context) => sl<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
       child: Scaffold(
         body: Column(
           children: [
@@ -91,9 +91,8 @@ class _GroceryListContent extends StatelessWidget {
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
-            //TODO: update the item
-            return ListTile(
-              title: Text(item.name),
+            return GroceryItemCard(
+              groceryItem: item,
             );
           },
         );
