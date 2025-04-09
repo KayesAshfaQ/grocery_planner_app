@@ -1,18 +1,19 @@
 
 import 'package:dartz/dartz.dart';
+import 'package:grocery_planner_app/core/error/exceptions.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/grocery_item.dart';
 import 'package:grocery_planner_app/features/home/domain/repositories/grocery_repository.dart';
 
 /// Use case for retrieving grocery items
-class GetGroceryItems {
+class GetGroceryItemsUsecase {
   /// The grocery repository
   final GroceryRepository repository;
 
   /// Creates a new GetGroceryItems use case
-  GetGroceryItems(this.repository);
+  GetGroceryItemsUsecase(this.repository);
 
   /// Gets all grocery items
-  Future<Either<Exception, List<GroceryItem>>> call() async {
+  Future<Either<AppException, List<GroceryItem>>> call() async {
     return repository.getGroceryItems();
   }
 

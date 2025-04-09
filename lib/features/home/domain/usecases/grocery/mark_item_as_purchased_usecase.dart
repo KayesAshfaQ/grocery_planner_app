@@ -3,12 +3,12 @@ import 'package:grocery_planner_app/features/home/domain/entities/grocery_item.d
 import 'package:grocery_planner_app/features/home/domain/repositories/grocery_repository.dart';
 
 /// Use case for marking a grocery item as purchased
-class MarkItemAsPurchased {
+class MarkItemAsPurchasedUsecase {
   /// The grocery repository
   final GroceryRepository repository;
 
   /// Creates a new MarkItemAsPurchased use case
-  MarkItemAsPurchased(this.repository);
+  MarkItemAsPurchasedUsecase(this.repository);
 
   /// Marks a grocery item as purchased with an optional actual price
   Future<Either<Exception, GroceryItem>> call(String id,
