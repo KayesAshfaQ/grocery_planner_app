@@ -1,5 +1,6 @@
 
 import 'package:dartz/dartz.dart';
+import 'package:grocery_planner_app/core/error/exceptions.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/grocery_item.dart';
 import 'package:grocery_planner_app/features/home/domain/repositories/grocery_repository.dart';
 
@@ -12,7 +13,7 @@ class AddGroceryItemUsecase {
   AddGroceryItemUsecase(this.repository);
 
   /// Adds a new grocery item
-  Future<Either<Exception, GroceryItem>> call(GroceryItem item) async {
+  Future<Either<AppException, GroceryItem>> call(GroceryItem item) async {
     return repository.addGroceryItem(item);
   }
 }

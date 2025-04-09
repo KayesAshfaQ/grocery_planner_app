@@ -18,13 +18,13 @@ class GetGroceryItemsUsecase {
   }
 
   /// Gets grocery items by their purchase status
-  Future<Either<Exception, List<GroceryItem>>> byStatus(
+  Future<Either<AppException, List<GroceryItem>>> byStatus(
       bool isPurchased) async {
     return repository.getGroceryItemsByStatus(isPurchased);
   }
 
   /// Gets grocery items by their category
-  Future<Either<Exception, List<GroceryItem>>> byCategory(
+  Future<Either<AppException, List<GroceryItem>>> byCategory(
       String category) async {
     return repository.getGroceryItemsByCategory(category);
   }
