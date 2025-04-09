@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:grocery_planner_app/config/routes/app_router.dart';
 
 import 'package:grocery_planner_app/config/theme/app_theme.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
@@ -32,13 +33,13 @@ class GroceryPlannerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Grocery Planner',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const HomePage(),
+      routerConfig: AppRouter.router,
     );
   }
 }
