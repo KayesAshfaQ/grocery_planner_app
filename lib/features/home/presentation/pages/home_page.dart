@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:grocery_planner_app/features/analytics/presentation/pages/analytics_page.dart';
-import 'package:grocery_planner_app/features/catalog/presentation/pages/catalog_page.dart';
-import 'package:grocery_planner_app/features/grocery_list/presentation/pages/grocery_list_page.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/analytics_page.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/catalog_page.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/grocery_list_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/cubits/navigation_cubit.dart';
-import 'package:grocery_planner_app/features/schedule/presentation/pages/schedule_page.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/schedule_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
