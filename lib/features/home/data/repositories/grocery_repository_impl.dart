@@ -31,9 +31,13 @@ class GroceryRepositoryImpl implements GroceryRepository {
   }
 
   @override
-  Future<Either<AppException, List<GroceryItem>>> getGroceryItems() {
-    // TODO: implement getGroceryItems
-    throw UnimplementedError();
+  Future<Either<AppException, List<GroceryItem>>> getGroceryItems() async {
+    try {
+      final groceryItems = await localDataSource.getGroceryItems();
+      return Right(groceryItems);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
   }
 
   @override
