@@ -36,14 +36,10 @@ class _GroceryListPageState extends State<GroceryListPage>
           children: [
             TabBar(
               controller: _tabController,
-              // labelColor: Theme.of(context).colorScheme.primary,
               tabs: const [
                 Tab(text: 'To Buy'),
                 Tab(text: 'Purchased'),
               ],
-              onTap: (index) {
-                //TODO: Handle tab change
-              },
             ),
             Expanded(
               child: TabBarView(
