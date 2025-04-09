@@ -15,7 +15,7 @@ class GroceryBloc extends Bloc<GroceryEvent, GroceryState> {
   final MarkItemAsPurchasedUsecase markItemAsPurchasedUsecase;
 
   /// Creates a new GroceryBloc
-  GroceryBloc({
+  GroceryBloc( {
     required this.getGroceryItemsUsecase,
     required this.markItemAsPurchasedUsecase,
   }) : super(GroceryInitialState()) {

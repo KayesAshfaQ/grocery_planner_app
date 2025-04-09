@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:grocery_planner_app/config/theme/app_theme.dart';
+import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/home_page.dart';
 
@@ -16,8 +17,12 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  // Initialize database
+  final database =
+      await $FloorAppDatabase.databaseBuilder('grocery_app.db').build();
+
   // Initialize service locator
-  await initServiceLocator();
+  await initServiceLocator(database);
 
   runApp(const GroceryPlannerApp());
 }
