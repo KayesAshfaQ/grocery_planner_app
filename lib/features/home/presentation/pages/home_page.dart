@@ -19,7 +19,15 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _HomePageView extends StatelessWidget {
+class _HomePageView extends StatefulWidget {
+  @override
+  State<_HomePageView> createState() => _HomePageViewState();
+}
+
+class _HomePageViewState extends State<_HomePageView> {
+  
+  late final PageController _pageController;
+  
   final List<Widget> _pages = const [
     GroceryListPage(),
     CatalogPage(),
@@ -35,6 +43,18 @@ class _HomePageView extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -43,9 +63,12 @@ class _HomePageView extends StatelessWidget {
         ),
         elevation: 0,
       ),
-      body: BlocBuilder<NavigationCubit, int>(
+      body: BlocConsumer<NavigationCubit, int>(
+        listener: (context, state) {
+          _pageController.jumpToPage(state);
+        },
         builder: (context, state) => PageView(
-          controller: PageController(initialPage: state),
+          controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
           children: _pages,
         ),
