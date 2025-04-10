@@ -25,9 +25,8 @@ class _HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<_HomePageView> {
-  
   late final PageController _pageController;
-  
+
   final List<Widget> _pages = const [
     GroceryListPage(),
     CatalogPage(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/grocery_item_editor_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/analytics_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/catalog_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/grocery_list_page.dart';
@@ -22,7 +23,7 @@ class AppRouter {
   static const String groceryList = '/grocery-list';
 
   /// Add/edit grocery item screen route name
-  static const String groceryItemDetail = '/grocery-item';
+  static const String groceryItemEditor = '/grocery-item-editor';
 
   /// Schedule list screen route name
   static const String scheduleList = '/schedule-list';
@@ -53,15 +54,8 @@ class AppRouter {
         builder: (context, state) => const GroceryListPage(),
       ),
       GoRoute(
-        path: '$groceryItemDetail/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id'];
-          return Scaffold(
-            body: Center(
-                child: Text(
-                    'Grocery Item Detail Screen for ID: $id - Implement me')),
-          );
-        },
+        path: groceryItemEditor,
+        builder: (context, state) => const GroceryItemEditorPage(),
       ),
       GoRoute(
         path: scheduleList,

@@ -7,7 +7,6 @@ import 'package:grocery_planner_app/config/routes/app_router.dart';
 import 'package:grocery_planner_app/config/theme/app_theme.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

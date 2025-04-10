@@ -1,15 +1,15 @@
 import 'package:dartz/dartz.dart';
-import 'package:grocery_planner_app/features/home/data/datasources/local/grocery_local_data_source.dart';
+import 'package:grocery_planner_app/features/home/data/datasources/grocery_data_source.dart';
 import 'package:grocery_planner_app/core/error/exceptions.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/grocery_item.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/price_history.dart';
 import 'package:grocery_planner_app/features/home/domain/repositories/grocery_repository.dart';
 
 class GroceryRepositoryImpl implements GroceryRepository {
-  final GroceryLocalDataSource localDataSource;
+  final GroceryDataSource dataSource;
 
   GroceryRepositoryImpl({
-    required this.localDataSource,
+    required this.dataSource,
   });
 
   @override
@@ -33,7 +33,7 @@ class GroceryRepositoryImpl implements GroceryRepository {
   @override
   Future<Either<AppException, List<GroceryItem>>> getGroceryItems() async {
     try {
-      final groceryItems = await localDataSource.getGroceryItems();
+      final groceryItems = await dataSource.getGroceryItems();
       return Right(groceryItems);
     } catch (error) {
       return Left(AppException(message: error.toString()));

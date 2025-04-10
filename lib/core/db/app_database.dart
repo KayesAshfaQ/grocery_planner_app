@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/models/category_spending_model.dart';
+import 'package:grocery_planner_app/features/home/data/models/catalog_item_model.dart';
 // ignore: depend_on_referenced_packages
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
@@ -19,9 +21,13 @@ part 'app_database.g.dart';
   entities: [
     CategorySpendingModel,
     GroceryItemModel,
+    CatalogItemModel,
   ],
 )
 abstract class AppDatabase extends FloorDatabase {
   /// Access to grocery item data
   GroceryItemDao get groceryItemDao;
+
+  /// Access to catalog item data
+  CatalogItemDao get catalogItemDao;
 }

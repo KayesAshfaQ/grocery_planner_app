@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grocery_planner_app/config/routes/app_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
 import 'package:grocery_planner_app/features/home/presentation/widgets/grocery_item_card.dart';
@@ -51,6 +53,23 @@ class _GroceryListPageState extends State<GroceryListPage>
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            context.push(AppRouter.groceryItemEditor).then((_) {
+              // Refresh the list when returning from add page
+              if (_tabController.index == 0) {
+                context.read<GroceryBloc>().add(
+                    const GetGroceryItemsByStatusEvent(isPurchased: false));
+              } else {
+                context
+                    .read<GroceryBloc>()
+                    .add(const GetGroceryItemsByStatusEvent(isPurchased: true));
+              }
+            });
+          },
+          tooltip: 'Add Item',
+          child: const Icon(Icons.add),
         ),
       ),
     );
