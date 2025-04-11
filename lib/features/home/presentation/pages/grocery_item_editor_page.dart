@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
@@ -89,6 +90,11 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
         body: BlocConsumer<GroceryEditorBloc, GroceryEditorState>(
           listener: (context, state) {
             if (state is GroceryAddedState) {
+
+              // Notify the grocery list to refresh before popping
+              final groceryBloc = context.read<GroceryBloc>();
+              groceryBloc.add(GetAllGroceryItemsEvent());
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                     content: Text('Grocery item added successfully')),

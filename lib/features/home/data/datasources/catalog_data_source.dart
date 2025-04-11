@@ -47,9 +47,9 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
       throw Exception('Failed to fetch catalog items: $e');
     }
   }
-  
+
   @override
-  Future<CatalogItem> addCatalog(CatalogItem item) async{
+  Future<CatalogItem> addCatalog(CatalogItem item) async {
     try {
       final catalogItemModel = CatalogItemModel.fromEntity(item);
       await catalogItemDao.insertItem(catalogItemModel);
@@ -58,37 +58,40 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
       throw Exception('Failed to add catalog item: $e');
     }
   }
-  
+
   @override
   Future<void> deleteCatalog(String id) {
     // TODO: implement deleteCatalog
     throw UnimplementedError();
   }
-  
+
   @override
   Future<CatalogItem> getCatalogById(String id) {
     // TODO: implement getCatalogById
     throw UnimplementedError();
   }
-  
+
   @override
   Future<List<CatalogItem>> getCatalogsByCategory(String category) {
     // TODO: implement getCatalogsByCategory
     throw UnimplementedError();
   }
-  
+
   @override
-  Future<List<String>> getCategories() {
-    // TODO: implement getCategories
-    throw UnimplementedError();
+  Future<List<String>> getCategories() async {
+    try {
+      return await catalogItemDao.getAllCategories();
+    } catch (e) {
+      throw Exception('Failed to fetch categories: $e');
+    }
   }
-  
+
   @override
   Future<List<CatalogItem>> searchCatalogs(String query) {
     // TODO: implement searchCatalogs
     throw UnimplementedError();
   }
-  
+
   @override
   Future<CatalogItem> updateCatalog(CatalogItem item) {
     // TODO: implement updateCatalog

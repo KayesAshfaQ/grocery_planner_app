@@ -56,17 +56,18 @@ class _GroceryListPageState extends State<GroceryListPage>
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            context.push(AppRouter.groceryItemEditor).then((_) {
-              // Refresh the list when returning from add page
-              if (_tabController.index == 0) {
-                context.read<GroceryBloc>().add(
-                    const GetGroceryItemsByStatusEvent(isPurchased: false));
-              } else {
-                context
-                    .read<GroceryBloc>()
-                    .add(const GetGroceryItemsByStatusEvent(isPurchased: true));
-              }
-            });
+            context.push(AppRouter.groceryItemEditor);
+            //  // Refresh the list when returning from add page
+            //   if (context.mounted) {  // Check if the context is still valid
+            //     if (_tabController.index == 0) {
+            //       context.read<GroceryBloc>().add(
+            //           const GetGroceryItemsByStatusEvent(isPurchased: false));
+            //     } else {
+            //       context
+            //           .read<GroceryBloc>()
+            //           .add(const GetGroceryItemsByStatusEvent(isPurchased: true));
+            //     }
+            //   }
           },
           tooltip: 'Add Item',
           child: const Icon(Icons.add),
