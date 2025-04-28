@@ -1,4 +1,5 @@
 import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
+import 'package:grocery_planner_app/features/home/data/models/grocery_item_model.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/grocery_item.dart';
 
 /// Interface for local grocery data operations
@@ -28,9 +29,12 @@ class GroceryLocalDataSourceImpl extends GroceryDataSource {
   GroceryLocalDataSourceImpl({required this.groceryItemDao});
 
   @override
-  Future<void> addGroceryItem(GroceryItem item) {
-    // TODO: implement addGroceryItem
-    throw UnimplementedError();
+  Future<void> addGroceryItem(GroceryItem item) async {
+    try {
+      await groceryItemDao.insertItem(GroceryItemModel.fromEntity(item));
+    } catch (e) {
+      throw Exception('Failed to add grocery item: $e');
+    }
   }
 
   @override

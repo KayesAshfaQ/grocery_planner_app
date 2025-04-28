@@ -13,9 +13,13 @@ class GroceryRepositoryImpl implements GroceryRepository {
   });
 
   @override
-  Future<Either<AppException, GroceryItem>> addGroceryItem(GroceryItem item) {
-    // TODO: implement addGroceryItem
-    throw UnimplementedError();
+  Future<Either<AppException, GroceryItem>> addGroceryItem(GroceryItem item) async {
+    try {
+      await dataSource.addGroceryItem(item);
+      return Right(item);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
   }
 
   @override
@@ -41,43 +45,37 @@ class GroceryRepositoryImpl implements GroceryRepository {
   }
 
   @override
-  Future<Either<AppException, List<GroceryItem>>> getGroceryItemsByCategory(
-      String category) {
+  Future<Either<AppException, List<GroceryItem>>> getGroceryItemsByCategory(String category) {
     // TODO: implement getGroceryItemsByCategory
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, List<GroceryItem>>> getGroceryItemsByStatus(
-      bool isPurchased) {
+  Future<Either<AppException, List<GroceryItem>>> getGroceryItemsByStatus(bool isPurchased) {
     // TODO: implement getGroceryItemsByStatus
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, List<PriceHistory>>> getPriceHistory(
-      String itemId) {
+  Future<Either<AppException, List<PriceHistory>>> getPriceHistory(String itemId) {
     // TODO: implement getPriceHistory
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, List<PriceHistory>>> getPriceHistoryByDateRange(
-      DateTime startDate, DateTime endDate) {
+  Future<Either<AppException, List<PriceHistory>>> getPriceHistoryByDateRange(DateTime startDate, DateTime endDate) {
     // TODO: implement getPriceHistoryByDateRange
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, GroceryItem>> markItemAsPurchased(String id,
-      {double? actualPrice}) {
+  Future<Either<AppException, GroceryItem>> markItemAsPurchased(String id, {double? actualPrice}) {
     // TODO: implement markItemAsPurchased
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, GroceryItem>> updateGroceryItem(
-      GroceryItem item) {
+  Future<Either<AppException, GroceryItem>> updateGroceryItem(GroceryItem item) {
     // TODO: implement updateGroceryItem
     throw UnimplementedError();
   }
