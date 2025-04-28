@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/home/domain/entities/grocery_item.dart';
+import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
 import 'package:grocery_planner_app/features/home/presentation/blocs/grocery_editor/grocery_editor_bloc.dart';
 
 /// Page for adding a new grocery item
@@ -77,8 +77,7 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          sl<GroceryEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
+      create: (context) => sl<GroceryEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Add Grocery Item'),
@@ -90,14 +89,12 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
         body: BlocConsumer<GroceryEditorBloc, GroceryEditorState>(
           listener: (context, state) {
             if (state is GroceryAddedState) {
-
               // Notify the grocery list to refresh before popping
               final groceryBloc = context.read<GroceryBloc>();
               groceryBloc.add(GetAllGroceryItemsEvent());
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Grocery item added successfully')),
+                const SnackBar(content: Text('Grocery item added successfully')),
               );
               Navigator.pop(context);
             } else if (state is GroceryEditorErrorState) {
@@ -148,15 +145,11 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
                       _buildNoteField(),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: state is GroceryEditorLoadingState
-                            ? null
-                            : () => _submitForm(context, state),
+                        onPressed: state is GroceryEditorLoadingState ? null : () => _submitForm(context, state),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: state is GroceryEditorLoadingState
-                            ? const CircularProgressIndicator()
-                            : const Text('ADD TO SHOPPING LIST'),
+                        child: state is GroceryEditorLoadingState ? const CircularProgressIndicator() : const Text('ADD TO SHOPPING LIST'),
                       )
                     ],
                   ),
@@ -174,8 +167,7 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     );
   }
 
-  Widget _buildCatalogItemDropdown(
-      BuildContext context, GroceryEditorLoadedState state) {
+  Widget _buildCatalogItemDropdown(BuildContext context, GroceryEditorLoadedState state) {
     final editorBloc = context.read<GroceryEditorBloc>();
     return DropdownButtonFormField<CatalogItem?>(
       decoration: const InputDecoration(
@@ -215,31 +207,53 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     );
   }
 
-  Widget _buildCategoryDropdown(
-      BuildContext context, GroceryEditorLoadedState state) {
+  Widget _buildCategoryDropdown(BuildContext context, GroceryEditorLoadedState state) {
     final editorBloc = context.read<GroceryEditorBloc>();
-    return DropdownButtonFormField<String>(
-      decoration: const InputDecoration(
-        labelText: 'Category',
-        border: OutlineInputBorder(),
-      ),
-      value: state.selectedCategory,
-      items: state.categories.map((category) {
-        return DropdownMenuItem<String>(
-          value: category,
-          child: Text(category),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          editorBloc.add(SelectCategoryEvent(category: value));
+    return Autocomplete<String>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return state.categories;
         }
+        return state.categories.where((category) => category.toLowerCase().contains(textEditingValue.text.toLowerCase()));
       },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please select a category';
-        }
-        return null;
+      onSelected: (String selectedCategory) {
+        editorBloc.add(SelectCategoryEvent(category: selectedCategory));
+      },
+      fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
+        textEditingController.text = state.selectedCategory ?? '';
+        return TextField(
+          controller: textEditingController,
+          focusNode: focusNode,
+          decoration: const InputDecoration(
+            labelText: 'Category',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            if (!state.categories.contains(value)) {
+              editorBloc.add(SelectCategoryEvent(category: value));
+            }
+          },
+        );
+      },
+      optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            child: SizedBox(
+              height: 200,
+              child: ListView.builder(
+                itemCount: options.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final String option = options.elementAt(index);
+                  return ListTile(
+                    title: Text(option),
+                    onTap: () => onSelected(option),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
       },
     );
   }
