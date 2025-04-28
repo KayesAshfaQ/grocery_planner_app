@@ -9,12 +9,19 @@ import 'package:grocery_planner_app/features/home/presentation/widgets/grocery_i
 class GroceryListPage extends StatefulWidget {
   const GroceryListPage({super.key});
 
+  /// Factory method that creates the page wrapped with necessary BlocProviders
+  static Widget create() {
+    return BlocProvider(
+      create: (context) => sl<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
+      child: const GroceryListPage(),
+    );
+  }
+
   @override
   State<GroceryListPage> createState() => _GroceryListPageState();
 }
 
-class _GroceryListPageState extends State<GroceryListPage>
-    with SingleTickerProviderStateMixin {
+class _GroceryListPageState extends State<GroceryListPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -31,47 +38,36 @@ class _GroceryListPageState extends State<GroceryListPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
-      child: Scaffold(
-        body: Column(
-          children: [
-            TabBar(
+    return Scaffold(
+      body: Column(
+        children: [
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'To Buy'),
+              Tab(text: 'Purchased'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
               controller: _tabController,
-              tabs: const [
-                Tab(text: 'To Buy'),
-                Tab(text: 'Purchased'),
+              children: const [
+                _GroceryListContent(isPurchased: false),
+                _GroceryListContent(isPurchased: true),
               ],
             ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: const [
-                  _GroceryListContent(isPurchased: false),
-                  _GroceryListContent(isPurchased: true),
-                ],
-              ),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            context.push(AppRouter.groceryItemEditor);
-            //  // Refresh the list when returning from add page
-            //   if (context.mounted) {  // Check if the context is still valid
-            //     if (_tabController.index == 0) {
-            //       context.read<GroceryBloc>().add(
-            //           const GetGroceryItemsByStatusEvent(isPurchased: false));
-            //     } else {
-            //       context
-            //           .read<GroceryBloc>()
-            //           .add(const GetGroceryItemsByStatusEvent(isPurchased: true));
-            //     }
-            //   }
-          },
-          tooltip: 'Add Item',
-          child: const Icon(Icons.add),
-        ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push(
+            AppRouter.groceryItemEditor,
+            extra: context.read<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
+          );
+        },
+        tooltip: 'Add Item',
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -88,15 +84,11 @@ class _GroceryListContent extends StatelessWidget {
       if (state is GroceryLoadingState) {
         return const Center(child: CircularProgressIndicator());
       } else if (state is GroceryLoadedState) {
-        final items = state.items
-            .where((item) => item.isPurchased == isPurchased)
-            .toList();
+        final items = state.items.where((item) => item.isPurchased == isPurchased).toList();
         if (items.isEmpty) {
           return Center(
             child: Text(
-              isPurchased
-                  ? 'No purchased items yet'
-                  : 'No items to buy yet. Add some!',
+              isPurchased ? 'No purchased items yet' : 'No items to buy yet. Add some!',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           );

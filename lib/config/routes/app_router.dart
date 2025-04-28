@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/grocery_item_editor_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/analytics_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/catalog_page.dart';
@@ -51,11 +53,18 @@ class AppRouter {
       ),
       GoRoute(
         path: groceryList,
-        builder: (context, state) => const GroceryListPage(),
+        builder: (context, state) => GroceryListPage.create(),
       ),
       GoRoute(
         path: groceryItemEditor,
-        builder: (context, state) => const GroceryItemEditorPage(),
+        builder: (context, state) {
+          final groceryBloc = state.extra as GroceryBloc;
+
+          return BlocProvider<GroceryBloc>.value(
+            value: groceryBloc,
+            child: const GroceryItemEditorPage(),
+          );
+        },
       ),
       GoRoute(
         path: scheduleList,
@@ -67,8 +76,8 @@ class AppRouter {
           final id = state.pathParameters['id'];
           return Scaffold(
             body: Center(
-                child:
-                    Text('Schedule Detail Screen for ID: $id - Implement me')),
+              child: Text('Schedule Detail Screen for ID: $id - Implement me'),
+            ),
           );
         },
       ),
@@ -81,9 +90,7 @@ class AppRouter {
         builder: (context, state) {
           final itemId = state.pathParameters['itemId'];
           return Scaffold(
-            body: Center(
-                child: Text(
-                    'Price History Screen for Item ID: $itemId - Implement me')),
+            body: Center(child: Text('Price History Screen for Item ID: $itemId - Implement me')),
           );
         },
       ),

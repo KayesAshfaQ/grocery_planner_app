@@ -44,14 +44,12 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
       List<CatalogItem> catalogItems = [];
 
       catalogItemsResult.fold(
-        (failure) => emit(GroceryEditorErrorState(
-            message: 'Error loading catalog items: ${failure.message}')),
+        (failure) => emit(GroceryEditorErrorState(message: 'Error loading catalog items: ${failure.message}')),
         (items) => catalogItems = items,
       );
 
       categoriesResult.fold(
-        (failure) => emit(GroceryEditorErrorState(
-            message: 'Error loading categories: ${failure.message}')),
+        (failure) => emit(GroceryEditorErrorState(message: 'Error loading categories: ${failure.message}')),
         (loadedCategories) {
           categories = loadedCategories;
           if (categories.isNotEmpty) {
@@ -104,7 +102,6 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
       (failure) => emit(GroceryEditorErrorState(message: failure.toString())),
       (groceryItem) {
         emit(GroceryAddedState(item: groceryItem));
-        // add(GetAllGroceryItemsEvent());
       },
     );
   }

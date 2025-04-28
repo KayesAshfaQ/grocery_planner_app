@@ -27,11 +27,11 @@ class _HomePageView extends StatefulWidget {
 class _HomePageViewState extends State<_HomePageView> {
   late final PageController _pageController;
 
-  final List<Widget> _pages = const [
-    GroceryListPage(),
-    CatalogPage(),
-    SchedulePage(),
-    AnalyticsPage(),
+  final List<Widget> _pages = [
+    GroceryListPage.create(),
+    const CatalogPage(),
+    const SchedulePage(),
+    const AnalyticsPage(),
   ];
 
   final List<String> _titles = const [
