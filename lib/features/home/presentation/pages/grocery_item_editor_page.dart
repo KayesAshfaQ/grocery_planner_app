@@ -13,6 +13,9 @@ class GroceryItemEditorPage extends StatefulWidget {
   /// Creates a new add grocery item page
   const GroceryItemEditorPage({Key? key}) : super(key: key);
 
+  /// Route path for this page (relative to parent)
+  static const String routePath = 'editor';
+
   @override
   State<GroceryItemEditorPage> createState() => _GroceryItemEditorPageState();
 }

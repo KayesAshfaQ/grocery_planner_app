@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/dashboard.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/grocery_item_editor_page.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/analytics_page.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/reports_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/catalog_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/grocery_list_page.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/home_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/pages/schedule_page.dart';
+
+// Create keys for `root` & `section` navigator avoiding unnecessary rebuilds
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _sectionNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Application router configuration using go_router
 ///
@@ -17,86 +21,105 @@ class AppRouter {
   /// Creates the router configuration
   static GoRouter get router => _router;
 
-  // Route names for the application
-  /// Home screen route name
-  static const String home = '/';
-
-  /// Grocery list screen route name
-  static const String groceryList = '/grocery-list';
-
-  /// Add/edit grocery item screen route name
-  static const String groceryItemEditor = '/grocery-item-editor';
-
-  /// Schedule list screen route name
-  static const String scheduleList = '/schedule-list';
-
-  /// Add/edit schedule screen route name
-  static const String scheduleDetail = '/schedule';
-
-  /// Reports screen route name
-  static const String reports = '/reports';
-
-  /// Price history screen route name
-  static const String priceHistory = '/price-history';
-
-  /// Catalog screen route name
-  static const String catalog = '/catalog';
-
   /// Private router instance
   static final _router = GoRouter(
-    initialLocation: home,
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: GroceryListPage.routePath,
     debugLogDiagnostics: true,
     routes: [
-      GoRoute(
-        path: home,
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
-        path: groceryList,
-        builder: (context, state) => GroceryListPage.create(),
-      ),
-      GoRoute(
-        path: groceryItemEditor,
-        builder: (context, state) {
-          final groceryBloc = state.extra as GroceryBloc;
+      // Main stateful shell route for the bottom navigation
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          // Return the widget that implements the custom shell (e.g a BottomNavigationBar).
+          // The [StatefulNavigationShell] is passed to be able to navigate to other branches in a stateful way.
+          return Dashboard(navigationShell: navigationShell);
+        },
+        branches: [
+          // Grocery List Branch
+          StatefulShellBranch(
+            navigatorKey: _sectionNavigatorKey,
+            routes: [
+              GoRoute(
+                path: GroceryListPage.routePath,
+                builder: (context, state) => const GroceryListShell(),
+                routes: [
+                  GoRoute(
+                    path: GroceryItemEditorPage.routePath,
+                    builder: (context, state) {
+                      final groceryBloc = state.extra as GroceryBloc;
+                      return BlocProvider<GroceryBloc>.value(
+                        value: groceryBloc,
+                        child: const GroceryItemEditorPage(),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
 
-          return BlocProvider<GroceryBloc>.value(
-            value: groceryBloc,
-            child: const GroceryItemEditorPage(),
-          );
-        },
-      ),
-      GoRoute(
-        path: scheduleList,
-        builder: (context, state) => const SchedulePage(),
-      ),
-      GoRoute(
-        path: '$scheduleDetail/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id'];
-          return Scaffold(
-            body: Center(
-              child: Text('Schedule Detail Screen for ID: $id - Implement me'),
-            ),
-          );
-        },
-      ),
-      GoRoute(
-        path: reports,
-        builder: (context, state) => const AnalyticsPage(),
-      ),
-      GoRoute(
-        path: '$priceHistory/:itemId',
-        builder: (context, state) {
-          final itemId = state.pathParameters['itemId'];
-          return Scaffold(
-            body: Center(child: Text('Price History Screen for Item ID: $itemId - Implement me')),
-          );
-        },
-      ),
-      GoRoute(
-        path: catalog,
-        builder: (context, state) => const CatalogPage(),
+          // Catalog Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: CatalogPage.routePath,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: CatalogPage(),
+                ),
+              ),
+            ],
+          ),
+
+          // Schedule Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: SchedulePage.routePath,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: SchedulePage(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id'];
+                      return Scaffold(
+                        body: Center(
+                          child: Text('Schedule Detail Screen for ID: $id - Implement me'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Reports Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: ReportsPage.routePath,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: ReportsPage(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'price-history/:itemId',
+                    builder: (context, state) {
+                      final itemId = state.pathParameters['itemId'];
+                      return Scaffold(
+                        body: Center(
+                          child: Text('Price History Screen for Item ID: $itemId - Implement me'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
@@ -105,4 +128,14 @@ class AppRouter {
       ),
     ),
   );
+}
+
+/// A simple wrapper for the GroceryListPage with BlocProvider
+class GroceryListShell extends StatelessWidget {
+  const GroceryListShell({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GroceryListPage.create();
+  }
 }

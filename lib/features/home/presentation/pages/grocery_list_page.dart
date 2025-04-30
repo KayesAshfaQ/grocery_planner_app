@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grocery_planner_app/config/routes/app_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/home/presentation/pages/grocery_item_editor_page.dart';
 import 'package:grocery_planner_app/features/home/presentation/widgets/grocery_item_card.dart';
 
 class GroceryListPage extends StatefulWidget {
   const GroceryListPage({super.key});
+
+  /// Route path for this page
+  static const String routePath = '/grocery-list';
 
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create() {
@@ -61,12 +64,12 @@ class _GroceryListPageState extends State<GroceryListPage> with SingleTickerProv
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.push(
-            AppRouter.groceryItemEditor,
+          // Updated to use route constants from the respective page files
+          context.go(
+            '${GroceryListPage.routePath}/${GroceryItemEditorPage.routePath}',
             extra: context.read<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
           );
         },
-        tooltip: 'Add Item',
         child: const Icon(Icons.add),
       ),
     );
