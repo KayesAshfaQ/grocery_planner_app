@@ -8,6 +8,17 @@ import 'package:grocery_planner_app/features/home/data/models/catalog_item_model
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
 import 'package:grocery_planner_app/features/home/data/models/grocery_item_model.dart';
+// Import the core database models
+import 'package:grocery_planner_app/core/db/model/category.dart';
+import 'package:grocery_planner_app/core/db/model/catalog_item.dart';
+import 'package:grocery_planner_app/core/db/model/price_history.dart';
+import 'package:grocery_planner_app/core/db/model/purchase_list.dart';
+import 'package:grocery_planner_app/core/db/model/purchase_list_item.dart';
+import 'package:grocery_planner_app/core/db/model/purchase_price_history.dart';
+import 'package:grocery_planner_app/core/db/model/purchase_schedule.dart';
+import 'package:grocery_planner_app/core/db/model/purchase_location.dart';
+import 'package:grocery_planner_app/core/db/model/recipe.dart';
+import 'package:grocery_planner_app/core/db/model/recipe_ingredient.dart';
 
 // Required for Floor to generate database
 part 'app_database.g.dart';
@@ -19,9 +30,22 @@ part 'app_database.g.dart';
 @Database(
   version: 1,
   entities: [
+    // Existing models
     CategorySpendingModel,
     GroceryItemModel,
     CatalogItemModel,
+
+    // Core database models
+    Category,
+    CatalogItem,
+    PriceHistory,
+    PurchaseList,
+    PurchaseListItem,
+    PurchasePriceHistory,
+    PurchaseSchedule,
+    PurchaseLocation,
+    Recipe,
+    RecipeIngredient,
   ],
 )
 abstract class AppDatabase extends FloorDatabase {
@@ -30,4 +54,10 @@ abstract class AppDatabase extends FloorDatabase {
 
   /// Access to catalog item data
   CatalogItemDao get catalogItemDao;
+
+  // You'll need to add DAO getters for your other models too
+  // For example:
+  // CategoryDao get categoryDao;
+  // PurchaseListDao get purchaseListDao;
+  // etc.
 }
