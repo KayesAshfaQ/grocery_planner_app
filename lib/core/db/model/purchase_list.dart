@@ -1,8 +1,26 @@
+import 'package:floor/floor.dart';
+
+/// Database model for purchase lists
+@Entity(tableName: 'purchase_lists')
 class PurchaseList {
+  /// Primary key identifier for the purchase list
+  @PrimaryKey(autoGenerate: true)
   final int? listId;
+
+  /// Name of the purchase list
+  @ColumnInfo(name: 'name')
   final String name;
+
+  /// Optional budget for this purchase list
+  @ColumnInfo(name: 'budget')
   final double? budget;
+
+  /// Optional note about this purchase list
+  @ColumnInfo(name: 'note')
   final String? note;
+
+  /// Timestamp when this list was created
+  @ColumnInfo(name: 'created_at')
   final DateTime createdAt;
 
   PurchaseList({

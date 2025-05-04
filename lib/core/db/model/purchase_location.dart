@@ -1,8 +1,26 @@
+import 'package:floor/floor.dart';
+
+/// Database model for purchase locations
+@Entity(tableName: 'purchase_locations')
 class PurchaseLocation {
+  /// Primary key identifier for the location
+  @PrimaryKey(autoGenerate: true)
   final int? locationId;
+
+  /// Foreign key reference to the purchase list this location is for
+  @ColumnInfo(name: 'list_id')
   final int listId;
+
+  /// Optional latitude coordinate
+  @ColumnInfo(name: 'latitude')
   final double? latitude;
+
+  /// Optional longitude coordinate
+  @ColumnInfo(name: 'longitude')
   final double? longitude;
+
+  /// Optional address information
+  @ColumnInfo(name: 'address')
   final String? address;
 
   PurchaseLocation({

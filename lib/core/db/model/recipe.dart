@@ -1,6 +1,18 @@
+import 'package:floor/floor.dart';
+
+/// Database model for recipes
+@Entity(tableName: 'recipes')
 class Recipe {
+  /// Primary key identifier for the recipe
+  @PrimaryKey(autoGenerate: true)
   final int? recipeId;
+
+  /// Title of the recipe
+  @ColumnInfo(name: 'title')
   final String title;
+
+  /// Optional cooking instructions
+  @ColumnInfo(name: 'instructions')
   final String? instructions;
 
   Recipe({

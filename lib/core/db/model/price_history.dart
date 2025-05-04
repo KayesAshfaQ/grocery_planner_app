@@ -1,7 +1,22 @@
+import 'package:floor/floor.dart';
+
+/// Database model for historical pricing data
+@Entity(tableName: 'price_history')
 class PriceHistory {
+  /// Primary key identifier for the price history record
+  @PrimaryKey(autoGenerate: true)
   final int? historyId;
+
+  /// Foreign key reference to the catalog item this price is associated with
+  @ColumnInfo(name: 'catalog_id')
   final int catalogId;
+
+  /// The recorded price value
+  @ColumnInfo(name: 'price')
   final double price;
+
+  /// Timestamp when this price was recorded
+  @ColumnInfo(name: 'recorded_at')
   final DateTime recordedAt;
 
   PriceHistory({
