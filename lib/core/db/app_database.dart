@@ -9,16 +9,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
 import 'package:grocery_planner_app/features/home/data/models/grocery_item_model.dart';
 // Import the core database models
-import 'package:grocery_planner_app/core/db/model/category.dart';
-import 'package:grocery_planner_app/core/db/model/catalog_item.dart';
-import 'package:grocery_planner_app/core/db/model/price_history.dart';
-import 'package:grocery_planner_app/core/db/model/purchase_list.dart';
-import 'package:grocery_planner_app/core/db/model/purchase_list_item.dart';
-import 'package:grocery_planner_app/core/db/model/purchase_price_history.dart';
-import 'package:grocery_planner_app/core/db/model/purchase_schedule.dart';
-import 'package:grocery_planner_app/core/db/model/purchase_location.dart';
-import 'package:grocery_planner_app/core/db/model/recipe.dart';
-import 'package:grocery_planner_app/core/db/model/recipe_ingredient.dart';
+import 'package:grocery_planner_app/core/db/model/index.dart';
 
 // Required for Floor to generate database
 part 'app_database.g.dart';
