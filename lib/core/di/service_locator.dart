@@ -1,24 +1,24 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:grocery_planner_app/features/home/data/datasources/catalog_data_source.dart';
-import 'package:grocery_planner_app/features/home/data/repositories/catalog_repository_impl.dart';
-import 'package:grocery_planner_app/features/home/domain/repositories/catalog_repository.dart';
-import 'package:grocery_planner_app/features/home/domain/usecases/catalog/get_catalog_items_usecase.dart';
-import 'package:grocery_planner_app/features/home/domain/usecases/catalog/get_categories_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/data/datasources/catalog_data_source.dart';
+import 'package:grocery_planner_app/features/dashboard/data/repositories/catalog_repository_impl.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/repositories/catalog_repository.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_categories_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/network/network_info.dart';
-import 'package:grocery_planner_app/features/home/data/datasources/grocery_data_source.dart';
-import 'package:grocery_planner_app/features/home/data/repositories/grocery_repository_impl.dart';
-import 'package:grocery_planner_app/features/home/domain/repositories/grocery_repository.dart';
-import 'package:grocery_planner_app/features/home/domain/usecases/grocery/add_grocery_item_usecase.dart';
-import 'package:grocery_planner_app/features/home/domain/usecases/grocery/get_grocery_item_usecase.dart';
-import 'package:grocery_planner_app/features/home/domain/usecases/grocery/mark_item_as_purchased_usecase.dart';
-import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
-import 'package:grocery_planner_app/features/home/presentation/blocs/grocery_editor/grocery_editor_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/data/datasources/grocery_data_source.dart';
+import 'package:grocery_planner_app/features/dashboard/data/repositories/grocery_repository_impl.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/repositories/grocery_repository.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_grocery_item_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/get_grocery_item_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/mark_item_as_purchased_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery_editor/grocery_editor_bloc.dart';
 
 final sl = GetIt.instance;
 

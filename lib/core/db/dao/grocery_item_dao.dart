@@ -1,6 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/core/db/dao/models/category_spending_model.dart';
-import 'package:grocery_planner_app/features/home/data/models/grocery_item_model.dart';
+import 'package:grocery_planner_app/features/dashboard/data/models/grocery_item_model.dart';
 
 /// Data Access Object for GroceryItem operations
 @dao

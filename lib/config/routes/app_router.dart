@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grocery_planner_app/features/home/presentation/blocs/grocery/grocery_bloc.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/dashboard.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/grocery_item_editor_page.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/reports_page.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/catalog_page.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/grocery_list_page.dart';
-import 'package:grocery_planner_app/features/home/presentation/pages/schedule_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_item_editor_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/catalog_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_list_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/schedule_page.dart';
 
 // Create keys for `root` & `section` navigator avoiding unnecessary rebuilds
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
