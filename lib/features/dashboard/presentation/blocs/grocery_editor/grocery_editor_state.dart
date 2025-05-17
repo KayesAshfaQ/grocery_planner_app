@@ -18,13 +18,13 @@ class GroceryEditorLoadingState extends GroceryEditorState {}
 /// State when editor data has been loaded successfully
 class GroceryEditorLoadedState extends GroceryEditorState {
   /// The list of categories
-  final List<String> categories;
+  final List<Category> categories;
 
   /// The list of catalog items
   final List<CatalogItem> catalogItems;
 
   /// The currently selected category
-  final String? selectedCategory;
+  final Category? selectedCategory;
 
   /// The currently selected catalog item
   final CatalogItem? selectedCatalogItem;
@@ -39,9 +39,9 @@ class GroceryEditorLoadedState extends GroceryEditorState {
 
   /// Creates a copy of this state with the given fields replaced
   GroceryEditorLoadedState copyWith({
-    List<String>? categories,
+    List<Category>? categories,
     List<CatalogItem>? catalogItems,
-    String? selectedCategory,
+    Category? selectedCategory,
     CatalogItem? selectedCatalogItem,
   }) {
     return GroceryEditorLoadedState(

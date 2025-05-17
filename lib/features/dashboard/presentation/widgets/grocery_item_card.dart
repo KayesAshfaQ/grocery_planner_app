@@ -55,7 +55,7 @@ class GroceryItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Category: ${groceryItem.category}',
+                        'Category: ${groceryItem.categoryId}',
                         style: theme.textTheme.bodyMedium,
                       ),
                     ],

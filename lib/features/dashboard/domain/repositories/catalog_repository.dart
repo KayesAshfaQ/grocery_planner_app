@@ -27,6 +27,4 @@ abstract class CatalogRepository {
   /// Delete a catalog item
   Future<Either<AppException, void>> deleteCatalogItem(String id);
 
-  /// Get all available categories
-  Future<Either<AppException, List<String>>> getCategories();
 }

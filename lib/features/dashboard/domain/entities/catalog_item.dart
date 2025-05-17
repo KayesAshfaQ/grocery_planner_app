@@ -17,8 +17,8 @@ class CatalogItem extends Equatable {
   /// Default unit of measurement for this item
   final String defaultUnit;
 
-  /// Category of the item (e.g., dairy, produce, meat)
-  final String category;
+  /// Id of the category
+  final int categoryId;
 
   /// Average market price (if known)
   final double? averagePrice;
@@ -32,7 +32,7 @@ class CatalogItem extends Equatable {
     required this.name,
     required this.availableUnits,
     required this.defaultUnit,
-    required this.category,
+    required this.categoryId,
     this.averagePrice,
     this.imageUrl,
   });
@@ -42,7 +42,7 @@ class CatalogItem extends Equatable {
         id,
         name,
         availableUnits,
-        category,
+        categoryId,
         averagePrice,
         imageUrl,
       ];

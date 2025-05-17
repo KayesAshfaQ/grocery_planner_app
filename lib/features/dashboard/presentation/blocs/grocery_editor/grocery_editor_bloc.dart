@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_categories_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_grocery_item_usecase.dart';
 
 part 'grocery_editor_event.dart';
@@ -26,6 +27,8 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
     on<LoadCategoriesAndCatalogItemsEvent>(_onLoadCategoriesAndCatalogItems);
     on<SelectCatalogItemEvent>(_onSelectCatalogItem);
     on<SelectCategoryEvent>(_onSelectCategory);
+    on<FindCategoryByIdEvent>(_onFindCategoryById);
+    on<InsertCategoryEvent>(_onInsertCategory);
     on<AddGroceryItemEvent>(_onAddGroceryItem);
   }
 
@@ -39,8 +42,8 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
       final categoriesResult = await getCategoriesUsecase();
       final catalogItemsResult = await getCatalogItemsUsecase();
 
-      List<String> categories = [];
-      String? selectedCategory;
+      List<Category> categories = [];
+      Category? selectedCategory;
       List<CatalogItem> catalogItems = [];
 
       catalogItemsResult.fold(
@@ -89,6 +92,29 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
     if (state is GroceryEditorLoadedState) {
       final currentState = state as GroceryEditorLoadedState;
       emit(currentState.copyWith(selectedCategory: event.category));
+    }
+  }
+
+  FutureOr<void> _onFindCategoryById(
+    FindCategoryByIdEvent event,
+    Emitter<GroceryEditorState> emit,
+  ) async {
+    if (state is GroceryEditorLoadedState) {
+      final currentState = state as GroceryEditorLoadedState;
+      final category = currentState.categories.firstWhere((category) => category.id == event.categoryId);
+      emit(currentState.copyWith(selectedCategory: category));
+    }
+  }
+
+  FutureOr<void> _onInsertCategory(
+    InsertCategoryEvent event,
+    Emitter<GroceryEditorState> emit,
+  ) async {
+    if (state is GroceryEditorLoadedState) {
+      final currentState = state as GroceryEditorLoadedState;
+      final newCategory = Category(name: event.name);
+      final updatedCategories = List<Category>.from(currentState.categories)..add(newCategory);
+      emit(currentState.copyWith(categories: updatedCategories));
     }
   }
 

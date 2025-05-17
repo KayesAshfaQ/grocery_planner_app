@@ -17,7 +17,7 @@ class PurchasePriceHistory {
 
   /// Timestamp when this price was recorded
   @ColumnInfo(name: 'recorded_at')
-  final DateTime recordedAt;
+  final String recordedAt;
 
   PurchasePriceHistory({
     this.historyId,
@@ -31,7 +31,7 @@ class PurchasePriceHistory {
       'history_id': historyId,
       'item_id': itemId,
       'price': price,
-      'recorded_at': recordedAt.toIso8601String(),
+      'recorded_at': recordedAt,
     };
   }
 
@@ -40,7 +40,7 @@ class PurchasePriceHistory {
       historyId: map['history_id'],
       itemId: map['item_id'],
       price: map['price'],
-      recordedAt: DateTime.parse(map['recorded_at']),
+      recordedAt: map['recorded_at'],
     );
   }
 }

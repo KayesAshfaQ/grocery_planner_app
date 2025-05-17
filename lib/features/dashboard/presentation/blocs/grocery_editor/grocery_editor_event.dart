@@ -27,13 +27,37 @@ class SelectCatalogItemEvent extends GroceryEditorEvent {
 /// Event to select a category
 class SelectCategoryEvent extends GroceryEditorEvent {
   /// The selected category
-  final String category;
+  final Category category;
 
   /// Creates a new event to select a category
   const SelectCategoryEvent({required this.category});
 
   @override
   List<Object> get props => [category];
+}
+
+/// Event to find a category by ID
+class FindCategoryByIdEvent extends GroceryEditorEvent {
+  /// The ID of the category to find
+  final int categoryId;
+
+  /// Creates a new event to find a category by ID
+  const FindCategoryByIdEvent({required this.categoryId});
+
+  @override
+  List<Object> get props => [categoryId];
+}
+
+/// Event to insert a new category
+class InsertCategoryEvent extends GroceryEditorEvent {
+  /// The name of the category to insert
+  final String name;
+
+  /// Creates a new event to insert a category
+  const InsertCategoryEvent({required this.name});
+
+  @override
+  List<Object> get props => [name];
 }
 
 

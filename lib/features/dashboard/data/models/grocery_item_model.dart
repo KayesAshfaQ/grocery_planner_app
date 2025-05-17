@@ -1,17 +1,15 @@
-
 import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
 
 @Entity(tableName: 'grocery_items')
 class GroceryItemModel {
-
   /// Primary key
   @primaryKey
   final String id;
 
   /// Name of the grocery item
   final String name;
-  
+
   /// Quantity of the grocery item
   final double quantity;
 
@@ -21,8 +19,8 @@ class GroceryItemModel {
   /// Price per unit
   final double unitPrice;
 
-  /// Category of the item
-  final String category;
+  /// Id of the category
+  final int categoryId;
 
   /// Optional note about the item
   final String? note;
@@ -46,7 +44,7 @@ class GroceryItemModel {
     required this.quantity,
     required this.unit,
     required this.unitPrice,
-    required this.category,
+    required this.categoryId,
     this.note,
     required this.isPurchased,
     required this.createdAtMillis,
@@ -62,13 +60,11 @@ class GroceryItemModel {
       quantity: quantity,
       unit: unit,
       unitPrice: unitPrice,
-      category: category,
+      categoryId: categoryId,
       note: note ?? '',
       isPurchased: isPurchased,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMillis),
-      purchasedAt: purchasedAtMillis != null
-          ? DateTime.fromMillisecondsSinceEpoch(purchasedAtMillis!)
-          : null,
+      purchasedAt: purchasedAtMillis != null ? DateTime.fromMillisecondsSinceEpoch(purchasedAtMillis!) : null,
       purchasedPrice: purchasedPrice,
     );
   }
@@ -81,7 +77,7 @@ class GroceryItemModel {
       quantity: entity.quantity,
       unit: entity.unit,
       unitPrice: entity.unitPrice,
-      category: entity.category,
+      categoryId: entity.categoryId,
       note: entity.note,
       isPurchased: entity.isPurchased,
       createdAtMillis: entity.createdAt.millisecondsSinceEpoch,

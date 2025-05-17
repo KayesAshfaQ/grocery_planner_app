@@ -17,8 +17,8 @@ class CatalogItemModel {
   /// Default unit of measurement for this item
   final String defaultUnit;
 
-  /// Category of the item
-  final String category;
+  /// Id of the category
+  final int categoryId;
 
   /// Average market price (nullable)
   final double? averagePrice;
@@ -32,7 +32,7 @@ class CatalogItemModel {
     required this.name,
     required this.availableUnitsCSV,
     required this.defaultUnit,
-    required this.category,
+    required this.categoryId,
     this.averagePrice,
     this.imageUrl,
   });
@@ -44,7 +44,7 @@ class CatalogItemModel {
       name: name,
       availableUnits: availableUnitsCSV.split(','),
       defaultUnit: defaultUnit,
-      category: category,
+      categoryId: categoryId,
       averagePrice: averagePrice,
       imageUrl: imageUrl,
     );
@@ -57,7 +57,7 @@ class CatalogItemModel {
       name: entity.name,
       availableUnitsCSV: entity.availableUnits.join(','),
       defaultUnit: entity.defaultUnit,
-      category: entity.category,
+      categoryId: entity.categoryId,
       averagePrice: entity.averagePrice,
       imageUrl: entity.imageUrl,
     );

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/models/category_spending_model.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
@@ -14,6 +15,10 @@ import 'package:grocery_planner_app/core/db/model/index.dart';
 // Required for Floor to generate database
 part 'app_database.g.dart';
 
+@TypeConverters([
+  // Add your type converters here
+  DateTimeConverter,
+])
 /// The main database for the grocery planner app
 ///
 /// This database contains tables for grocery items, shopping schedules,

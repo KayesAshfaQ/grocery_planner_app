@@ -41,7 +41,7 @@ class PurchaseListItem {
 
   /// Timestamp when the item was marked as purchased (nullable)
   @ColumnInfo(name: 'purchased_at')
-  final DateTime? purchasedAt;
+  final String? purchasedAt;
 
   PurchaseListItem({
     this.itemId,
@@ -67,7 +67,7 @@ class PurchaseListItem {
       'total_price': totalPrice,
       'note': note,
       'is_purchased': isPurchased ? 1 : 0,
-      'purchased_at': purchasedAt?.toIso8601String(),
+      'purchased_at': purchasedAt,
     };
   }
 
@@ -82,7 +82,7 @@ class PurchaseListItem {
       totalPrice: map['total_price'],
       note: map['note'],
       isPurchased: map['is_purchased'] == 1,
-      purchasedAt: map['purchased_at'] != null ? DateTime.parse(map['purchased_at']) : null,
+      purchasedAt: map['purchased_at'] != null ? map['purchased_at'] : null,
     );
   }
 }

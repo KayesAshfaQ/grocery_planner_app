@@ -24,7 +24,7 @@ class GroceryItem extends Equatable {
   final double totalPrice;
 
   /// Category of the item (e.g., dairy, produce, meat)
-  final String category;
+  final int categoryId;
 
   /// Optional note about the item
   final String note;
@@ -48,7 +48,7 @@ class GroceryItem extends Equatable {
     required this.quantity,
     required this.unit,
     required this.unitPrice,
-    required this.category,
+    required this.categoryId,
     this.note = '',
     this.isPurchased = false,
     required this.createdAt,
@@ -63,7 +63,7 @@ class GroceryItem extends Equatable {
     double? quantity,
     String? unit,
     double? unitPrice,
-    String? category,
+    int? categoryId,
     String? note,
     bool? isPurchased,
     DateTime? createdAt,
@@ -76,7 +76,7 @@ class GroceryItem extends Equatable {
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
       unitPrice: unitPrice ?? this.unitPrice,
-      category: category ?? this.category,
+      categoryId: categoryId ?? this.categoryId,
       note: note ?? this.note,
       isPurchased: isPurchased ?? this.isPurchased,
       createdAt: createdAt ?? this.createdAt,
@@ -102,7 +102,7 @@ class GroceryItem extends Equatable {
         unit,
         unitPrice,
         totalPrice,
-        category,
+        categoryId,
         note,
         isPurchased,
         createdAt,

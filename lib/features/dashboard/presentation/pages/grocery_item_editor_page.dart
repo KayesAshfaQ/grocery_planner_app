@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
@@ -46,7 +47,7 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     _nameController.text = item.name;
     _unitController.text = item.defaultUnit;
     _priceController.text = item.averagePrice.toString();
-    editorBloc.add(SelectCategoryEvent(category: item.category));
+    editorBloc.add(FindCategoryByIdEvent(categoryId: item.categoryId));
   }
 
   void _submitForm(BuildContext context, GroceryEditorLoadedState state) {
@@ -66,7 +67,7 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
             item: GroceryItem(
               id: const Uuid().v4(),
               name: name,
-              category: category,
+              categoryId: category.id!,
               quantity: quantity,
               unit: unit,
               unitPrice: price,
@@ -212,18 +213,18 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
 
   Widget _buildCategoryDropdown(BuildContext context, GroceryEditorLoadedState state) {
     final editorBloc = context.read<GroceryEditorBloc>();
-    return Autocomplete<String>(
+    return Autocomplete<Category>(
       optionsBuilder: (TextEditingValue textEditingValue) {
         if (textEditingValue.text.isEmpty) {
           return state.categories;
         }
-        return state.categories.where((category) => category.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+        return state.categories.where((category) => category.name.toLowerCase().contains(textEditingValue.text.toLowerCase()));
       },
-      onSelected: (String selectedCategory) {
+      onSelected: (Category selectedCategory) {
         editorBloc.add(SelectCategoryEvent(category: selectedCategory));
       },
       fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
-        textEditingController.text = state.selectedCategory ?? '';
+        textEditingController.text = state.selectedCategory?.name ?? '';
         return TextField(
           controller: textEditingController,
           focusNode: focusNode,
@@ -232,13 +233,13 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
             border: OutlineInputBorder(),
           ),
           onChanged: (value) {
-            if (!state.categories.contains(value)) {
-              editorBloc.add(SelectCategoryEvent(category: value));
+            if (!state.categories.map((category) => category.name).contains(value)) {
+              editorBloc.add(InsertCategoryEvent(name: value));
             }
           },
         );
       },
-      optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+      optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<Category> onSelected, Iterable<Category> options) {
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
@@ -247,9 +248,9 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
               child: ListView.builder(
                 itemCount: options.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final String option = options.elementAt(index);
+                  final Category option = options.elementAt(index);
                   return ListTile(
-                    title: Text(option),
+                    title: Text(option.name),
                     onTap: () => onSelected(option),
                   );
                 },

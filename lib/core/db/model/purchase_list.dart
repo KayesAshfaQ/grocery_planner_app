@@ -21,7 +21,7 @@ class PurchaseList {
 
   /// Timestamp when this list was created
   @ColumnInfo(name: 'created_at')
-  final DateTime createdAt;
+  final String createdAt;
 
   PurchaseList({
     this.listId,
@@ -37,7 +37,7 @@ class PurchaseList {
       'name': name,
       'budget': budget,
       'note': note,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt,
     };
   }
 
@@ -47,7 +47,7 @@ class PurchaseList {
       name: map['name'],
       budget: map['budget'],
       note: map['note'],
-      createdAt: DateTime.parse(map['created_at']),
+      createdAt: map['created_at'],
     );
   }
 }

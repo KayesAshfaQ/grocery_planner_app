@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 
 /// Database model for scheduled purchases
 @Entity(tableName: 'purchase_schedules')
@@ -13,17 +14,19 @@ class PurchaseSchedule {
 
   /// The planned market date
   @ColumnInfo(name: 'market_date')
+  @TypeConverters([DateTimeConverter])
   final DateTime marketDate;
 
   /// Optional notification timestamp
   @ColumnInfo(name: 'notify_at')
-  final DateTime? notifyAt;
+  @TypeConverters([DateTimeConverter])
+  final DateTime notifyAt;
 
   PurchaseSchedule({
     this.scheduleId,
     required this.listId,
     required this.marketDate,
-    this.notifyAt,
+    required this.notifyAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -31,7 +34,7 @@ class PurchaseSchedule {
       'schedule_id': scheduleId,
       'list_id': listId,
       'market_date': marketDate.toIso8601String().split('T')[0], // Just the date part
-      'notify_at': notifyAt?.toIso8601String(),
+      'notify_at': notifyAt.toIso8601String(),
     };
   }
 
@@ -40,7 +43,7 @@ class PurchaseSchedule {
       scheduleId: map['schedule_id'],
       listId: map['list_id'],
       marketDate: DateTime.parse(map['market_date']),
-      notifyAt: map['notify_at'] != null ? DateTime.parse(map['notify_at']) : null,
+      notifyAt: DateTime.parse(map['notify_at']),
     );
   }
 }

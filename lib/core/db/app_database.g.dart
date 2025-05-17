@@ -100,9 +100,29 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `CategorySpendingModel` (`id` TEXT NOT NULL, `category` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `grocery_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` REAL NOT NULL, `unit` TEXT NOT NULL, `unitPrice` REAL NOT NULL, `category` TEXT NOT NULL, `note` TEXT, `isPurchased` INTEGER NOT NULL, `createdAtMillis` INTEGER NOT NULL, `purchasedAtMillis` INTEGER, `purchasedPrice` REAL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `grocery_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` REAL NOT NULL, `unit` TEXT NOT NULL, `unitPrice` REAL NOT NULL, `categoryId` INTEGER NOT NULL, `note` TEXT, `isPurchased` INTEGER NOT NULL, `createdAtMillis` INTEGER NOT NULL, `purchasedAtMillis` INTEGER, `purchasedPrice` REAL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `catalog_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `availableUnitsCSV` TEXT NOT NULL, `defaultUnit` TEXT NOT NULL, `category` TEXT NOT NULL, `averagePrice` REAL, `imageUrl` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `catalog_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `availableUnitsCSV` TEXT NOT NULL, `defaultUnit` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, `averagePrice` REAL, `imageUrl` TEXT, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `categories` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `description` TEXT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `catalog_items` (`catalogId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `default_unit` TEXT NOT NULL, `barcode` TEXT, `category_id` INTEGER)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `price_history` (`historyId` INTEGER PRIMARY KEY AUTOINCREMENT, `catalog_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`listId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `budget` REAL, `note` TEXT, `created_at` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `purchase_list_items` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `catalog_id` INTEGER, `custom_name` TEXT, `quantity` REAL NOT NULL, `unit_price` REAL, `total_price` REAL, `note` TEXT, `is_purchased` INTEGER NOT NULL, `purchased_at` TEXT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `purchase_price_history` (`historyId` INTEGER PRIMARY KEY AUTOINCREMENT, `item_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `purchase_schedules` (`scheduleId` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `market_date` INTEGER NOT NULL, `notify_at` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `purchase_locations` (`locationId` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `latitude` REAL, `longitude` REAL, `address` TEXT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `recipes` (`recipeId` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `instructions` TEXT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `recipe_ingredients` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `recipe_id` INTEGER NOT NULL, `catalog_id` INTEGER NOT NULL, `quantity` REAL, `unit` TEXT)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -137,7 +157,7 @@ class _$GroceryItemDao extends GroceryItemDao {
                   'quantity': item.quantity,
                   'unit': item.unit,
                   'unitPrice': item.unitPrice,
-                  'category': item.category,
+                  'categoryId': item.categoryId,
                   'note': item.note,
                   'isPurchased': item.isPurchased ? 1 : 0,
                   'createdAtMillis': item.createdAtMillis,
@@ -154,7 +174,7 @@ class _$GroceryItemDao extends GroceryItemDao {
                   'quantity': item.quantity,
                   'unit': item.unit,
                   'unitPrice': item.unitPrice,
-                  'category': item.category,
+                  'categoryId': item.categoryId,
                   'note': item.note,
                   'isPurchased': item.isPurchased ? 1 : 0,
                   'createdAtMillis': item.createdAtMillis,
@@ -171,7 +191,7 @@ class _$GroceryItemDao extends GroceryItemDao {
                   'quantity': item.quantity,
                   'unit': item.unit,
                   'unitPrice': item.unitPrice,
-                  'category': item.category,
+                  'categoryId': item.categoryId,
                   'note': item.note,
                   'isPurchased': item.isPurchased ? 1 : 0,
                   'createdAtMillis': item.createdAtMillis,
@@ -201,7 +221,7 @@ class _$GroceryItemDao extends GroceryItemDao {
             quantity: row['quantity'] as double,
             unit: row['unit'] as String,
             unitPrice: row['unitPrice'] as double,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             note: row['note'] as String?,
             isPurchased: (row['isPurchased'] as int) != 0,
             createdAtMillis: row['createdAtMillis'] as int,
@@ -213,7 +233,7 @@ class _$GroceryItemDao extends GroceryItemDao {
   Future<List<GroceryItemModel>> getItemsByStatus(bool isPurchased) async {
     return _queryAdapter.queryList(
         'SELECT * FROM grocery_items WHERE isPurchased = ?1 ORDER BY createdAtMillis DESC',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(id: row['id'] as String, name: row['name'] as String, quantity: row['quantity'] as double, unit: row['unit'] as String, unitPrice: row['unitPrice'] as double, category: row['category'] as String, note: row['note'] as String?, isPurchased: (row['isPurchased'] as int) != 0, createdAtMillis: row['createdAtMillis'] as int, purchasedAtMillis: row['purchasedAtMillis'] as int?, purchasedPrice: row['purchasedPrice'] as double?),
+        mapper: (Map<String, Object?> row) => GroceryItemModel(id: row['id'] as String, name: row['name'] as String, quantity: row['quantity'] as double, unit: row['unit'] as String, unitPrice: row['unitPrice'] as double, categoryId: row['categoryId'] as int, note: row['note'] as String?, isPurchased: (row['isPurchased'] as int) != 0, createdAtMillis: row['createdAtMillis'] as int, purchasedAtMillis: row['purchasedAtMillis'] as int?, purchasedPrice: row['purchasedPrice'] as double?),
         arguments: [isPurchased ? 1 : 0]);
   }
 
@@ -226,7 +246,7 @@ class _$GroceryItemDao extends GroceryItemDao {
             quantity: row['quantity'] as double,
             unit: row['unit'] as String,
             unitPrice: row['unitPrice'] as double,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             note: row['note'] as String?,
             isPurchased: (row['isPurchased'] as int) != 0,
             createdAtMillis: row['createdAtMillis'] as int,
@@ -245,7 +265,7 @@ class _$GroceryItemDao extends GroceryItemDao {
   Future<List<GroceryItemModel>> getItemsByCategory(String category) async {
     return _queryAdapter.queryList(
         'SELECT * FROM grocery_items WHERE category = ?1 ORDER BY createdAtMillis DESC',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(id: row['id'] as String, name: row['name'] as String, quantity: row['quantity'] as double, unit: row['unit'] as String, unitPrice: row['unitPrice'] as double, category: row['category'] as String, note: row['note'] as String?, isPurchased: (row['isPurchased'] as int) != 0, createdAtMillis: row['createdAtMillis'] as int, purchasedAtMillis: row['purchasedAtMillis'] as int?, purchasedPrice: row['purchasedPrice'] as double?),
+        mapper: (Map<String, Object?> row) => GroceryItemModel(id: row['id'] as String, name: row['name'] as String, quantity: row['quantity'] as double, unit: row['unit'] as String, unitPrice: row['unitPrice'] as double, categoryId: row['categoryId'] as int, note: row['note'] as String?, isPurchased: (row['isPurchased'] as int) != 0, createdAtMillis: row['createdAtMillis'] as int, purchasedAtMillis: row['purchasedAtMillis'] as int?, purchasedPrice: row['purchasedPrice'] as double?),
         arguments: [category]);
   }
 
@@ -262,7 +282,7 @@ class _$GroceryItemDao extends GroceryItemDao {
             quantity: row['quantity'] as double,
             unit: row['unit'] as String,
             unitPrice: row['unitPrice'] as double,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             note: row['note'] as String?,
             isPurchased: (row['isPurchased'] as int) != 0,
             createdAtMillis: row['createdAtMillis'] as int,
@@ -312,7 +332,7 @@ class _$CatalogItemDao extends CatalogItemDao {
                   'name': item.name,
                   'availableUnitsCSV': item.availableUnitsCSV,
                   'defaultUnit': item.defaultUnit,
-                  'category': item.category,
+                  'categoryId': item.categoryId,
                   'averagePrice': item.averagePrice,
                   'imageUrl': item.imageUrl
                 }),
@@ -325,7 +345,7 @@ class _$CatalogItemDao extends CatalogItemDao {
                   'name': item.name,
                   'availableUnitsCSV': item.availableUnitsCSV,
                   'defaultUnit': item.defaultUnit,
-                  'category': item.category,
+                  'categoryId': item.categoryId,
                   'averagePrice': item.averagePrice,
                   'imageUrl': item.imageUrl
                 }),
@@ -338,7 +358,7 @@ class _$CatalogItemDao extends CatalogItemDao {
                   'name': item.name,
                   'availableUnitsCSV': item.availableUnitsCSV,
                   'defaultUnit': item.defaultUnit,
-                  'category': item.category,
+                  'categoryId': item.categoryId,
                   'averagePrice': item.averagePrice,
                   'imageUrl': item.imageUrl
                 });
@@ -364,7 +384,7 @@ class _$CatalogItemDao extends CatalogItemDao {
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             averagePrice: row['averagePrice'] as double?,
             imageUrl: row['imageUrl'] as String?));
   }
@@ -377,7 +397,7 @@ class _$CatalogItemDao extends CatalogItemDao {
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             averagePrice: row['averagePrice'] as double?,
             imageUrl: row['imageUrl'] as String?),
         arguments: [id]);
@@ -398,7 +418,7 @@ class _$CatalogItemDao extends CatalogItemDao {
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             averagePrice: row['averagePrice'] as double?,
             imageUrl: row['imageUrl'] as String?),
         arguments: [category]);
@@ -413,7 +433,7 @@ class _$CatalogItemDao extends CatalogItemDao {
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
-            category: row['category'] as String,
+            categoryId: row['categoryId'] as int,
             averagePrice: row['averagePrice'] as double?,
             imageUrl: row['imageUrl'] as String?),
         arguments: [query]);
@@ -450,3 +470,6 @@ class _$CatalogItemDao extends CatalogItemDao {
     await _catalogItemModelDeletionAdapter.delete(item);
   }
 }
+
+// ignore_for_file: unused_element
+final _dateTimeConverter = DateTimeConverter();
