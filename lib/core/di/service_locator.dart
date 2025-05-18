@@ -2,8 +2,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grocery_planner_app/features/dashboard/data/datasources/catalog_data_source.dart';
+import 'package:grocery_planner_app/features/dashboard/data/datasources/category_data_source.dart';
 import 'package:grocery_planner_app/features/dashboard/data/repositories/catalog_repository_impl.dart';
+import 'package:grocery_planner_app/features/dashboard/data/repositories/category_repository_impl.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/repositories/catalog_repository.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/repositories/category_repository.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,8 +36,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   // dio.interceptors.add(LogInterceptor(responseBody: true));
 
   sl.registerLazySingleton<Dio>(() => dio);
-  sl.registerLazySingleton<ApiClient>(
-      () => ApiClient(dio: sl(), baseUrl: 'https://yourapi.com/api'));
+  sl.registerLazySingleton<ApiClient>(() => ApiClient(dio: sl(), baseUrl: 'https://yourapi.com/api'));
 
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -48,6 +50,9 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerLazySingleton<CatalogDataSource>(
     () => CatalogLocalDataSourceImpl(catalogItemDao: database.catalogItemDao),
   );
+  sl.registerLazySingleton<CategoryDataSource>(
+    () => CategoryLocalDataSourceImpl(categoryItemDao: database.categoryItemDao),
+  );
 
   // Repositories
   sl.registerLazySingleton<GroceryRepository>(
@@ -56,14 +61,16 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerLazySingleton<CatalogRepository>(
     () => CatalogRepositoryImpl(dataSource: sl()),
   );
-
+  sl.registerLazySingleton<CategoryRepository>(
+    () => CategoryRepositoryImpl(dataSource: sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => GetGroceryItemsUsecase(sl()));
   sl.registerLazySingleton(() => MarkItemAsPurchasedUsecase(sl()));
-  sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
-  sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => AddGroceryItemUsecase(sl()));
+  sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
+  sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
 
   // Blocs/Cubits
   sl.registerFactory(() => GroceryBloc(
