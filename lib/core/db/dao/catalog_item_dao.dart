@@ -29,8 +29,7 @@ abstract class CatalogItemDao {
   Future<void> deleteItemById(String id);
 
   /// Get catalog items by category
-  @Query(
-      'SELECT * FROM catalog_items WHERE category = :category ORDER BY name ASC')
+  @Query('SELECT * FROM catalog_items WHERE category = :category ORDER BY name ASC')
   Future<List<CatalogItemModel>> getItemsByCategory(String category);
 
   /// Search catalog items by name

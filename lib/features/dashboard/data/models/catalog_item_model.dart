@@ -6,7 +6,7 @@ import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_i
 class CatalogItemModel {
   /// Primary key
   @primaryKey
-  final String id;
+  final int id;
 
   /// Name of the grocery item
   final String name;

@@ -24,9 +24,6 @@ abstract class CatalogDataSource {
 
   /// Deletes a catalog item from db
   Future<void> deleteCatalog(String id);
-
-  /// Fetches all available categories from db
-  Future<List<String>> getCategories();
 }
 
 class CatalogLocalDataSourceImpl extends CatalogDataSource {
@@ -75,15 +72,6 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
   Future<List<CatalogItem>> getCatalogsByCategory(String category) {
     // TODO: implement getCatalogsByCategory
     throw UnimplementedError();
-  }
-
-  @override
-  Future<List<String>> getCategories() async {
-    try {
-      return await catalogItemDao.getAllCategories();
-    } catch (e) {
-      throw Exception('Failed to fetch categories: $e');
-    }
   }
 
   @override

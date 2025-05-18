@@ -12,29 +12,6 @@ class CatalogRepositoryImpl implements CatalogRepository {
   });
 
   @override
-  Future<Either<AppException, CatalogItem>> addCatalogItem(
-      CatalogItem item) async {
-    try {
-      final result = await dataSource.addCatalog(item);
-      return Right(result);
-    } catch (e) {
-      return Left(AppException(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<AppException, void>> deleteCatalogItem(String id) {
-    // TODO: implement deleteCatalogItem
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<AppException, CatalogItem>> getCatalogItemById(String id) {
-    // TODO: implement getCatalogItemById
-    throw UnimplementedError();
-  }
-
-  @override
   Future<Either<AppException, List<CatalogItem>>> getCatalogItems() async {
     try {
       final catalogItems = await dataSource.getCatalogs();
@@ -45,33 +22,42 @@ class CatalogRepositoryImpl implements CatalogRepository {
   }
 
   @override
-  Future<Either<AppException, List<CatalogItem>>> getCatalogItemsByCategory(
-      String category) {
+  Future<Either<AppException, List<CatalogItem>>> getCatalogItemsByCategory(String category) {
     // TODO: implement getCatalogItemsByCategory
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, List<String>>> getCategories() async {
+  Future<Either<AppException, List<CatalogItem>>> searchCatalogItems(String query) {
+    // TODO: implement searchCatalogItems
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<AppException, CatalogItem>> getCatalogItemById(String id) {
+    // TODO: implement getCatalogItemById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<AppException, CatalogItem>> addCatalogItem(CatalogItem item) async {
     try {
-      final categories = await dataSource.getCategories();
-      return Right(categories);
+      final result = await dataSource.addCatalog(item);
+      return Right(result);
     } catch (e) {
       return Left(AppException(message: e.toString()));
     }
   }
 
   @override
-  Future<Either<AppException, List<CatalogItem>>> searchCatalogItems(
-      String query) {
-    // TODO: implement searchCatalogItems
+  Future<Either<AppException, CatalogItem>> updateCatalogItem(CatalogItem item) {
+    // TODO: implement updateCatalogItem
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, CatalogItem>> updateCatalogItem(
-      CatalogItem item) {
-    // TODO: implement updateCatalogItem
+  Future<Either<AppException, void>> deleteCatalogItem(String id) {
+    // TODO: implement deleteCatalogItem
     throw UnimplementedError();
   }
 }
