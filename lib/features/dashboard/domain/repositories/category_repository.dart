@@ -7,10 +7,6 @@ abstract class CategoryRepository {
   /// Get all categories
   Future<Either<AppException, List<Category>>> getCategories();
 
-  /// Get categories by parent category
-  Future<Either<AppException, List<Category>>> getCategoriesByParent(
-      String parentId);
-
   /// Search categories by name
   Future<Either<AppException, List<Category>>> searchCategories(
       String query);

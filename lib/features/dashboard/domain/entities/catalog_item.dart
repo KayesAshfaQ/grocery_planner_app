@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 /// that users can select from when adding items to their shopping list.
 class CatalogItem extends Equatable {
   /// Unique identifier for the catalog item
-  final String id;
+  final int id;
 
   /// Name of the grocery item
   final String name;

@@ -76,6 +76,8 @@ class _$AppDatabase extends AppDatabase {
 
   CatalogItemDao? _catalogItemDaoInstance;
 
+  CategoryDao? _categoryItemDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -102,7 +104,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `grocery_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` REAL NOT NULL, `unit` TEXT NOT NULL, `unitPrice` REAL NOT NULL, `categoryId` INTEGER NOT NULL, `note` TEXT, `isPurchased` INTEGER NOT NULL, `createdAtMillis` INTEGER NOT NULL, `purchasedAtMillis` INTEGER, `purchasedPrice` REAL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `catalog_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `availableUnitsCSV` TEXT NOT NULL, `defaultUnit` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, `averagePrice` REAL, `imageUrl` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `catalog_items` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `availableUnitsCSV` TEXT NOT NULL, `defaultUnit` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, `averagePrice` REAL, `imageUrl` TEXT, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `category` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `imageUrl` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `categories` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `description` TEXT)');
         await database.execute(
@@ -140,6 +144,11 @@ class _$AppDatabase extends AppDatabase {
   CatalogItemDao get catalogItemDao {
     return _catalogItemDaoInstance ??=
         _$CatalogItemDao(database, changeListener);
+  }
+
+  @override
+  CategoryDao get categoryItemDao {
+    return _categoryItemDaoInstance ??= _$CategoryDao(database, changeListener);
   }
 }
 
@@ -380,7 +389,7 @@ class _$CatalogItemDao extends CatalogItemDao {
     return _queryAdapter.queryList(
         'SELECT * FROM catalog_items ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as String,
+            id: row['id'] as int,
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
@@ -393,7 +402,7 @@ class _$CatalogItemDao extends CatalogItemDao {
   Future<CatalogItemModel?> getItemById(String id) async {
     return _queryAdapter.query('SELECT * FROM catalog_items WHERE id = ?1',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as String,
+            id: row['id'] as int,
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
@@ -414,7 +423,7 @@ class _$CatalogItemDao extends CatalogItemDao {
     return _queryAdapter.queryList(
         'SELECT * FROM catalog_items WHERE category = ?1 ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as String,
+            id: row['id'] as int,
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
@@ -429,7 +438,7 @@ class _$CatalogItemDao extends CatalogItemDao {
     return _queryAdapter.queryList(
         'SELECT * FROM catalog_items WHERE name LIKE ?1 ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as String,
+            id: row['id'] as int,
             name: row['name'] as String,
             availableUnitsCSV: row['availableUnitsCSV'] as String,
             defaultUnit: row['defaultUnit'] as String,
@@ -468,6 +477,134 @@ class _$CatalogItemDao extends CatalogItemDao {
   @override
   Future<void> deleteItem(CatalogItemModel item) async {
     await _catalogItemModelDeletionAdapter.delete(item);
+  }
+}
+
+class _$CategoryDao extends CategoryDao {
+  _$CategoryDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _categoryModelInsertionAdapter = InsertionAdapter(
+            database,
+            'category',
+            (CategoryModel item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'imageUrl': item.imageUrl
+                }),
+        _categoryModelUpdateAdapter = UpdateAdapter(
+            database,
+            'category',
+            ['id'],
+            (CategoryModel item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'imageUrl': item.imageUrl
+                }),
+        _categoryModelDeletionAdapter = DeletionAdapter(
+            database,
+            'category',
+            ['id'],
+            (CategoryModel item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'imageUrl': item.imageUrl
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<CategoryModel> _categoryModelInsertionAdapter;
+
+  final UpdateAdapter<CategoryModel> _categoryModelUpdateAdapter;
+
+  final DeletionAdapter<CategoryModel> _categoryModelDeletionAdapter;
+
+  @override
+  Future<List<CategoryModel>> getAllItems() async {
+    return _queryAdapter.queryList('SELECT * FROM category ORDER BY name ASC',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            imageUrl: row['imageUrl'] as String?));
+  }
+
+  @override
+  Future<CategoryModel?> getItemById(String id) async {
+    return _queryAdapter.query('SELECT * FROM category WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            imageUrl: row['imageUrl'] as String?),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> deleteItemById(String id) async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM category WHERE id = ?1', arguments: [id]);
+  }
+
+  @override
+  Future<List<CategoryModel>> getItemsByCategory(String category) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM category WHERE category = ?1 ORDER BY name ASC',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            imageUrl: row['imageUrl'] as String?),
+        arguments: [category]);
+  }
+
+  @override
+  Future<List<CategoryModel>> searchItemsByName(String query) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM category WHERE name LIKE ?1 ORDER BY name ASC',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            imageUrl: row['imageUrl'] as String?),
+        arguments: [query]);
+  }
+
+  @override
+  Future<List<String>> getAllCategories() async {
+    return _queryAdapter.queryList(
+        'SELECT DISTINCT category FROM category ORDER BY category ASC',
+        mapper: (Map<String, Object?> row) => row.values.first as String);
+  }
+
+  @override
+  Future<int?> checkItemExists(String name) async {
+    return _queryAdapter.query('SELECT COUNT(*) FROM category WHERE name = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [name]);
+  }
+
+  @override
+  Future<void> insertItem(CategoryModel item) async {
+    await _categoryModelInsertionAdapter.insert(item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateItem(CategoryModel item) async {
+    await _categoryModelUpdateAdapter.update(item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteItem(CategoryModel item) async {
+    await _categoryModelDeletionAdapter.delete(item);
   }
 }
 

@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
+import 'package:grocery_planner_app/core/db/dao/category_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/models/category_spending_model.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
+import 'package:grocery_planner_app/features/dashboard/data/models/category_model.dart';
 // ignore: depend_on_referenced_packages
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
@@ -19,6 +21,7 @@ part 'app_database.g.dart';
   // Add your type converters here
   DateTimeConverter,
 ])
+
 /// The main database for the grocery planner app
 ///
 /// This database contains tables for grocery items, shopping schedules,
@@ -30,6 +33,7 @@ part 'app_database.g.dart';
     CategorySpendingModel,
     GroceryItemModel,
     CatalogItemModel,
+    CategoryModel,
 
     // Core database models
     Category,
@@ -50,6 +54,9 @@ abstract class AppDatabase extends FloorDatabase {
 
   /// Access to catalog item data
   CatalogItemDao get catalogItemDao;
+
+  /// Access to category item data
+  CategoryDao get categoryItemDao;
 
   // You'll need to add DAO getters for your other models too
   // For example:
