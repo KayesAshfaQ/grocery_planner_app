@@ -45,6 +45,7 @@ class AppRouter {
                 routes: [
                   GoRoute(
                     path: GroceryItemEditorPage.routePath,
+                    parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
                       final groceryBloc = state.extra as GroceryBloc;
                       return BlocProvider<GroceryBloc>.value(
