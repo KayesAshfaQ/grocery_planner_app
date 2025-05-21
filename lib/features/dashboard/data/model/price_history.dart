@@ -5,7 +5,7 @@ import 'package:floor/floor.dart';
 class PriceHistory {
   /// Primary key identifier for the price history record
   @PrimaryKey(autoGenerate: true)
-  final int? historyId;
+  final int? id;
 
   /// Foreign key reference to the catalog item this price is associated with
   @ColumnInfo(name: 'catalog_id')
@@ -20,7 +20,7 @@ class PriceHistory {
   final String recordedAt;
 
   PriceHistory({
-    this.historyId,
+    this.id,
     required this.catalogId,
     required this.price,
     required this.recordedAt,
@@ -28,7 +28,7 @@ class PriceHistory {
 
   Map<String, dynamic> toMap() {
     return {
-      'history_id': historyId,
+      'history_id': id,
       'catalog_id': catalogId,
       'price': price,
       'recorded_at': recordedAt,
@@ -37,7 +37,7 @@ class PriceHistory {
 
   factory PriceHistory.fromMap(Map<String, dynamic> map) {
     return PriceHistory(
-      historyId: map['history_id'],
+      id: map['history_id'],
       catalogId: map['catalog_id'],
       price: map['price'],
       recordedAt: map['recorded_at'],

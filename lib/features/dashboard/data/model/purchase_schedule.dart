@@ -6,7 +6,7 @@ import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 class PurchaseSchedule {
   /// Primary key identifier for the schedule
   @PrimaryKey(autoGenerate: true)
-  final int? scheduleId;
+  final int? id;
 
   /// Foreign key reference to the purchase list this schedule is for
   @ColumnInfo(name: 'list_id')
@@ -23,7 +23,7 @@ class PurchaseSchedule {
   final DateTime notifyAt;
 
   PurchaseSchedule({
-    this.scheduleId,
+    this.id,
     required this.listId,
     required this.marketDate,
     required this.notifyAt,
@@ -31,7 +31,7 @@ class PurchaseSchedule {
 
   Map<String, dynamic> toMap() {
     return {
-      'schedule_id': scheduleId,
+      'schedule_id': id,
       'list_id': listId,
       'market_date': marketDate.toIso8601String().split('T')[0], // Just the date part
       'notify_at': notifyAt.toIso8601String(),
@@ -40,7 +40,7 @@ class PurchaseSchedule {
 
   factory PurchaseSchedule.fromMap(Map<String, dynamic> map) {
     return PurchaseSchedule(
-      scheduleId: map['schedule_id'],
+      id: map['schedule_id'],
       listId: map['list_id'],
       marketDate: DateTime.parse(map['market_date']),
       notifyAt: DateTime.parse(map['notify_at']),

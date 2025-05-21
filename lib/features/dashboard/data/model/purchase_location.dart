@@ -5,7 +5,7 @@ import 'package:floor/floor.dart';
 class PurchaseLocation {
   /// Primary key identifier for the location
   @PrimaryKey(autoGenerate: true)
-  final int? locationId;
+  final int? id;
 
   /// Foreign key reference to the purchase list this location is for
   @ColumnInfo(name: 'list_id')
@@ -24,7 +24,7 @@ class PurchaseLocation {
   final String? address;
 
   PurchaseLocation({
-    this.locationId,
+    this.id,
     required this.listId,
     this.latitude,
     this.longitude,
@@ -33,7 +33,7 @@ class PurchaseLocation {
 
   Map<String, dynamic> toMap() {
     return {
-      'location_id': locationId,
+      'location_id': id,
       'list_id': listId,
       'latitude': latitude,
       'longitude': longitude,
@@ -43,7 +43,7 @@ class PurchaseLocation {
 
   factory PurchaseLocation.fromMap(Map<String, dynamic> map) {
     return PurchaseLocation(
-      locationId: map['location_id'],
+      id: map['location_id'],
       listId: map['list_id'],
       latitude: map['latitude'],
       longitude: map['longitude'],

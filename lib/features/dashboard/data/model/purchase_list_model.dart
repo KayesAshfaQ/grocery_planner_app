@@ -2,10 +2,10 @@ import 'package:floor/floor.dart';
 
 /// Database model for purchase lists
 @Entity(tableName: 'purchase_lists')
-class PurchaseList {
+class PurchaseListModel {
   /// Primary key identifier for the purchase list
   @PrimaryKey(autoGenerate: true)
-  final int? listId;
+  final int? id;
 
   /// Name of the purchase list
   @ColumnInfo(name: 'name')
@@ -23,8 +23,8 @@ class PurchaseList {
   @ColumnInfo(name: 'created_at')
   final String createdAt;
 
-  PurchaseList({
-    this.listId,
+  PurchaseListModel({
+    this.id,
     required this.name,
     this.budget,
     this.note,
@@ -33,7 +33,7 @@ class PurchaseList {
 
   Map<String, dynamic> toMap() {
     return {
-      'list_id': listId,
+      'list_id': id,
       'name': name,
       'budget': budget,
       'note': note,
@@ -41,9 +41,9 @@ class PurchaseList {
     };
   }
 
-  factory PurchaseList.fromMap(Map<String, dynamic> map) {
-    return PurchaseList(
-      listId: map['list_id'],
+  factory PurchaseListModel.fromMap(Map<String, dynamic> map) {
+    return PurchaseListModel(
+      id: map['list_id'],
       name: map['name'],
       budget: map['budget'],
       note: map['note'],

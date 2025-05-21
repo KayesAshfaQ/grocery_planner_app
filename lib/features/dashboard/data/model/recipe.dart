@@ -5,7 +5,7 @@ import 'package:floor/floor.dart';
 class Recipe {
   /// Primary key identifier for the recipe
   @PrimaryKey(autoGenerate: true)
-  final int? recipeId;
+  final int? id;
 
   /// Title of the recipe
   @ColumnInfo(name: 'title')
@@ -16,14 +16,14 @@ class Recipe {
   final String? instructions;
 
   Recipe({
-    this.recipeId,
+    this.id,
     required this.title,
     this.instructions,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'recipe_id': recipeId,
+      'recipe_id': id,
       'title': title,
       'instructions': instructions,
     };
@@ -31,7 +31,7 @@ class Recipe {
 
   factory Recipe.fromMap(Map<String, dynamic> map) {
     return Recipe(
-      recipeId: map['recipe_id'],
+      id: map['recipe_id'],
       title: map['title'],
       instructions: map['instructions'],
     );

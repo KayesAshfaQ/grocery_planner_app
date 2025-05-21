@@ -12,7 +12,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/grocery_item_model.dart';
 // Import the core database models
-import 'package:grocery_planner_app/core/db/model/index.dart';
+import 'package:grocery_planner_app/features/dashboard/data/model/index.dart';
 
 // Required for Floor to generate database
 part 'app_database.g.dart';
@@ -36,11 +36,11 @@ part 'app_database.g.dart';
     CategoryModel,
 
     // Core database models
-    Category,
-    CatalogItem,
+    CategoryModel,
+    CatalogItemModel,
     PriceHistory,
-    PurchaseList,
-    PurchaseListItem,
+    PurchaseListModel,
+    PurchaseItemModel,
     PurchasePriceHistory,
     PurchaseSchedule,
     PurchaseLocation,
