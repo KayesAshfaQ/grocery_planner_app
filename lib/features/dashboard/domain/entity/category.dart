@@ -9,7 +9,7 @@ class Category extends Equatable {
   final int? id;
 
   /// Name of the category item
-  final String name;
+  final String? name;
 
   /// Description of the category item
   final String? description;
@@ -20,7 +20,7 @@ class Category extends Equatable {
   /// Creates a new category
   const Category({
     this.id,
-    required this.name,
+    this.name,
     this.description,
     this.imageUri,
   });

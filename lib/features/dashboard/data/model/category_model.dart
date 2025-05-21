@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
 
 /// Database model for categories of grocery items
 @Entity(tableName: 'categories')
@@ -9,7 +10,7 @@ class CategoryModel {
 
   /// Name of the category
   @ColumnInfo(name: 'name')
-  final String name;
+  final String? name;
 
   /// Optional description of the category
   @ColumnInfo(name: 'description')
@@ -21,7 +22,7 @@ class CategoryModel {
 
   CategoryModel({
     this.id,
-    required this.name,
+    this.name,
     this.description,
     this.imageUri,
   });
@@ -41,6 +42,26 @@ class CategoryModel {
       name: map['name'],
       description: map['description'],
       imageUri: map['image_uri'],
+    );
+  }
+
+  /// Converts the model to a domain entity
+  Category toEntity() {
+    return Category(
+      id: id,
+      name: name,
+      description: description,
+      imageUri: imageUri,
+    );
+  }
+
+  /// Creates a model from a domain entity
+  factory CategoryModel.fromEntity(Category category) {
+    return CategoryModel(
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      imageUri: category.imageUri,
     );
   }
 }

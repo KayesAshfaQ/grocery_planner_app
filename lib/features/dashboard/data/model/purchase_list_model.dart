@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/purchase_list.dart';
 
 /// Database model for purchase lists
 @Entity(tableName: 'purchase_lists')
@@ -48,6 +49,35 @@ class PurchaseListModel {
       budget: map['budget'],
       note: map['note'],
       createdAt: map['created_at'],
+    );
+  }
+
+  /// Converts the model to a domain entity
+  ///
+  /// This method is used to convert the database model into a domain entity
+  /// that can be used in the application logic.
+  PurchaseList toEntity() {
+    return PurchaseList(
+      id: id,
+      name: name,
+      budget: budget,
+      note: note,
+      createdAt: createdAt,
+      purchaseItems: [],
+    );
+  }
+
+  /// Creates a model from a domain entity
+  ///
+  /// This method is used to convert a domain entity into a database model
+  /// that can be stored in the local database.
+  factory PurchaseListModel.fromEntity(PurchaseList purchaseList) {
+    return PurchaseListModel(
+      id: purchaseList.id,
+      name: purchaseList.name,
+      budget: purchaseList.budget,
+      note: purchaseList.note,
+      createdAt: purchaseList.createdAt,
     );
   }
 }

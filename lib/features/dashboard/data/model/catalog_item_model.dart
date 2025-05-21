@@ -1,4 +1,6 @@
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
 
 /// Database model for catalog items
 @Entity(tableName: 'catalog_items')
@@ -55,6 +57,30 @@ class CatalogItemModel {
       barcode: map['barcode'],
       categoryId: map['category_id'],
       imageUri: map['image_uri'],
+    );
+  }
+
+   // Converts this model to a domain entity
+  CatalogItem toEntity() {
+    return CatalogItem(
+      id: id,
+      name: name,
+      defaultUnit: defaultUnit,
+      barcode: barcode,
+      category: Category(id: categoryId),
+      imageUri: imageUri,
+    );
+  }
+
+  // Creates a model from a domain entity
+  factory CatalogItemModel.fromEntity(CatalogItem entity) {
+    return CatalogItemModel(
+      id: entity.id,
+      name: entity.name,
+      defaultUnit: entity.defaultUnit,
+      barcode: entity.barcode,
+      categoryId: entity.category?.id,
+      imageUri: entity.imageUri,
     );
   }
 }

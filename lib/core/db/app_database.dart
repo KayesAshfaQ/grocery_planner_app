@@ -5,6 +5,7 @@ import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/category_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/models/category_spending_model.dart';
+import 'package:grocery_planner_app/core/db/dao/purchase_list_dao.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/category_model.dart';
 // ignore: depend_on_referenced_packages
@@ -56,7 +57,7 @@ abstract class AppDatabase extends FloorDatabase {
   CatalogItemDao get catalogItemDao;
 
   /// Access to category item data
-  CategoryDao get categoryItemDao;
+  PurchaseListDao get purchaseListDao;
 
   // You'll need to add DAO getters for your other models too
   // For example:
