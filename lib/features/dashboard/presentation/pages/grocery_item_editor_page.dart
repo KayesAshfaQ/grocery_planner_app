@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery_editor/grocery_editor_bloc.dart';

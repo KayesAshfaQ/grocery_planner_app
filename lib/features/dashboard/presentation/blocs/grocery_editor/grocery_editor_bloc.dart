@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
