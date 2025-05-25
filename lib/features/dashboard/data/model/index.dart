@@ -3,7 +3,7 @@ export 'catalog_item_model.dart';
 export 'price_history.dart';
 export 'purchase_list_model.dart';
 export 'purchase_item_model.dart';
-export 'purchase_price_history.dart';
+export 'purchase_price_history_model.dart';
 export 'purchase_schedule.dart';
 export 'purchase_location.dart';
 export 'recipe.dart';

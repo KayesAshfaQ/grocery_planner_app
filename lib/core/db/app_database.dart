@@ -42,7 +42,7 @@ part 'app_database.g.dart';
     PriceHistory,
     PurchaseListModel,
     PurchaseItemModel,
-    PurchasePriceHistory,
+    PurchasePriceHistoryModel,
     PurchaseSchedule,
     PurchaseLocation,
     Recipe,
