@@ -4,16 +4,13 @@ import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/category_dao.dart';
-import 'package:grocery_planner_app/core/db/dao/models/category_spending_model.dart';
-import 'package:grocery_planner_app/core/db/dao/purchase_list_dao.dart';
+import 'package:grocery_planner_app/core/db/dao/purchase_dao.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
 import 'package:grocery_planner_app/features/dashboard/data/models/category_model.dart';
 // ignore: depend_on_referenced_packages
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:grocery_planner_app/core/db/dao/grocery_item_dao.dart';
-import 'package:grocery_planner_app/features/dashboard/data/models/grocery_item_model.dart';
 // Import the core database models
-import 'package:grocery_planner_app/features/dashboard/data/model/index.dart';
+import 'package:grocery_planner_app/features/dashboard/data/models/index.dart';
 
 // Required for Floor to generate database
 part 'app_database.g.dart';
@@ -30,12 +27,6 @@ part 'app_database.g.dart';
 @Database(
   version: 1,
   entities: [
-    // Existing models
-    CategorySpendingModel,
-    GroceryItemModel,
-    CatalogItemModel,
-    CategoryModel,
-
     // Core database models
     CategoryModel,
     CatalogItemModel,
@@ -50,14 +41,14 @@ part 'app_database.g.dart';
   ],
 )
 abstract class AppDatabase extends FloorDatabase {
-  /// Access to grocery item data
-  GroceryItemDao get groceryItemDao;
+  /// Access to category data
+  CategoryDao get categoryDao;
 
   /// Access to catalog item data
   CatalogItemDao get catalogItemDao;
 
-  /// Access to category item data
-  PurchaseListDao get purchaseListDao;
+  /// Access to purchase data
+  PurchaseDao get purchaseDao;
 
   // You'll need to add DAO getters for your other models too
   // For example:

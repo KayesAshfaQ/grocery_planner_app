@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/purchase_list.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
 
 /// Database model for purchase lists
 @Entity(tableName: 'purchase_lists')
@@ -11,6 +11,10 @@ class PurchaseListModel {
   /// Name of the purchase list
   @ColumnInfo(name: 'name')
   final String name;
+
+  /// Indicates whether this purchase list is completed
+  @ColumnInfo(name: 'is_completed')
+  final bool isCompleted;
 
   /// Optional budget for this purchase list
   @ColumnInfo(name: 'budget')
@@ -27,6 +31,7 @@ class PurchaseListModel {
   PurchaseListModel({
     this.id,
     required this.name,
+    this.isCompleted = false,
     this.budget,
     this.note,
     required this.createdAt,
@@ -36,6 +41,7 @@ class PurchaseListModel {
     return {
       'list_id': id,
       'name': name,
+      'is_completed': isCompleted,
       'budget': budget,
       'note': note,
       'created_at': createdAt,
@@ -46,6 +52,7 @@ class PurchaseListModel {
     return PurchaseListModel(
       id: map['list_id'],
       name: map['name'],
+      isCompleted: map['is_completed'] ?? false,
       budget: map['budget'],
       note: map['note'],
       createdAt: map['created_at'],
@@ -60,6 +67,7 @@ class PurchaseListModel {
     return PurchaseList(
       id: id,
       name: name,
+      isCompleted: isCompleted,
       budget: budget,
       note: note,
       createdAt: createdAt,
@@ -75,6 +83,7 @@ class PurchaseListModel {
     return PurchaseListModel(
       id: purchaseList.id,
       name: purchaseList.name,
+      isCompleted: purchaseList.isCompleted,
       budget: purchaseList.budget,
       note: purchaseList.note,
       createdAt: purchaseList.createdAt,

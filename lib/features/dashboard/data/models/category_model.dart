@@ -1,48 +1,67 @@
 import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 
-/// Database model for category items
-@Entity(tableName: 'category')
+/// Database model for categories of grocery items
+@Entity(tableName: 'categories')
 class CategoryModel {
-  /// Primary key
-  @primaryKey
-  final int id;
+  /// Primary key identifier for the category
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
 
-  /// Name of the grocery item
-  final String name;
+  /// Name of the category
+  @ColumnInfo(name: 'name')
+  final String? name;
 
-  /// Description of the category item
+  /// Optional description of the category
+  @ColumnInfo(name: 'description')
   final String? description;
 
   /// A URI pointing to an image of the item, if available
-  final String? imageUrl;
+  @ColumnInfo(name: 'image_uri')
+  final String? imageUri;
 
-
-  /// Creates a new catalog item model
   CategoryModel({
-    required this.id,
-    required this.name,
+    this.id,
+    this.name,
     this.description,
-    this.imageUrl,
+    this.imageUri,
   });
 
-  /// Converts this model to a domain entity
+  Map<String, dynamic> toMap() {
+    return {
+      'category_id': id,
+      'name': name,
+      'description': description,
+      'image_uri': imageUri,
+    };
+  }
+
+  factory CategoryModel.fromMap(Map<String, dynamic> map) {
+    return CategoryModel(
+      id: map['category_id'],
+      name: map['name'],
+      description: map['description'],
+      imageUri: map['image_uri'],
+    );
+  }
+
+  /// Converts the model to a domain entity
   Category toEntity() {
     return Category(
       id: id,
       name: name,
       description: description,
-      imageUrl: imageUrl,
+      imageUri: imageUri,
     );
   }
 
   /// Creates a model from a domain entity
-  factory CategoryModel.fromEntity(Category entity) {
+  factory CategoryModel.fromEntity(Category category) {
     return CategoryModel(
-      id: entity.id!,
-      name: entity.name,
-      description: entity.description,
-      imageUrl: entity.imageUrl,
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      imageUri: category.imageUri,
     );
   }
 }

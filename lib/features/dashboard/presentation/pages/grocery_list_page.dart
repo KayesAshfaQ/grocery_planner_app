@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_item_editor_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/widgets/grocery_item_card.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/widgets/purchase_list_card.dart';
 
-class GroceryListPage extends StatefulWidget {
-  const GroceryListPage({super.key});
+class PurchaseListPage extends StatefulWidget {
+  const PurchaseListPage({super.key});
 
   /// Route path for this page
   static const String routePath = '/grocery-list';
@@ -15,16 +15,16 @@ class GroceryListPage extends StatefulWidget {
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create() {
     return BlocProvider(
-      create: (context) => sl<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
-      child: const GroceryListPage(),
+      create: (context) => sl<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
+      child: const PurchaseListPage(),
     );
   }
 
   @override
-  State<GroceryListPage> createState() => _GroceryListPageState();
+  State<PurchaseListPage> createState() => _PurchaseListPageState();
 }
 
-class _GroceryListPageState extends State<GroceryListPage> with SingleTickerProviderStateMixin {
+class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -55,8 +55,8 @@ class _GroceryListPageState extends State<GroceryListPage> with SingleTickerProv
             child: TabBarView(
               controller: _tabController,
               children: const [
-                _GroceryListContent(isPurchased: false),
-                _GroceryListContent(isPurchased: true),
+                _PurchaseListContent(isPurchased: false),
+                _PurchaseListContent(isPurchased: true),
               ],
             ),
           ),
@@ -65,10 +65,10 @@ class _GroceryListPageState extends State<GroceryListPage> with SingleTickerProv
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Updated to use route constants from the respective page files
-          context.go(
-            '${GroceryListPage.routePath}/${GroceryItemEditorPage.routePath}',
-            extra: context.read<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
-          );
+          /* context.go(
+            '${PurchaseListPage.routePath}/${GroceryItemEditorPage.routePath}',
+            // extra: context.read<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
+          ); */
         },
         child: const Icon(Icons.add),
       ),
@@ -76,18 +76,18 @@ class _GroceryListPageState extends State<GroceryListPage> with SingleTickerProv
   }
 }
 
-class _GroceryListContent extends StatelessWidget {
+class _PurchaseListContent extends StatelessWidget {
   final bool isPurchased;
 
-  const _GroceryListContent({required this.isPurchased});
+  const _PurchaseListContent({required this.isPurchased});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GroceryBloc, GroceryState>(builder: (context, state) {
-      if (state is GroceryLoadingState) {
+    return BlocBuilder<PurchaseListBloc, PurchaseListState>(builder: (context, state) {
+      if (state is PurchaseListLoadingState) {
         return const Center(child: CircularProgressIndicator());
-      } else if (state is GroceryLoadedState) {
-        final items = state.items.where((item) => item.isPurchased == isPurchased).toList();
+      } else if (state is PurchaseListLoadedState) {
+        final items = state.items.where((item) => item.isCompleted == isPurchased).toList();
         if (items.isEmpty) {
           return Center(
             child: Text(
@@ -101,13 +101,13 @@ class _GroceryListContent extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           itemCount: items.length,
           itemBuilder: (context, index) {
-            final item = items[index];
-            return GroceryItemCard(
-              groceryItem: item,
+            final listItem = items[index];
+            return PurchaseListCard(
+              purchaseList: listItem,
             );
           },
         );
-      } else if (state is GroceryErrorState) {
+      } else if (state is PurchaseListErrorState) {
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -126,7 +126,7 @@ class _GroceryListContent extends StatelessWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  context.read<GroceryBloc>().add(GetAllGroceryItemsEvent());
+                  context.read<PurchaseListBloc>().add(GetAllPurchaseItemsEvent());
                 },
                 child: const Text('Try Again'),
               ),

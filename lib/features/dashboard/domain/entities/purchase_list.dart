@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/purchase_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
 
 /// Database model for purchase lists
 class PurchaseList extends Equatable {
@@ -8,6 +8,9 @@ class PurchaseList extends Equatable {
 
   /// Name of the purchase list
   final String name;
+
+  /// Indicates whether this purchase list is completed
+  final bool isCompleted;
 
   /// Optional budget for this purchase list
   final double? budget;
@@ -24,6 +27,7 @@ class PurchaseList extends Equatable {
   const PurchaseList({
     this.id,
     required this.name,
+    this.isCompleted = false,
     this.budget,
     required this.purchaseItems,
     this.note,
@@ -34,6 +38,7 @@ class PurchaseList extends Equatable {
   List<Object?> get props => [
         id,
         name,
+        isCompleted,
         budget,
         purchaseItems,
         note,

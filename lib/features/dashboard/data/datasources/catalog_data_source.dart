@@ -1,6 +1,6 @@
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
-import 'package:grocery_planner_app/features/dashboard/data/model/catalog_item_model.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
 
 /// Interface for local grocery data operations
 abstract class CatalogDataSource {

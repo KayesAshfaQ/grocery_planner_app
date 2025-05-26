@@ -1,65 +1,86 @@
 import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 
 /// Database model for catalog items
 @Entity(tableName: 'catalog_items')
 class CatalogItemModel {
-  /// Primary key
-  @primaryKey
-  final int id;
+  /// Primary key identifier for the catalog item
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
 
-  /// Name of the grocery item
+  /// Name of the catalog item
+  @ColumnInfo(name: 'name')
   final String name;
 
-  /// Available units as comma-separated values (CSV)
-  final String availableUnitsCSV;
+  /// Default unit of measurement for this item (e.g. 'kg', 'pcs', 'litre')
+  @ColumnInfo(name: 'default_unit')
+  final String? defaultUnit;
 
-  /// Default unit of measurement for this item
-  final String defaultUnit;
+  /// Barcode of the item (nullable)
+  @ColumnInfo(name: 'barcode')
+  final String? barcode;
 
-  /// Id of the category
-  final int categoryId;
-
-  /// Average market price (nullable)
-  final double? averagePrice;
+  /// Reference to the category ID this item belongs to
+  @ColumnInfo(name: 'category_id')
+  final int? categoryId;
 
   /// URL to an image of the item (nullable)
-  final String? imageUrl;
+  @ColumnInfo(name: 'image_uri')
+  final String? imageUri;
 
-  /// Creates a new catalog item model
   CatalogItemModel({
-    required this.id,
+    this.id,
     required this.name,
-    required this.availableUnitsCSV,
     required this.defaultUnit,
-    required this.categoryId,
-    this.averagePrice,
-    this.imageUrl,
+    this.barcode,
+    this.categoryId,
+    this.imageUri,
   });
 
-  /// Converts this model to a domain entity
+  Map<String, dynamic> toMap() {
+    return {
+      'catalog_id': id,
+      'name': name,
+      'default_unit': defaultUnit,
+      'barcode': barcode,
+      'category_id': categoryId,
+      'image_uri': imageUri,
+    };
+  }
+
+  factory CatalogItemModel.fromMap(Map<String, dynamic> map) {
+    return CatalogItemModel(
+      id: map['catalog_id'],
+      name: map['name'],
+      defaultUnit: map['default_unit'],
+      barcode: map['barcode'],
+      categoryId: map['category_id'],
+      imageUri: map['image_uri'],
+    );
+  }
+
+   // Converts this model to a domain entity
   CatalogItem toEntity() {
     return CatalogItem(
       id: id,
       name: name,
-      availableUnits: availableUnitsCSV.split(','),
       defaultUnit: defaultUnit,
-      categoryId: categoryId,
-      averagePrice: averagePrice,
-      imageUrl: imageUrl,
+      barcode: barcode,
+      category: Category(id: categoryId),
+      imageUri: imageUri,
     );
   }
 
-  /// Creates a model from a domain entity
+  // Creates a model from a domain entity
   factory CatalogItemModel.fromEntity(CatalogItem entity) {
     return CatalogItemModel(
       id: entity.id,
       name: entity.name,
-      availableUnitsCSV: entity.availableUnits.join(','),
       defaultUnit: entity.defaultUnit,
-      categoryId: entity.categoryId,
-      averagePrice: entity.averagePrice,
-      imageUrl: entity.imageUrl,
+      barcode: entity.barcode,
+      categoryId: entity.category?.id,
+      imageUri: entity.imageUri,
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:grocery_planner_app/core/error/exceptions.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/repositories/category_repository.dart';
 
 /// Use case for retrieving all available categories

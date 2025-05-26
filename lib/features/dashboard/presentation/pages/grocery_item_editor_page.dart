@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery_editor/grocery_editor_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 
 /// Page for adding a new grocery item
 class GroceryItemEditorPage extends StatefulWidget {
@@ -39,18 +39,18 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     super.dispose();
   }
 
-  void _onCatalogItemSelected(GroceryEditorBloc editorBloc, CatalogItem? item) {
+  void _onCatalogItemSelected(PurchaseListEditorBloc editorBloc, CatalogItem? item) {
     if (item == null) return;
 
     editorBloc.add(SelectCatalogItemEvent(catalogItem: item));
 
     _nameController.text = item.name;
-    _unitController.text = item.defaultUnit;
-    _priceController.text = item.averagePrice.toString();
-    editorBloc.add(FindCategoryByIdEvent(categoryId: item.categoryId));
+    _unitController.text = item.defaultUnit ?? '';
+    // _priceController.text = item.averagePrice.toString();
+    // editorBloc.add(FindCategoryByIdEvent(categoryId: item.categoryId));
   }
 
-  void _submitForm(BuildContext context, GroceryEditorLoadedState state) {
+  void _submitForm(BuildContext context, PurchaseListEditorLoadedState state) {
     if (_formKey.currentState?.validate() != true) {
       return;
     }
@@ -62,26 +62,19 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     final price = double.parse(_priceController.text);
     final note = _noteController.text;
 
-    context.read<GroceryEditorBloc>().add(
-          AddGroceryItemEvent(
-            item: GroceryItem(
-              id: const Uuid().v4(),
-              name: name,
-              categoryId: category.id!,
-              quantity: quantity,
-              unit: unit,
-              unitPrice: price,
-              note: note,
-              createdAt: DateTime.now(),
+    /* context.read<PurchaseListEditorBloc>().add(
+          AddPurchaseItemEvent(
+            item: PurchaseItem(listId: state.selectedCatalogItem.id!),
+              
             ),
           ),
-        );
+        ); */
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<GroceryEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
+      create: (context) => sl<PurchaseListEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Add Grocery Item'),
@@ -90,12 +83,12 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: BlocConsumer<GroceryEditorBloc, GroceryEditorState>(
+        body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
           listener: (context, state) {
-            if (state is GroceryAddedState) {
+            if (state is PurchaseItemAddedState) {
               // Notify the grocery list to refresh before popping
-              final groceryBloc = context.read<GroceryBloc>();
-              groceryBloc.add(GetAllGroceryItemsEvent());
+              final groceryBloc = context.read<PurchaseListBloc>();
+              groceryBloc.add(GetAllPurchaseItemsEvent());
 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Grocery item added successfully')),
@@ -112,11 +105,11 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
             }
           },
           builder: (context, state) {
-            if (state is GroceryEditorLoadingState) {
+            if (state is PurchaseListEditorLoadingState) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (state is GroceryEditorLoadedState) {
+            if (state is PurchaseListEditorLoadedState) {
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
@@ -149,11 +142,11 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
                       _buildNoteField(),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: state is GroceryEditorLoadingState ? null : () => _submitForm(context, state),
+                        onPressed: state is PurchaseListEditorLoadingState ? null : () => _submitForm(context, state),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: state is GroceryEditorLoadingState ? const CircularProgressIndicator() : const Text('ADD TO SHOPPING LIST'),
+                        child: state is PurchaseListEditorLoadingState ? const CircularProgressIndicator() : const Text('ADD TO SHOPPING LIST'),
                       )
                     ],
                   ),
@@ -171,8 +164,8 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     );
   }
 
-  Widget _buildCatalogItemDropdown(BuildContext context, GroceryEditorLoadedState state) {
-    final editorBloc = context.read<GroceryEditorBloc>();
+  Widget _buildCatalogItemDropdown(BuildContext context, PurchaseListEditorLoadedState state) {
+    final editorBloc = context.read<PurchaseListEditorBloc>();
     return DropdownButtonFormField<CatalogItem?>(
       decoration: const InputDecoration(
         labelText: 'Select from Catalog (Optional)',
@@ -211,14 +204,14 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
     );
   }
 
-  Widget _buildCategoryDropdown(BuildContext context, GroceryEditorLoadedState state) {
-    final editorBloc = context.read<GroceryEditorBloc>();
+  Widget _buildCategoryDropdown(BuildContext context, PurchaseListEditorLoadedState state) {
+    final editorBloc = context.read<PurchaseListEditorBloc>();
     return Autocomplete<Category>(
       optionsBuilder: (TextEditingValue textEditingValue) {
         if (textEditingValue.text.isEmpty) {
           return state.categories;
         }
-        return state.categories.where((category) => category.name.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+        return state.categories.where((category) => category.name?.toLowerCase().contains(textEditingValue.text.toLowerCase()) ?? false);
       },
       onSelected: (Category selectedCategory) {
         editorBloc.add(SelectCategoryEvent(category: selectedCategory));
@@ -245,16 +238,16 @@ class _GroceryItemEditorPageState extends State<GroceryItemEditorPage> {
           child: Material(
             child: SizedBox(
               height: 200,
-              child: ListView.builder(
-                itemCount: options.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final Category option = options.elementAt(index);
-                  return ListTile(
-                    title: Text(option.name),
-                    onTap: () => onSelected(option),
-                  );
-                },
-              ),
+              // child: ListView.builder(
+              //   itemCount: options.length,
+              //   itemBuilder: (BuildContext context, int index) {
+              //     final Category option = options.elementAt(index);
+              //     return ListTile(
+              //       title: Text(option.name),
+              //       onTap: () => onSelected(option),
+              //     );
+              //   },
+              // ),
             ),
           ),
         );

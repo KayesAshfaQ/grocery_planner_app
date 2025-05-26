@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 
 /// Represents a pre-registered grocery item in the catalog
 ///
@@ -6,44 +7,40 @@ import 'package:equatable/equatable.dart';
 /// that users can select from when adding items to their shopping list.
 class CatalogItem extends Equatable {
   /// Unique identifier for the catalog item
-  final int id;
+  final int? id;
 
   /// Name of the grocery item
   final String name;
 
-  /// Common units of measurement for this item
-  final List<String> availableUnits;
-
   /// Default unit of measurement for this item
-  final String defaultUnit;
+  final String? defaultUnit;
 
-  /// Id of the category
-  final int categoryId;
+  /// Barcode of the item (nullable)
+  final String? barcode;
 
-  /// Average market price (if known)
-  final double? averagePrice;
+  /// Category of the item
+  final Category? category;
 
-  /// A URI pointing to an image of the item, if available
-  final String? imageUrl;
+  /// URI to an image of the item (nullable)
+  final String? imageUri;
 
   /// Creates a new catalog item
   const CatalogItem({
-    required this.id,
+    this.id,
     required this.name,
-    required this.availableUnits,
-    required this.defaultUnit,
-    required this.categoryId,
-    this.averagePrice,
-    this.imageUrl,
+    this.defaultUnit,
+    this.barcode,
+    this.category,
+    this.imageUri,
   });
 
   @override
   List<Object?> get props => [
         id,
         name,
-        availableUnits,
-        categoryId,
-        averagePrice,
-        imageUrl,
+        defaultUnit,
+        barcode,
+        category,
+        imageUri,
       ];
 }

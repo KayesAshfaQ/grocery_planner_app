@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/purchase_price_history.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_price_history.dart';
 
 /// Database model for purchase price history records
 @Entity(tableName: 'purchase_price_history')

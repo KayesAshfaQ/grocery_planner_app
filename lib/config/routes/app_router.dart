@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_item_editor_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';
@@ -24,7 +24,7 @@ class AppRouter {
   /// Private router instance
   static final _router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: GroceryListPage.routePath,
+    initialLocation: PurchaseListPage.routePath,
     debugLogDiagnostics: true,
     routes: [
       // Main stateful shell route for the bottom navigation
@@ -40,16 +40,16 @@ class AppRouter {
             navigatorKey: _sectionNavigatorKey,
             routes: [
               GoRoute(
-                path: GroceryListPage.routePath,
+                path: PurchaseListPage.routePath,
                 builder: (context, state) => const GroceryListShell(),
                 routes: [
                   GoRoute(
                     path: GroceryItemEditorPage.routePath,
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
-                      final groceryBloc = state.extra as GroceryBloc;
-                      return BlocProvider<GroceryBloc>.value(
-                        value: groceryBloc,
+                      final purchaseListBloc = state.extra as PurchaseListBloc;
+                      return BlocProvider<PurchaseListBloc>.value(
+                        value: purchaseListBloc,
                         child: const GroceryItemEditorPage(),
                       );
                     },
@@ -137,6 +137,6 @@ class GroceryListShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GroceryListPage.create();
+    return PurchaseListPage.create();
   }
 }

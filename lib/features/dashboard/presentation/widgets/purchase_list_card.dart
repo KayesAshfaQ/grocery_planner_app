@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
 
-import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
-
-/// Widget for displaying a grocery item in a card format
-class GroceryItemCard extends StatelessWidget {
-  /// The grocery item to display
-  final GroceryItem groceryItem;
+/// Widget for displaying a purchase list item in a card format
+class PurchaseListCard extends StatelessWidget {
+  /// The purchase list item to display
+  final PurchaseList purchaseList;
 
   /// Callback for marking the item as purchased
   final VoidCallback? onMarkPurchased;
@@ -17,10 +15,10 @@ class GroceryItemCard extends StatelessWidget {
   /// Callback for deleting the item
   final VoidCallback? onDelete;
 
-  /// Creates a new grocery item card
-  const GroceryItemCard({
+  /// Creates a new purchase list item card
+  const PurchaseListCard({
     Key? key,
-    required this.groceryItem,
+    required this.purchaseList,
     this.onMarkPurchased,
     this.onEdit,
     this.onDelete,
@@ -28,7 +26,7 @@ class GroceryItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: '\$');
+    // final currencyFormat = NumberFormat.currency(symbol: '\$');
     final theme = Theme.of(context);
 
     return Card(
@@ -46,36 +44,41 @@ class GroceryItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        groceryItem.name,
+                        purchaseList.name,
                         style: theme.textTheme.titleLarge?.copyWith(
-                          decoration: groceryItem.isPurchased
-                              ? TextDecoration.lineThrough
-                              : null,
+                          decoration: purchaseList.isCompleted ? TextDecoration.lineThrough : null,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Category: ${groceryItem.categoryId}',
-                        style: theme.textTheme.bodyMedium,
+                      Builder(
+                        builder: (context) {
+                          final categories = purchaseList.purchaseItems
+                              .map((item) => item.catalogItem?.category?.name)
+                              .where((name) => name != null)
+                              .toSet()
+                              .join(', ');
+
+                          return Text(
+                            'Category: ${categories.isNotEmpty ? categories : 'Unknown'}',
+                            style: theme.textTheme.bodyMedium,
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: groceryItem.isPurchased
-                        ? Colors.green.withOpacity(0.2)
-                        : theme.colorScheme.primary.withOpacity(0.2),
+                    color: purchaseList.isCompleted
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : theme.colorScheme.primary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    groceryItem.isPurchased ? 'Purchased' : 'To Buy',
+                    purchaseList.isCompleted ? 'Purchased' : 'To Buy',
                     style: TextStyle(
-                      color: groceryItem.isPurchased
-                          ? Colors.green.shade800
-                          : theme.colorScheme.primary,
+                      color: purchaseList.isCompleted ? Colors.green.shade800 : theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -83,27 +86,29 @@ class GroceryItemCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Row(
+            Text(
+              '${purchaseList.purchaseItems.length} ${purchaseList.purchaseItems.length == 1 ? 'item' : 'items'}',
+              style: theme.textTheme.bodyLarge,
+            ),
+            /* Row(
               children: [
                 Text(
-                  '${groceryItem.quantity} ${groceryItem.unit}',
+                  '${purchaseList.purchaseItems.length} ${purchaseList.purchaseItems.length == 1 ? 'item' : 'items'}',
                   style: theme.textTheme.bodyLarge,
                 ),
                 const Spacer(),
                 Text(
-                  groceryItem.isPurchased && groceryItem.purchasedPrice != null
-                      ? '${currencyFormat.format(groceryItem.purchasedPrice)} per ${groceryItem.unit}'
-                      : '${currencyFormat.format(groceryItem.unitPrice)} per ${groceryItem.unit}',
+                  purchaseList.isCompleted ? '${currencyFormat.format(purchaseList.purchasedPrice)} per ${purchaseList.unit}' : '${currencyFormat.format(purchaseList.unitPrice)} per ${purchaseList.unit}',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
-            ),
-            if (groceryItem.note != null && groceryItem.note!.isNotEmpty) ...[
+            ), */
+            if (purchaseList.note != null && purchaseList.note!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                'Note: ${groceryItem.note}',
+                'Note: ${purchaseList.note}',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontStyle: FontStyle.italic,
                 ),

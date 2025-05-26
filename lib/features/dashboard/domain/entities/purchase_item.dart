@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
 
 /// Database model for items in a purchase list
 class PurchaseItem extends Equatable {

@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
 
 /// Database model for items in a purchase list
 @Entity(tableName: 'purchase_list_items')
@@ -83,6 +84,38 @@ class PurchaseItemModel {
       note: map['note'],
       isPurchased: map['is_purchased'] == 1,
       purchasedAt: map['purchased_at'] != null ? map['purchased_at'] : null,
+    );
+  }
+
+  // Converts the model to a domain entity
+  Map<String, dynamic> toEntity() {
+    return {
+      'id': id,
+      'listId': listId,
+      'catalogId': catalogId,
+      'customName': customName,
+      'quantity': quantity,
+      'unitPrice': unitPrice,
+      'totalPrice': totalPrice,
+      'note': note,
+      'isPurchased': isPurchased,
+      'purchasedAt': purchasedAt,
+    };
+  }
+
+  /// fromEntity factory constructor to create a model from a domain entity
+  factory PurchaseItemModel.fromEntity(PurchaseItem item) {
+    return PurchaseItemModel(
+      id: item.id,
+      listId: item.listId,
+      catalogId: item.catalogItem?.id,
+      customName: item.customName,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice,
+      note: item.note,
+      isPurchased: item.isPurchased,
+      purchasedAt: item.purchasedAt,
     );
   }
 }

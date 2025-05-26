@@ -1,22 +1,22 @@
-part of 'grocery_editor_bloc.dart';
+part of 'purchase_list_editor_bloc.dart';
 
 /// Base class for all editor states
-abstract class GroceryEditorState extends Equatable {
+abstract class PurchaseListEditorState extends Equatable {
   /// Creates a new editor state
-  const GroceryEditorState();
+  const PurchaseListEditorState();
 
   @override
   List<Object?> get props => [];
 }
 
 /// Initial state of the editor bloc
-class GroceryEditorInitialState extends GroceryEditorState {}
+class PurchaseListEditorInitialState extends PurchaseListEditorState {}
 
 /// State when editor data is being loaded
-class GroceryEditorLoadingState extends GroceryEditorState {}
+class PurchaseListEditorLoadingState extends PurchaseListEditorState {}
 
 /// State when editor data has been loaded successfully
-class GroceryEditorLoadedState extends GroceryEditorState {
+class PurchaseListEditorLoadedState extends PurchaseListEditorState {
   /// The list of categories
   final List<Category> categories;
 
@@ -30,7 +30,7 @@ class GroceryEditorLoadedState extends GroceryEditorState {
   final CatalogItem? selectedCatalogItem;
 
   /// Creates a new state with loaded editor data
-  const GroceryEditorLoadedState({
+  const PurchaseListEditorLoadedState({
     required this.categories,
     required this.catalogItems,
     this.selectedCategory,
@@ -38,13 +38,13 @@ class GroceryEditorLoadedState extends GroceryEditorState {
   });
 
   /// Creates a copy of this state with the given fields replaced
-  GroceryEditorLoadedState copyWith({
+  PurchaseListEditorLoadedState copyWith({
     List<Category>? categories,
     List<CatalogItem>? catalogItems,
     Category? selectedCategory,
     CatalogItem? selectedCatalogItem,
   }) {
-    return GroceryEditorLoadedState(
+    return PurchaseListEditorLoadedState(
       categories: categories ?? this.categories,
       catalogItems: catalogItems ?? this.catalogItems,
       selectedCategory: selectedCategory ?? this.selectedCategory,
@@ -61,32 +61,32 @@ class GroceryEditorLoadedState extends GroceryEditorState {
       ];
 }
 
-/// State when a grocery item is added
-class GroceryAddedState extends GroceryEditorState {
-  /// The grocery item added
-  final GroceryItem item;
+/// State when a purchase item is added
+class PurchaseItemAddedState extends PurchaseListEditorState {
+  /// The purchase item added
+  final PurchaseItem item;
 
-  /// Creates a new state with the grocery item added
-  const GroceryAddedState({required this.item});
+  /// Creates a new state with the purchase item added
+  const PurchaseItemAddedState({required this.item});
 
   @override
   List<Object> get props => [item];
 }
 
-/// State when grocery data is updated
-class GroceryUpdatedState extends GroceryEditorState {
-  /// The grocery item updated
-  final GroceryItem item;
+/// State when purchase list is updated
+class PurchaseListUpdatedState extends PurchaseListEditorState {
+  /// The purchase list updated
+  final PurchaseList value;
 
-  /// Creates a new state with the grocery item updated
-  const GroceryUpdatedState({required this.item});
+  /// Creates a new state with the purchase list updated
+  const PurchaseListUpdatedState({required this.value});
 
   @override
-  List<Object> get props => [item];
+  List<Object> get props => [value];
 }
 
 /// State when an error occurs
-class GroceryEditorErrorState extends GroceryEditorState {
+class GroceryEditorErrorState extends PurchaseListEditorState {
   /// The error message
   final String message;
 

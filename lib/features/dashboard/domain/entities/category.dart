@@ -9,20 +9,20 @@ class Category extends Equatable {
   final int? id;
 
   /// Name of the category item
-  final String name;
+  final String? name;
 
   /// Description of the category item
   final String? description;
 
   /// A URI pointing to an image of the item, if available
-  final String? imageUrl;
+  final String? imageUri;
 
-  /// Creates a new catalog item
+  /// Creates a new category
   const Category({
     this.id,
-    required this.name,
+     this.name,
     this.description,
-    this.imageUrl,
+    this.imageUri,
   });
 
   @override
@@ -30,6 +30,6 @@ class Category extends Equatable {
         id,
         name,
         description,
-        imageUrl,
+        imageUri,
       ];
 }

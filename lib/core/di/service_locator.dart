@@ -9,19 +9,19 @@ import 'package:grocery_planner_app/features/dashboard/domain/repositories/catal
 import 'package:grocery_planner_app/features/dashboard/domain/repositories/category_repository.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/network/network_info.dart';
-import 'package:grocery_planner_app/features/dashboard/data/datasources/grocery_data_source.dart';
-import 'package:grocery_planner_app/features/dashboard/data/repositories/grocery_repository_impl.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/repositories/grocery_repository.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_grocery_item_usecase.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/get_grocery_item_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/data/datasources/purchase_data_source.dart';
+import 'package:grocery_planner_app/features/dashboard/data/repositories/purchase_repository_impl.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/repositories/purchase_repository.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_purchase_list_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/get_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/mark_item_as_purchased_usecase.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery_editor/grocery_editor_bloc.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -44,19 +44,19 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerLazySingleton(() => Connectivity());
 
   // Data sources
-  sl.registerLazySingleton<GroceryDataSource>(
-    () => GroceryLocalDataSourceImpl(groceryItemDao: database.groceryItemDao),
+  sl.registerLazySingleton<PurchaseDataSource>(
+    () => PurchaseLocalDataSourceImpl(purchaseDao: database.purchaseDao),
   );
   sl.registerLazySingleton<CatalogDataSource>(
     () => CatalogLocalDataSourceImpl(catalogItemDao: database.catalogItemDao),
   );
   sl.registerLazySingleton<CategoryDataSource>(
-    () => CategoryLocalDataSourceImpl(categoryItemDao: database.categoryItemDao),
+    () => CategoryLocalDataSourceImpl(categoryItemDao: database.categoryDao),
   );
 
   // Repositories
-  sl.registerLazySingleton<GroceryRepository>(
-    () => GroceryRepositoryImpl(dataSource: sl()),
+  sl.registerLazySingleton<PurchaseRepository>(
+    () => PurchaseRepositoryImpl(dataSource: sl()),
   );
   sl.registerLazySingleton<CatalogRepository>(
     () => CatalogRepositoryImpl(dataSource: sl()),
@@ -66,21 +66,21 @@ Future<void> initServiceLocator(AppDatabase database) async {
   );
 
   // Use cases
-  sl.registerLazySingleton(() => GetGroceryItemsUsecase(sl()));
+  sl.registerLazySingleton(() => GetPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => MarkItemAsPurchasedUsecase(sl()));
-  sl.registerLazySingleton(() => AddGroceryItemUsecase(sl()));
+  sl.registerLazySingleton(() => AddPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
 
   // Blocs/Cubits
-  sl.registerFactory(() => GroceryBloc(
-        getGroceryItemsUsecase: sl(),
+  sl.registerFactory(() => PurchaseListBloc(
+        getPurchaseListUsecase: sl(),
         markItemAsPurchasedUsecase: sl(),
       ));
 
-  sl.registerFactory(() => GroceryEditorBloc(
+  sl.registerFactory(() => PurchaseListEditorBloc(
         getCategoriesUsecase: sl(),
         getCatalogItemsUsecase: sl(),
-        addGroceryItemUsecase: sl(),
+        addPurchaseItemUsecase: sl(),
       ));
 }

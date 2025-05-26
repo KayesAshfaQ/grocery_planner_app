@@ -1,19 +1,19 @@
-part of 'grocery_editor_bloc.dart';
+part of 'purchase_list_editor_bloc.dart';
 
 /// Base class for all editor events
-abstract class GroceryEditorEvent extends Equatable {
+abstract class PurchaseListEditorEvent extends Equatable {
   /// Creates a new editor event
-  const GroceryEditorEvent();
+  const PurchaseListEditorEvent();
 
   @override
   List<Object?> get props => [];
 }
 
 /// Event to load categories and catalog items
-class LoadCategoriesAndCatalogItemsEvent extends GroceryEditorEvent {}
+class LoadCategoriesAndCatalogItemsEvent extends PurchaseListEditorEvent {}
 
 /// Event to select a catalog item
-class SelectCatalogItemEvent extends GroceryEditorEvent {
+class SelectCatalogItemEvent extends PurchaseListEditorEvent {
   /// The selected catalog item
   final CatalogItem? catalogItem;
 
@@ -25,7 +25,7 @@ class SelectCatalogItemEvent extends GroceryEditorEvent {
 }
 
 /// Event to select a category
-class SelectCategoryEvent extends GroceryEditorEvent {
+class SelectCategoryEvent extends PurchaseListEditorEvent {
   /// The selected category
   final Category category;
 
@@ -37,7 +37,7 @@ class SelectCategoryEvent extends GroceryEditorEvent {
 }
 
 /// Event to find a category by ID
-class FindCategoryByIdEvent extends GroceryEditorEvent {
+class FindCategoryByIdEvent extends PurchaseListEditorEvent {
   /// The ID of the category to find
   final int categoryId;
 
@@ -49,7 +49,7 @@ class FindCategoryByIdEvent extends GroceryEditorEvent {
 }
 
 /// Event to insert a new category
-class InsertCategoryEvent extends GroceryEditorEvent {
+class InsertCategoryEvent extends PurchaseListEditorEvent {
   /// The name of the category to insert
   final String name;
 
@@ -60,33 +60,32 @@ class InsertCategoryEvent extends GroceryEditorEvent {
   List<Object> get props => [name];
 }
 
-
 /// Event to add a new grocery item
-class AddGroceryItemEvent extends GroceryEditorEvent {
-  /// The grocery item to be added
-  final GroceryItem item;
+class AddPurchaseItemEvent extends PurchaseListEditorEvent {
+  /// The purchase item to be added
+  final PurchaseItem item;
 
-  /// Creates a new event to add a grocery item
-  const AddGroceryItemEvent({required this.item});
+  /// Creates a new event to add a purchase item
+  const AddPurchaseItemEvent({required this.item});
 
   @override
   List<Object?> get props => [item];
 }
 
-/// Event to update an existing grocery item
-class UpdateGroceryItemEvent extends GroceryEditorEvent {
-  /// The grocery item to be updated
-  final GroceryItem item;
+/// Event to update an existing purchase item
+class UpdatePurchaseListEvent extends PurchaseListEditorEvent {
+  /// The purchase item to be updated
+  final PurchaseItem item;
 
-  /// Creates a new event to update a grocery item
-  const UpdateGroceryItemEvent({required this.item});
+  /// Creates a new event to update a purchase item
+  const UpdatePurchaseListEvent({required this.item});
 
   @override
   List<Object?> get props => [item];
 }
 
 /// Event to delete a grocery item
-class DeleteGroceryItemEvent extends GroceryEditorEvent {
+class DeleteGroceryItemEvent extends PurchaseListEditorEvent {
   /// The ID of the grocery item to delete
   final String id;
 

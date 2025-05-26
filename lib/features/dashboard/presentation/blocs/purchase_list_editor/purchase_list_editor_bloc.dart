@@ -2,41 +2,42 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/catalog_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entity/category.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/grocery_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_grocery_item_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_purchase_item_usecase.dart';
 
-part 'grocery_editor_event.dart';
-part 'grocery_editor_state.dart';
+part 'purchase_list_editor_event.dart';
+part 'purchase_list_editor_state.dart';
 
 /// BLoC for managing grocery item editor operations
-class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
+class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
   final GetCategoriesUsecase getCategoriesUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
-  final AddGroceryItemUsecase addGroceryItemUsecase;
+  final AddPurchaseItemUsecase addPurchaseItemUsecase;
 
   /// Creates a new EditorBloc
-  GroceryEditorBloc({
+  PurchaseListEditorBloc({
     required this.getCategoriesUsecase,
     required this.getCatalogItemsUsecase,
-    required this.addGroceryItemUsecase,
-  }) : super(GroceryEditorInitialState()) {
+    required this.addPurchaseItemUsecase,
+  }) : super(PurchaseListEditorInitialState()) {
     on<LoadCategoriesAndCatalogItemsEvent>(_onLoadCategoriesAndCatalogItems);
     on<SelectCatalogItemEvent>(_onSelectCatalogItem);
     on<SelectCategoryEvent>(_onSelectCategory);
     on<FindCategoryByIdEvent>(_onFindCategoryById);
     on<InsertCategoryEvent>(_onInsertCategory);
-    on<AddGroceryItemEvent>(_onAddGroceryItem);
+    on<AddPurchaseItemEvent>(_onAddGroceryItem);
   }
 
   FutureOr<void> _onLoadCategoriesAndCatalogItems(
     LoadCategoriesAndCatalogItemsEvent event,
-    Emitter<GroceryEditorState> emit,
+    Emitter<PurchaseListEditorState> emit,
   ) async {
-    emit(GroceryEditorLoadingState());
+    emit(PurchaseListEditorLoadingState());
 
     try {
       final categoriesResult = await getCategoriesUsecase();
@@ -62,8 +63,8 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
       );
 
       // Only emit the loaded state if we didn't emit an error state
-      if (state is GroceryEditorLoadingState) {
-        emit(GroceryEditorLoadedState(
+      if (state is PurchaseListEditorLoadingState) {
+        emit(PurchaseListEditorLoadedState(
           categories: categories,
           catalogItems: catalogItems,
           selectedCategory: selectedCategory,
@@ -77,30 +78,30 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
 
   FutureOr<void> _onSelectCatalogItem(
     SelectCatalogItemEvent event,
-    Emitter<GroceryEditorState> emit,
+    Emitter<PurchaseListEditorState> emit,
   ) {
-    if (state is GroceryEditorLoadedState) {
-      final currentState = state as GroceryEditorLoadedState;
+    if (state is PurchaseListEditorLoadedState) {
+      final currentState = state as PurchaseListEditorLoadedState;
       emit(currentState.copyWith(selectedCatalogItem: event.catalogItem));
     }
   }
 
   FutureOr<void> _onSelectCategory(
     SelectCategoryEvent event,
-    Emitter<GroceryEditorState> emit,
+    Emitter<PurchaseListEditorState> emit,
   ) {
-    if (state is GroceryEditorLoadedState) {
-      final currentState = state as GroceryEditorLoadedState;
+    if (state is PurchaseListEditorLoadedState) {
+      final currentState = state as PurchaseListEditorLoadedState;
       emit(currentState.copyWith(selectedCategory: event.category));
     }
   }
 
   FutureOr<void> _onFindCategoryById(
     FindCategoryByIdEvent event,
-    Emitter<GroceryEditorState> emit,
+    Emitter<PurchaseListEditorState> emit,
   ) async {
-    if (state is GroceryEditorLoadedState) {
-      final currentState = state as GroceryEditorLoadedState;
+    if (state is PurchaseListEditorLoadedState) {
+      final currentState = state as PurchaseListEditorLoadedState;
       final category = currentState.categories.firstWhere((category) => category.id == event.categoryId);
       emit(currentState.copyWith(selectedCategory: category));
     }
@@ -108,10 +109,10 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
 
   FutureOr<void> _onInsertCategory(
     InsertCategoryEvent event,
-    Emitter<GroceryEditorState> emit,
+    Emitter<PurchaseListEditorState> emit,
   ) async {
-    if (state is GroceryEditorLoadedState) {
-      final currentState = state as GroceryEditorLoadedState;
+    if (state is PurchaseListEditorLoadedState) {
+      final currentState = state as PurchaseListEditorLoadedState;
       final newCategory = Category(name: event.name);
       final updatedCategories = List<Category>.from(currentState.categories)..add(newCategory);
       emit(currentState.copyWith(categories: updatedCategories));
@@ -119,15 +120,15 @@ class GroceryEditorBloc extends Bloc<GroceryEditorEvent, GroceryEditorState> {
   }
 
   FutureOr<void> _onAddGroceryItem(
-    AddGroceryItemEvent event,
-    Emitter<GroceryEditorState> emit,
+    AddPurchaseItemEvent event,
+    Emitter<PurchaseListEditorState> emit,
   ) async {
-    emit(GroceryEditorLoadingState());
-    final result = await addGroceryItemUsecase(event.item);
+    emit(PurchaseListEditorLoadingState());
+    final result = await addPurchaseItemUsecase(event.item);
     result.fold(
       (failure) => emit(GroceryEditorErrorState(message: failure.toString())),
       (groceryItem) {
-        emit(GroceryAddedState(item: groceryItem));
+        emit(PurchaseItemAddedState(item: groceryItem));
       },
     );
   }
