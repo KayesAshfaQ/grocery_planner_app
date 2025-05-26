@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_item_editor_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/purchase_list_editor_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/catalog_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_list_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/purchase_list_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/schedule_page.dart';
 
 // Create keys for `root` & `section` navigator avoiding unnecessary rebuilds
@@ -44,13 +44,13 @@ class AppRouter {
                 builder: (context, state) => const GroceryListShell(),
                 routes: [
                   GoRoute(
-                    path: GroceryItemEditorPage.routePath,
+                    path: PurchaseListEditorPage.routePath,
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
                       final purchaseListBloc = state.extra as PurchaseListBloc;
                       return BlocProvider<PurchaseListBloc>.value(
                         value: purchaseListBloc,
-                        child: const GroceryItemEditorPage(),
+                        child: const PurchaseListEditorPage(),
                       );
                     },
                   ),

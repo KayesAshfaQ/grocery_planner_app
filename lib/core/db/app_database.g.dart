@@ -192,7 +192,7 @@ class _$CategoryDao extends CategoryDao {
 
   @override
   Future<List<CategoryModel>> getAllItems() async {
-    return _queryAdapter.queryList('SELECT * FROM category ORDER BY name ASC',
+    return _queryAdapter.queryList('SELECT * FROM categories ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CategoryModel(
             id: row['id'] as int?,
             name: row['name'] as String?,
@@ -202,7 +202,7 @@ class _$CategoryDao extends CategoryDao {
 
   @override
   Future<CategoryModel?> getItemById(String id) async {
-    return _queryAdapter.query('SELECT * FROM category WHERE id = ?1',
+    return _queryAdapter.query('SELECT * FROM categories WHERE id = ?1',
         mapper: (Map<String, Object?> row) => CategoryModel(
             id: row['id'] as int?,
             name: row['name'] as String?,
@@ -214,13 +214,13 @@ class _$CategoryDao extends CategoryDao {
   @override
   Future<void> deleteItemById(String id) async {
     await _queryAdapter
-        .queryNoReturn('DELETE FROM category WHERE id = ?1', arguments: [id]);
+        .queryNoReturn('DELETE FROM categories WHERE id = ?1', arguments: [id]);
   }
 
   @override
   Future<List<CategoryModel>> getItemsByCategory(String category) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM category WHERE category = ?1 ORDER BY name ASC',
+        'SELECT * FROM categories WHERE category = ?1 ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CategoryModel(
             id: row['id'] as int?,
             name: row['name'] as String?,
@@ -232,7 +232,7 @@ class _$CategoryDao extends CategoryDao {
   @override
   Future<List<CategoryModel>> searchItemsByName(String query) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM category WHERE name LIKE ?1 ORDER BY name ASC',
+        'SELECT * FROM categories WHERE name LIKE ?1 ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CategoryModel(
             id: row['id'] as int?,
             name: row['name'] as String?,
@@ -244,13 +244,14 @@ class _$CategoryDao extends CategoryDao {
   @override
   Future<List<String>> getAllCategories() async {
     return _queryAdapter.queryList(
-        'SELECT DISTINCT category FROM category ORDER BY category ASC',
+        'SELECT DISTINCT categories FROM category ORDER BY category ASC',
         mapper: (Map<String, Object?> row) => row.values.first as String);
   }
 
   @override
   Future<int?> checkItemExists(String name) async {
-    return _queryAdapter.query('SELECT COUNT(*) FROM category WHERE name = ?1',
+    return _queryAdapter.query(
+        'SELECT COUNT(*) FROM categories WHERE name = ?1',
         mapper: (Map<String, Object?> row) => row.values.first as int,
         arguments: [name]);
   }

@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_item_editor_page.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/pages/purchase_list_editor_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/widgets/purchase_list_card.dart';
 
 class PurchaseListPage extends StatefulWidget {
   const PurchaseListPage({super.key});
 
   /// Route path for this page
-  static const String routePath = '/grocery-list';
+  static const String routePath = '/purchase-list';
 
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create() {
@@ -65,10 +65,10 @@ class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerPr
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Updated to use route constants from the respective page files
-          /* context.go(
-            '${PurchaseListPage.routePath}/${GroceryItemEditorPage.routePath}',
-            // extra: context.read<GroceryBloc>()..add(GetAllGroceryItemsEvent()),
-          ); */
+          context.go(
+            '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}',
+            extra: context.read<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
+          );
         },
         child: const Icon(Icons.add),
       ),
