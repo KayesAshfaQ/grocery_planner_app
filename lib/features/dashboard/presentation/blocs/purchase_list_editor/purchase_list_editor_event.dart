@@ -60,16 +60,17 @@ class InsertCategoryEvent extends PurchaseListEditorEvent {
   List<Object> get props => [name];
 }
 
+
 /// Event to add a new grocery item
-class AddPurchaseItemEvent extends PurchaseListEditorEvent {
+class InsertPurchaseListEvent extends PurchaseListEditorEvent {
   /// The purchase item to be added
-  final PurchaseItem item;
+  final PurchaseList list;
 
   /// Creates a new event to add a purchase item
-  const AddPurchaseItemEvent({required this.item});
+  const InsertPurchaseListEvent({required this.list});
 
   @override
-  List<Object?> get props => [item];
+  List<Object?> get props => [list];
 }
 
 /// Event to update an existing purchase item
@@ -79,6 +80,18 @@ class UpdatePurchaseListEvent extends PurchaseListEditorEvent {
 
   /// Creates a new event to update a purchase item
   const UpdatePurchaseListEvent({required this.item});
+
+  @override
+  List<Object?> get props => [item];
+}
+
+/// Event to add a new grocery item
+class AddPurchaseItemEvent extends PurchaseListEditorEvent {
+  /// The purchase item to be added
+  final PurchaseItem item;
+
+  /// Creates a new event to add a purchase item
+  const AddPurchaseItemEvent({required this.item});
 
   @override
   List<Object?> get props => [item];

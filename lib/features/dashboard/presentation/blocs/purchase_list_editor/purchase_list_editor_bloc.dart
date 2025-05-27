@@ -9,6 +9,7 @@ import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_purchase_item_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_purchase_list_usecase.dart';
 
 part 'purchase_list_editor_event.dart';
 part 'purchase_list_editor_state.dart';
@@ -17,6 +18,7 @@ part 'purchase_list_editor_state.dart';
 class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
   final GetCategoriesUsecase getCategoriesUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
+  final AddPurchaseListUsecase addPurchaseListUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
 
   /// Creates a new EditorBloc
@@ -24,13 +26,15 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     required this.getCategoriesUsecase,
     required this.getCatalogItemsUsecase,
     required this.addPurchaseItemUsecase,
+    required this.addPurchaseListUsecase,
   }) : super(PurchaseListEditorInitialState()) {
     on<LoadCategoriesAndCatalogItemsEvent>(_onLoadCategoriesAndCatalogItems);
     on<SelectCatalogItemEvent>(_onSelectCatalogItem);
     on<SelectCategoryEvent>(_onSelectCategory);
     on<FindCategoryByIdEvent>(_onFindCategoryById);
     on<InsertCategoryEvent>(_onInsertCategory);
-    on<AddPurchaseItemEvent>(_onAddGroceryItem);
+    on<AddPurchaseItemEvent>(_onAddPurchaseItem);
+    on<InsertPurchaseListEvent>(_onInsertPurchaseList);
   }
 
   FutureOr<void> _onLoadCategoriesAndCatalogItems(
@@ -48,12 +52,12 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       List<CatalogItem> catalogItems = [];
 
       catalogItemsResult.fold(
-        (failure) => emit(GroceryEditorErrorState(message: 'Error loading catalog items: ${failure.message}')),
+        (failure) => emit(PurchaseListEditorErrorState(message: 'Error loading catalog items: ${failure.message}')),
         (items) => catalogItems = items,
       );
 
       categoriesResult.fold(
-        (failure) => emit(GroceryEditorErrorState(message: 'Error loading categories: ${failure.message}')),
+        (failure) => emit(PurchaseListEditorErrorState(message: 'Error loading categories: ${failure.message}')),
         (loadedCategories) {
           categories = loadedCategories;
           if (categories.isNotEmpty) {
@@ -72,7 +76,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
         ));
       }
     } catch (e) {
-      emit(GroceryEditorErrorState(message: 'Unexpected error: $e'));
+      emit(PurchaseListEditorErrorState(message: 'Unexpected error: $e'));
     }
   }
 
@@ -119,16 +123,30 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     }
   }
 
-  FutureOr<void> _onAddGroceryItem(
+  FutureOr<void> _onAddPurchaseItem(
     AddPurchaseItemEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
     emit(PurchaseListEditorLoadingState());
     final result = await addPurchaseItemUsecase(event.item);
     result.fold(
-      (failure) => emit(GroceryEditorErrorState(message: failure.toString())),
+      (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
       (groceryItem) {
         emit(PurchaseItemAddedState(item: groceryItem));
+      },
+    );
+  }
+
+  FutureOr<void> _onInsertPurchaseList(
+    InsertPurchaseListEvent event,
+    Emitter<PurchaseListEditorState> emit,
+  ) async {
+    emit(PurchaseListEditorLoadingState());
+    final result = await addPurchaseListUsecase(event.list);
+    result.fold(
+      (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
+      (purchaseList) {
+        emit(PurchaseListAddedState(list: purchaseList));
       },
     );
   }

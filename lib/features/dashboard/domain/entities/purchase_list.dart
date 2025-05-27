@@ -15,6 +15,9 @@ class PurchaseList extends Equatable {
   /// Optional budget for this purchase list
   final double? budget;
 
+  /// Optional currency symbol for the budget
+  final String? currencySymbol;
+
   /// List of items in this purchase list
   final List<PurchaseItem> purchaseItems;
 
@@ -22,16 +25,17 @@ class PurchaseList extends Equatable {
   final String? note;
 
   /// Timestamp when this list was created
-  final String createdAt;
+  final String? createdAt;
 
   const PurchaseList({
     this.id,
     required this.name,
     this.isCompleted = false,
     this.budget,
-    required this.purchaseItems,
+    this.currencySymbol,
+    this.purchaseItems = const [],
     this.note,
-    required this.createdAt,
+    this.createdAt,
   });
 
   @override
@@ -40,6 +44,7 @@ class PurchaseList extends Equatable {
         name,
         isCompleted,
         budget,
+        currencySymbol,
         purchaseItems,
         note,
         createdAt,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:uuid/uuid.dart';
 
@@ -24,16 +26,20 @@ class PurchaseListEditorPage extends StatefulWidget {
 class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _budgetController = TextEditingController();
   final _quantityController = TextEditingController();
   final _unitController = TextEditingController();
+  final _currencyController = TextEditingController();
   final _priceController = TextEditingController();
   final _noteController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
+    _budgetController.dispose();
     _quantityController.dispose();
     _unitController.dispose();
+    _currencyController.dispose();
     _priceController.dispose();
     _noteController.dispose();
     super.dispose();
@@ -56,19 +62,20 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     }
 
     final name = _nameController.text;
-    final category = state.selectedCategory!;
-    final quantity = double.parse(_quantityController.text);
-    final unit = _unitController.text;
-    final price = double.parse(_priceController.text);
+    final budget = double.tryParse(_budgetController.text) ?? 0.0;
+    final currency = _currencyController.text;
     final note = _noteController.text;
 
-    /* context.read<PurchaseListEditorBloc>().add(
-          AddPurchaseItemEvent(
-            item: PurchaseItem(listId: state.selectedCatalogItem.id!),
-              
+    context.read<PurchaseListEditorBloc>().add(
+          InsertPurchaseListEvent(
+            list: PurchaseList(
+              name: name,
+              budget: budget,
+              currencySymbol: currency,
+              note: note,
             ),
           ),
-        ); */
+        );
   }
 
   @override
@@ -77,10 +84,10 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       create: (context) => sl<PurchaseListEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Add Grocery Item'),
+          title: const Text('Add Shopping List'),
           leading: IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
           ),
         ),
         body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
@@ -93,14 +100,19 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Grocery item added successfully')),
               );
-              Navigator.pop(context);
-            } else if (state is GroceryEditorErrorState) {
+              context.pop(context);
+            } else if (state is PurchaseListAddedState) {
+              // Notify the purchase list to refresh before popping
+              final purchaseBloc = context.read<PurchaseListBloc>();
+              purchaseBloc.add(GetAllPurchaseItemsEvent());
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Purchase list added successfully')),
+              );
+              context.pop(context);
+            } else if (state is PurchaseListEditorErrorState) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Error: ${state.message}')),
-              );
-            } else if (state is GroceryEditorErrorState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
               );
             }
           },
@@ -117,27 +129,21 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildCatalogItemDropdown(context, state),
-                      const SizedBox(height: 24),
                       _buildNameField(),
-                      const SizedBox(height: 16),
-                      _buildCategoryDropdown(context, state),
                       const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
                             flex: 2,
-                            child: _buildQuantityField(),
+                            child: _buildBudgetField(),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            flex: 3,
-                            child: _buildUnitField(),
+                            flex: 2,
+                            child: _buildCurrencyField(),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      _buildPriceField(),
                       const SizedBox(height: 16),
                       _buildNoteField(),
                       const SizedBox(height: 24),
@@ -148,8 +154,8 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                         ),
                         child: state is PurchaseListEditorLoadingState
                             ? const CircularProgressIndicator()
-                            : const Text('ADD TO SHOPPING LIST'),
-                      )
+                            : const Text('ADD SHOPPING LIST'),
+                      ),
                     ],
                   ),
                 ),
@@ -194,12 +200,12 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     return TextFormField(
       controller: _nameController,
       decoration: const InputDecoration(
-        labelText: 'Item Name',
+        labelText: 'List Name',
         border: OutlineInputBorder(),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter an item name';
+          return 'Please enter a list name';
         }
         return null;
       },
@@ -260,6 +266,26 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     );
   }
 
+  Widget _buildBudgetField() {
+    return TextFormField(
+      controller: _budgetController,
+      decoration: const InputDecoration(
+        labelText: 'Budget',
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Required';
+        }
+        if (double.tryParse(value) == null) {
+          return 'Invalid number';
+        }
+        return null;
+      },
+    );
+  }
+
   Widget _buildQuantityField() {
     return TextFormField(
       controller: _quantityController,
@@ -274,6 +300,22 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
         }
         if (double.tryParse(value) == null) {
           return 'Invalid number';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildCurrencyField() {
+    return TextFormField(
+      controller: _currencyController,
+      decoration: const InputDecoration(
+        labelText: 'Currency (USD, EUR, etc.)',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Required';
         }
         return null;
       },

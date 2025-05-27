@@ -84,5 +84,6 @@ Future<void> initServiceLocator(AppDatabase database) async {
         getCategoriesUsecase: sl(),
         getCatalogItemsUsecase: sl(),
         addPurchaseItemUsecase: sl(),
+        addPurchaseListUsecase: sl(),
       ));
 }

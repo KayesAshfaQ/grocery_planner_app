@@ -20,19 +20,24 @@ class PurchaseListModel {
   @ColumnInfo(name: 'budget')
   final double? budget;
 
+  /// Optional currency symbol for the budget
+  @ColumnInfo(name: 'currency_symbol')
+  final String? currencySymbol;
+
   /// Optional note about this purchase list
   @ColumnInfo(name: 'note')
   final String? note;
 
   /// Timestamp when this list was created
   @ColumnInfo(name: 'created_at')
-  final String createdAt;
+  final String? createdAt;
 
   PurchaseListModel({
     this.id,
     required this.name,
     this.isCompleted = false,
     this.budget,
+    this.currencySymbol,
     this.note,
     required this.createdAt,
   });
@@ -42,7 +47,8 @@ class PurchaseListModel {
       'list_id': id,
       'name': name,
       'is_completed': isCompleted,
-      'budget': budget,
+      'budget': budget, 
+      'currency_symbol': currencySymbol,
       'note': note,
       'created_at': createdAt,
     };
@@ -54,6 +60,7 @@ class PurchaseListModel {
       name: map['name'],
       isCompleted: map['is_completed'] ?? false,
       budget: map['budget'],
+      currencySymbol: map['currency_symbol'],
       note: map['note'],
       createdAt: map['created_at'],
     );
@@ -68,7 +75,8 @@ class PurchaseListModel {
       id: id,
       name: name,
       isCompleted: isCompleted,
-      budget: budget,
+      budget: budget, 
+      currencySymbol: currencySymbol,
       note: note,
       createdAt: createdAt,
       purchaseItems: [],

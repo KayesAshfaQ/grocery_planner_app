@@ -73,6 +73,18 @@ class PurchaseItemAddedState extends PurchaseListEditorState {
   List<Object> get props => [item];
 }
 
+/// State when a purchase list is added
+class PurchaseListAddedState extends PurchaseListEditorState {
+  /// The purchase list added
+  final PurchaseList list;
+
+  /// Creates a new state with the purchase list added
+  const PurchaseListAddedState({required this.list});
+
+  @override
+  List<Object> get props => [list];
+}
+
 /// State when purchase list is updated
 class PurchaseListUpdatedState extends PurchaseListEditorState {
   /// The purchase list updated
@@ -86,12 +98,12 @@ class PurchaseListUpdatedState extends PurchaseListEditorState {
 }
 
 /// State when an error occurs
-class GroceryEditorErrorState extends PurchaseListEditorState {
+class PurchaseListEditorErrorState extends PurchaseListEditorState {
   /// The error message
   final String message;
 
   /// Creates a new error state with a message
-  const GroceryEditorErrorState({required this.message});
+  const PurchaseListEditorErrorState({required this.message});
 
   @override
   List<Object> get props => [message];
