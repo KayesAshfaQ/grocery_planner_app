@@ -51,5 +51,5 @@ abstract class PurchaseDao {
 
   /// Delete a purchase item by ID
   @Query('DELETE FROM purchase_items WHERE id = :id')
-  Future<void> deleteItemById(String id);
+  Future<void> deleteItemById(int id);
 }

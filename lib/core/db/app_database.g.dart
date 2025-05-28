@@ -566,7 +566,7 @@ class _$PurchaseDao extends PurchaseDao {
   }
 
   @override
-  Future<void> deleteItemById(String id) async {
+  Future<void> deleteItemById(int id) async {
     await _queryAdapter.queryNoReturn(
         'DELETE FROM purchase_items WHERE id = ?1',
         arguments: [id]);

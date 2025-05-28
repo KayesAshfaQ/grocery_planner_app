@@ -4,68 +4,43 @@ import 'package:grocery_planner_app/features/dashboard/data/models/purchase_list
 import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
 
-/// Interface for local grocery data operations
+/// Interface for local purchase data operations
 abstract class PurchaseDataSource {
-  /// Adds a new grocery item to local storage
-  Future<void> addPurchaseList(PurchaseList item);
-
-  /// Adds a new grocery item to local storage
-  Future<void> addPurchaseItem(PurchaseItem item);
-
-  /// Deletes a grocery item from local storage
-  Future<void> deletePurchaseList(String id);
-
-  /// Fetches grocery items by their category
-  Future<List<PurchaseItem>> getPurchaseItemsByCategory(String category);
-
-  /// Fetches a grocery item by its ID
-  Future<PurchaseList> getPurchaseListById(String id);
-
-  /// Fetches all grocery items from local storage
+  /// Fetches all purchase items from local storage
   Future<List<PurchaseList>> getPurchaseLists();
 
-  /// Fetches grocery items by their purchase status
+  /// Fetches a purchase item by its ID
+  Future<PurchaseList> getPurchaseListById(String id);
+
+  /// Fetches purchase items by their purchase status
   Future<List<PurchaseList>> getPurchaseListsByStatus(bool isPurchased);
 
+  /// Adds a new purchase list to local storage
+  Future<void> addPurchaseList(PurchaseList item);
+
+  /// Update an existing purchase list in local storage
+  Future<PurchaseList> updatePurchaseList(PurchaseList item);
+
+  /// Deletes a purchase list from local storage
+  Future<void> deletePurchaseList(String id);
+
+  /// Adds a new purchase item to local storage
+  Future<void> addPurchaseItem(PurchaseItem item);
+
+  /// Marks a purchase item as purchased, optionally with an actual price
   Future<PurchaseItem> markItemAsPurchased(String id, {double? actualPrice});
 
-  Future<PurchaseList> updatePurchaseList(PurchaseList item);
+  /// Removes a purchase item from local storage
+  Future<void> removePurchaseItem(int id);
+
+  /// Fetches purchase items by their category
+  Future<List<PurchaseItem>> getPurchaseItemsByCategory(String category);
 }
 
 class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   final PurchaseDao purchaseDao;
 
   PurchaseLocalDataSourceImpl({required this.purchaseDao});
-
-  @override
-  Future<void> addPurchaseList(PurchaseList item) async {
-    try {
-      await purchaseDao.insertList(PurchaseListModel.fromEntity(item));
-    } catch (e) {
-      throw Exception('Failed to add grocery item: $e');
-    }
-  }
-
-  @override
-  Future<void> addPurchaseItem(PurchaseItem item) async {
-    try {
-      await purchaseDao.insertItem(PurchaseItemModel.fromEntity(item));
-    } catch (e) {
-      throw Exception('Failed to add grocery item: $e');
-    }
-  }
-
-  @override
-  Future<List<PurchaseItem>> getPurchaseItemsByCategory(String category) {
-    // TODO: implement getPurchaseItemsByCategory
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<PurchaseList> getPurchaseListById(String id) {
-    // TODO: implement getPurchaseListById
-    throw UnimplementedError();
-  }
 
   @override
   Future<List<PurchaseList>> getPurchaseLists() async {
@@ -82,15 +57,24 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   }
 
   @override
+  Future<PurchaseList> getPurchaseListById(String id) {
+    // TODO: implement getPurchaseListById
+    throw UnimplementedError();
+  }
+
+  @override
   Future<List<PurchaseList>> getPurchaseListsByStatus(bool isPurchased) {
     // TODO: implement getPurchaseListsByStatus
     throw UnimplementedError();
   }
 
   @override
-  Future<PurchaseItem> markItemAsPurchased(String id, {double? actualPrice}) {
-    // TODO: implement markItemAsPurchased
-    throw UnimplementedError();
+  Future<void> addPurchaseList(PurchaseList item) async {
+    try {
+      await purchaseDao.insertList(PurchaseListModel.fromEntity(item));
+    } catch (e) {
+      throw Exception('Failed to add purchase list: $e');
+    }
   }
 
   @override
@@ -102,6 +86,36 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   @override
   Future<void> deletePurchaseList(String id) {
     // TODO: implement deletePurchaseList
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> addPurchaseItem(PurchaseItem item) async {
+    try {
+      await purchaseDao.insertItem(PurchaseItemModel.fromEntity(item));
+    } catch (e) {
+      throw Exception('Failed to add purchase item: $e');
+    }
+  }
+
+  @override
+  Future<PurchaseItem> markItemAsPurchased(String id, {double? actualPrice}) {
+    // TODO: implement markItemAsPurchased
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> removePurchaseItem(int id) async {
+    try {
+      await purchaseDao.deleteItemById(id);
+    } catch (e) {
+      throw Exception('Failed to remove purchase item: $e');
+    }
+  }
+
+  @override
+  Future<List<PurchaseItem>> getPurchaseItemsByCategory(String category) {
+    // TODO: implement getPurchaseItemsByCategory
     throw UnimplementedError();
   }
 }

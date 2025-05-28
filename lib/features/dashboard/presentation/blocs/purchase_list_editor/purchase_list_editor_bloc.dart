@@ -10,6 +10,7 @@ import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/g
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/add_purchase_list_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/grocery/remove_purchase_item_usecase.dart';
 
 part 'purchase_list_editor_event.dart';
 part 'purchase_list_editor_state.dart';
@@ -20,6 +21,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
   final AddPurchaseListUsecase addPurchaseListUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
+  final RemovePurchaseItemUsecase removePurchaseItemUsecase;
 
   /// Creates a new EditorBloc
   PurchaseListEditorBloc({
@@ -27,14 +29,16 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     required this.getCatalogItemsUsecase,
     required this.addPurchaseItemUsecase,
     required this.addPurchaseListUsecase,
+    required this.removePurchaseItemUsecase,
   }) : super(PurchaseListEditorInitialState()) {
     on<LoadCategoriesAndCatalogItemsEvent>(_onLoadCategoriesAndCatalogItems);
     on<SelectCatalogItemEvent>(_onSelectCatalogItem);
     on<SelectCategoryEvent>(_onSelectCategory);
     on<FindCategoryByIdEvent>(_onFindCategoryById);
     on<InsertCategoryEvent>(_onInsertCategory);
-    on<AddPurchaseItemEvent>(_onAddPurchaseItem);
-    on<InsertPurchaseListEvent>(_onInsertPurchaseList);
+    on<AddPurchaseListEvent>(_onAddPurchaseList);
+    on<AddItemToPurchaseListEvent>(_onAddItemToPurchaseList);
+    on<RemoveItemFromPurchaseListEvent>(_onRemoveItemFromPurchaseList);
   }
 
   FutureOr<void> _onLoadCategoriesAndCatalogItems(
@@ -123,8 +127,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     }
   }
 
-  FutureOr<void> _onAddPurchaseItem(
-    AddPurchaseItemEvent event,
+  FutureOr<void> _onAddItemToPurchaseList(
+    AddItemToPurchaseListEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
     emit(PurchaseListEditorLoadingState());
@@ -137,8 +141,28 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     );
   }
 
-  FutureOr<void> _onInsertPurchaseList(
-    InsertPurchaseListEvent event,
+  FutureOr<void> _onRemoveItemFromPurchaseList(
+      RemoveItemFromPurchaseListEvent event, Emitter<PurchaseListEditorState> emit) async{
+    if (state is PurchaseListEditorLoadedState) {
+      final currentState = state as PurchaseListEditorLoadedState;
+      final items = currentState.purchaseItems ?? [];
+
+      /// iterate through the purchase items and remove the item with the given ID
+      /// If the item is not found, do nothing
+      items.removeWhere((item) => item.id == event.id);
+
+      final result = await removePurchaseItemUsecase(event.id);
+      result.fold(
+        (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
+        (success) {
+          emit(currentState.copyWith(purchaseItems: items));
+        },
+      );
+    }
+  }
+
+  FutureOr<void> _onAddPurchaseList(
+    AddPurchaseListEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
     emit(PurchaseListEditorLoadingState());

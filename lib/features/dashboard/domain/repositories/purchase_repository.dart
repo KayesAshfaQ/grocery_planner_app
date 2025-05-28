@@ -20,6 +20,9 @@ abstract class PurchaseRepository {
   /// Add a new purchase item
   Future<Either<AppException, PurchaseItem>> addPurchaseItem(PurchaseItem item);
 
+  /// remove purchase item
+  Future<Either<AppException, void>> removePurchaseItem(int id);
+
   /// Update an existing purchase list
   Future<Either<AppException, PurchaseList>> updatePurchaseList(PurchaseList item);
 

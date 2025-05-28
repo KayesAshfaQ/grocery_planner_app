@@ -60,14 +60,13 @@ class InsertCategoryEvent extends PurchaseListEditorEvent {
   List<Object> get props => [name];
 }
 
-
 /// Event to add a new grocery item
-class InsertPurchaseListEvent extends PurchaseListEditorEvent {
+class AddPurchaseListEvent extends PurchaseListEditorEvent {
   /// The purchase item to be added
   final PurchaseList list;
 
   /// Creates a new event to add a purchase item
-  const InsertPurchaseListEvent({required this.list});
+  const AddPurchaseListEvent({required this.list});
 
   @override
   List<Object?> get props => [list];
@@ -85,25 +84,25 @@ class UpdatePurchaseListEvent extends PurchaseListEditorEvent {
   List<Object?> get props => [item];
 }
 
-/// Event to add a new grocery item
-class AddPurchaseItemEvent extends PurchaseListEditorEvent {
+/// Event to add an item to the current purchase list
+class AddItemToPurchaseListEvent extends PurchaseListEditorEvent {
   /// The purchase item to be added
   final PurchaseItem item;
 
   /// Creates a new event to add a purchase item
-  const AddPurchaseItemEvent({required this.item});
+  const AddItemToPurchaseListEvent({required this.item});
 
   @override
   List<Object?> get props => [item];
 }
 
-/// Event to delete a grocery item
-class DeleteGroceryItemEvent extends PurchaseListEditorEvent {
-  /// The ID of the grocery item to delete
-  final String id;
+/// Event to remove an item from the current purchase list
+class RemoveItemFromPurchaseListEvent extends PurchaseListEditorEvent {
+  /// The ID of the purchase item to remove
+  final int id;
 
-  /// Creates a new event to delete a grocery item
-  const DeleteGroceryItemEvent({required this.id});
+  /// Creates a new event to remove a purchase item
+  const RemoveItemFromPurchaseListEvent({required this.id});
 
   @override
   List<Object?> get props => [id];

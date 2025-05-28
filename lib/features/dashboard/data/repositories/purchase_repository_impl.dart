@@ -23,10 +23,21 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
     }
   }
 
-    @override
+  @override
   Future<Either<AppException, PurchaseItem>> addPurchaseItem(PurchaseItem item) {
     // TODO: implement addPurchaseItem
     throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<AppException, void>> removePurchaseItem(int id) async {
+    try {
+      await dataSource.removePurchaseItem(id);
+      return Right(null);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
+    
   }
 
   @override
@@ -74,6 +85,4 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
     // TODO: implement updatePurchaseList
     throw UnimplementedError();
   }
-  
-
 }

@@ -29,12 +29,16 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
   /// The currently selected catalog item
   final CatalogItem? selectedCatalogItem;
 
+  /// Purchase list data, if available
+  final List<PurchaseItem>? purchaseItems;
+
   /// Creates a new state with loaded editor data
   const PurchaseListEditorLoadedState({
     required this.categories,
     required this.catalogItems,
     this.selectedCategory,
     this.selectedCatalogItem,
+    this.purchaseItems,
   });
 
   /// Creates a copy of this state with the given fields replaced
@@ -43,12 +47,14 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
     List<CatalogItem>? catalogItems,
     Category? selectedCategory,
     CatalogItem? selectedCatalogItem,
+    List<PurchaseItem>? purchaseItems,
   }) {
     return PurchaseListEditorLoadedState(
       categories: categories ?? this.categories,
       catalogItems: catalogItems ?? this.catalogItems,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       selectedCatalogItem: selectedCatalogItem,
+      purchaseItems: purchaseItems ?? this.purchaseItems,
     );
   }
 
@@ -58,6 +64,7 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
         catalogItems,
         selectedCategory,
         selectedCatalogItem,
+        purchaseItems,
       ];
 }
 
