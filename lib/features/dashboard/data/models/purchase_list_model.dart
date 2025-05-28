@@ -10,11 +10,11 @@ class PurchaseListModel {
 
   /// Name of the purchase list
   @ColumnInfo(name: 'name')
-  final String name;
+  final String? name;
 
   /// Indicates whether this purchase list is completed
   @ColumnInfo(name: 'is_completed')
-  final bool isCompleted;
+  final bool? isCompleted;
 
   /// Optional budget for this purchase list
   @ColumnInfo(name: 'budget')
@@ -34,12 +34,12 @@ class PurchaseListModel {
 
   PurchaseListModel({
     this.id,
-    required this.name,
+    this.name,
     this.isCompleted = false,
     this.budget,
     this.currencySymbol,
     this.note,
-    required this.createdAt,
+    this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -47,7 +47,7 @@ class PurchaseListModel {
       'list_id': id,
       'name': name,
       'is_completed': isCompleted,
-      'budget': budget, 
+      'budget': budget,
       'currency_symbol': currencySymbol,
       'note': note,
       'created_at': createdAt,
@@ -75,7 +75,7 @@ class PurchaseListModel {
       id: id,
       name: name,
       isCompleted: isCompleted,
-      budget: budget, 
+      budget: budget,
       currencySymbol: currencySymbol,
       note: note,
       createdAt: createdAt,

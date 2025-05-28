@@ -159,7 +159,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                           const Icon(Icons.add_circle_outline, color: Colors.green),
                         ],
                       ),
-                      (state.purchaseItems == null || state.purchaseItems?.isEmpty == true)
+                      (state.purchaseList.purchaseItems.isEmpty == true)
                           ? const Padding(
                               padding: EdgeInsets.symmetric(vertical: 16),
                               child: Text('No items added yet. Tap + to add items.'),
@@ -167,21 +167,23 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                           : ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.purchaseItems?.length,
+                              itemCount: state.purchaseList.purchaseItems.length,
                               itemBuilder: (context, index) {
-                                final item = state.purchaseItems?[index];
+                                /// Get the purchase item at the current index
+                                final item = state.purchaseList.purchaseItems[index];
+
                                 return Card(
                                   margin: const EdgeInsets.symmetric(vertical: 4),
                                   child: ListTile(
-                                    title: Text(item?.customName ?? item?.catalogItem?.name ?? 'Unknown Item'),
+                                    title: Text(item.customName ?? item.catalogItem?.name ?? 'Unknown Item'),
                                     subtitle: Text(
-                                      '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
+                                      '${item.quantity} pc - ${item.unitPrice != null ? '\$${item.unitPrice}' : 'No price set'}',
                                     ),
                                     trailing: IconButton(
                                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                                       onPressed: () {
                                         context.read<PurchaseListEditorBloc>().add(
-                                              RemoveItemFromPurchaseListEvent(id: item!.id!),
+                                              RemoveItemFromPurchaseListEvent(id: item.id!),
                                             );
                                       },
                                     ),
@@ -218,104 +220,130 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
 
   // Add this method to your _PurchaseListEditorPageState class
 
-void _showAddItemDialog(BuildContext context, PurchaseListEditorLoadedState state) {
-  final nameController = TextEditingController();
-  final quantityController = TextEditingController(text: '1');
-  final unitController = TextEditingController(text: 'pcs');
-  final priceController = TextEditingController();
-  CatalogItem? selectedCatalogItem;
-  
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Add Item'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<CatalogItem?>(
-                decoration: const InputDecoration(
-                  labelText: 'Select Item (Optional)',
-                ),
-                value: null,
-                items: [
-                  const DropdownMenuItem<CatalogItem?>(
-                    value: null,
-                    child: Text('-- Custom Item --'),
+  void _showAddItemDialog(BuildContext context, PurchaseListEditorLoadedState state) {
+    // save the purchase list to the db
+    _submitForm(context, state);
+
+    final nameController = TextEditingController();
+    final quantityController = TextEditingController(text: '1');
+    final unitController = TextEditingController(text: 'pcs');
+    final priceController = TextEditingController();
+    CatalogItem? selectedCatalogItem;
+    Category? selectedCategory;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Item'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<CatalogItem?>(
+                  decoration: const InputDecoration(
+                    labelText: 'Select Item (Optional)',
                   ),
-                  ...state.catalogItems.map((item) {
-                    return DropdownMenuItem<CatalogItem>(
-                      value: item,
-                      child: Text(item.name),
-                    );
-                  }),
-                ],
-                onChanged: (value) {
-                  selectedCatalogItem = value;
-                  if (value != null) {
-                    nameController.text = value.name;
-                    unitController.text = value.defaultUnit ?? 'pcs';
-                  }
-                },
-              ),
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Item Name'),
-              ),
-              TextField(
-                controller: quantityController,
-                decoration: const InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: unitController,
-                decoration: const InputDecoration(labelText: 'Unit'),
-              ),
-              TextField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'Unit Price (Optional)'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+                  value: null,
+                  items: [
+                    const DropdownMenuItem<CatalogItem?>(
+                      value: null,
+                      child: Text('-- Custom Item --'),
+                    ),
+                    ...state.catalogItems.map((item) {
+                      return DropdownMenuItem<CatalogItem>(
+                        value: item,
+                        child: Text(item.name),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) {
+                    selectedCatalogItem = value;
+                    if (value != null) {
+                      nameController.text = value.name;
+                      unitController.text = value.defaultUnit ?? 'pcs';
+                    }
+                  },
+                ),
+                DropdownButtonFormField<Category?>(
+                  decoration: const InputDecoration(
+                    labelText: 'Select Category (Optional)',
+                  ),
+                  value: null,
+                  items: [
+                    const DropdownMenuItem<Category?>(
+                      value: null,
+                      child: Text('-- Custom Category --'),
+                    ),
+                    ...state.categories.map((category) {
+                      return DropdownMenuItem<Category>(
+                        value: category,
+                        child: Text(category.name ?? 'Unknown Category'),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) {
+                    selectedCategory = value;
+                  },
+                ),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Item Name'),
+                ),
+                TextField(
+                  controller: quantityController,
+                  decoration: const InputDecoration(labelText: 'Quantity'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: unitController,
+                  decoration: const InputDecoration(labelText: 'Unit'),
+                ),
+                TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(labelText: 'Unit Price (Optional)'),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          TextButton(
-            onPressed: () {
-              final name = nameController.text;
-              final quantity = double.tryParse(quantityController.text) ?? 1.0;
-              final unit = unitController.text;
-              final unitPrice = double.tryParse(priceController.text);
-              
-              // if (name.isNotEmpty) {
-              //   final newItem = PurchaseItem(
-              //     catalogId: selectedCatalogItem?.id,
-              //     catalogItem: selectedCatalogItem,
-              //     customName: selectedCatalogItem == null ? name : null,
-              //     quantity: quantity,
-              //     unit: unit,
-              //     unitPrice: unitPrice, listId: state.id,
-              //   );
-                
-              //   context.read<PurchaseListEditorBloc>().add(
-              //     AddItemToPurchaseListEvent(item: newItem),
-              //   );
-                
-              //   Navigator.pop(context);
-              // }
-            },
-            child: const Text('ADD'),
-          ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CANCEL'),
+            ),
+            TextButton(
+              onPressed: () {
+                final name = nameController.text;
+                final quantity = double.tryParse(quantityController.text) ?? 1.0;
+                final unit = unitController.text;
+                final unitPrice = double.tryParse(priceController.text);
+
+                if (name.isNotEmpty) {
+                  // final newItem = PurchaseItem(
+                  //   catalogId: selectedCatalogItem?.id,
+                  //   catalogItem: selectedCatalogItem,
+                  //   customName: selectedCatalogItem == null ? name : null,
+                  //   quantity: quantity,
+                  //   unit: unit,
+                  //   unitPrice: unitPrice,
+                  //   listId: state.id,
+                  // );
+
+                  // context.read<PurchaseListEditorBloc>().add(
+                  //       AddItemToPurchaseListEvent(item: newItem),
+                  //     );
+
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('ADD'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildCatalogItemDropdown(BuildContext context, PurchaseListEditorLoadedState state) {
     final editorBloc = context.read<PurchaseListEditorBloc>();

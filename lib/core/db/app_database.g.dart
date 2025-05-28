@@ -106,7 +106,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `price_history` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `catalog_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `is_completed` INTEGER NOT NULL, `budget` REAL, `currency_symbol` TEXT, `note` TEXT, `created_at` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `is_completed` INTEGER, `budget` REAL, `currency_symbol` TEXT, `note` TEXT, `created_at` TEXT)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `purchase_list_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `catalog_id` INTEGER, `custom_name` TEXT, `quantity` REAL NOT NULL, `unit_price` REAL, `total_price` REAL, `note` TEXT, `is_purchased` INTEGER NOT NULL, `purchased_at` TEXT)');
         await database.execute(
@@ -407,7 +407,9 @@ class _$PurchaseDao extends PurchaseDao {
             (PurchaseListModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'is_completed': item.isCompleted ? 1 : 0,
+                  'is_completed': item.isCompleted == null
+                      ? null
+                      : (item.isCompleted! ? 1 : 0),
                   'budget': item.budget,
                   'currency_symbol': item.currencySymbol,
                   'note': item.note,
@@ -435,7 +437,9 @@ class _$PurchaseDao extends PurchaseDao {
             (PurchaseListModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'is_completed': item.isCompleted ? 1 : 0,
+                  'is_completed': item.isCompleted == null
+                      ? null
+                      : (item.isCompleted! ? 1 : 0),
                   'budget': item.budget,
                   'currency_symbol': item.currencySymbol,
                   'note': item.note,
@@ -464,7 +468,9 @@ class _$PurchaseDao extends PurchaseDao {
             (PurchaseListModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'is_completed': item.isCompleted ? 1 : 0,
+                  'is_completed': item.isCompleted == null
+                      ? null
+                      : (item.isCompleted! ? 1 : 0),
                   'budget': item.budget,
                   'currency_symbol': item.currencySymbol,
                   'note': item.note,
@@ -511,8 +517,10 @@ class _$PurchaseDao extends PurchaseDao {
         'SELECT * FROM purchase_lists ORDER BY created_at DESC',
         mapper: (Map<String, Object?> row) => PurchaseListModel(
             id: row['id'] as int?,
-            name: row['name'] as String,
-            isCompleted: (row['is_completed'] as int) != 0,
+            name: row['name'] as String?,
+            isCompleted: row['is_completed'] == null
+                ? null
+                : (row['is_completed'] as int) != 0,
             budget: row['budget'] as double?,
             currencySymbol: row['currency_symbol'] as String?,
             note: row['note'] as String?,
@@ -524,8 +532,10 @@ class _$PurchaseDao extends PurchaseDao {
     return _queryAdapter.query('SELECT * FROM purchase_lists WHERE id = ?1',
         mapper: (Map<String, Object?> row) => PurchaseListModel(
             id: row['id'] as int?,
-            name: row['name'] as String,
-            isCompleted: (row['is_completed'] as int) != 0,
+            name: row['name'] as String?,
+            isCompleted: row['is_completed'] == null
+                ? null
+                : (row['is_completed'] as int) != 0,
             budget: row['budget'] as double?,
             currencySymbol: row['currency_symbol'] as String?,
             note: row['note'] as String?,

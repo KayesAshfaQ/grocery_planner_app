@@ -7,10 +7,10 @@ class PurchaseList extends Equatable {
   final int? id;
 
   /// Name of the purchase list
-  final String name;
+  final String? name;
 
   /// Indicates whether this purchase list is completed
-  final bool isCompleted;
+  final bool? isCompleted;
 
   /// Optional budget for this purchase list
   final double? budget;
@@ -29,7 +29,7 @@ class PurchaseList extends Equatable {
 
   const PurchaseList({
     this.id,
-    required this.name,
+    this.name,
     this.isCompleted = false,
     this.budget,
     this.currencySymbol,
@@ -37,6 +37,29 @@ class PurchaseList extends Equatable {
     this.note,
     this.createdAt,
   });
+
+  /// Creates a copy of this PurchaseList with the given fields replaced with the new values
+  PurchaseList copyWith({
+    int? id,
+    String? name,
+    bool? isCompleted,
+    double? budget,
+    String? currencySymbol,
+    List<PurchaseItem>? purchaseItems,
+    String? note,
+    String? createdAt,
+  }) {
+    return PurchaseList(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isCompleted: isCompleted ?? this.isCompleted,
+      budget: budget ?? this.budget,
+      currencySymbol: currencySymbol ?? this.currencySymbol,
+      purchaseItems: purchaseItems ?? this.purchaseItems,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   @override
   List<Object?> get props => [

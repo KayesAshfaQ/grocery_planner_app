@@ -17,6 +17,10 @@ class PurchaseListEditorLoadingState extends PurchaseListEditorState {}
 
 /// State when editor data has been loaded successfully
 class PurchaseListEditorLoadedState extends PurchaseListEditorState {
+
+  /// The purchase list being edited
+  final PurchaseList purchaseList;
+
   /// The list of categories
   final List<Category> categories;
 
@@ -29,16 +33,13 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
   /// The currently selected catalog item
   final CatalogItem? selectedCatalogItem;
 
-  /// Purchase list data, if available
-  final List<PurchaseItem>? purchaseItems;
-
   /// Creates a new state with loaded editor data
   const PurchaseListEditorLoadedState({
+    required this.purchaseList,
     required this.categories,
     required this.catalogItems,
     this.selectedCategory,
     this.selectedCatalogItem,
-    this.purchaseItems,
   });
 
   /// Creates a copy of this state with the given fields replaced
@@ -47,24 +48,24 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
     List<CatalogItem>? catalogItems,
     Category? selectedCategory,
     CatalogItem? selectedCatalogItem,
-    List<PurchaseItem>? purchaseItems,
+    PurchaseList ? purchaseList,
   }) {
     return PurchaseListEditorLoadedState(
+      purchaseList: purchaseList ?? this.purchaseList,
       categories: categories ?? this.categories,
       catalogItems: catalogItems ?? this.catalogItems,
       selectedCategory: selectedCategory ?? this.selectedCategory,
-      selectedCatalogItem: selectedCatalogItem,
-      purchaseItems: purchaseItems ?? this.purchaseItems,
+      selectedCatalogItem: selectedCatalogItem ?? this.selectedCatalogItem,
     );
   }
 
   @override
   List<Object?> get props => [
+        purchaseList,
         categories,
         catalogItems,
         selectedCategory,
         selectedCatalogItem,
-        purchaseItems,
       ];
 }
 

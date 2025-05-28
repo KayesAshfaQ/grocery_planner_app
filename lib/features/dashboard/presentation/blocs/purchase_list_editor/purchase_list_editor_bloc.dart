@@ -52,21 +52,19 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       final catalogItemsResult = await getCatalogItemsUsecase();
 
       List<Category> categories = [];
-      Category? selectedCategory;
       List<CatalogItem> catalogItems = [];
 
       catalogItemsResult.fold(
         (failure) => emit(PurchaseListEditorErrorState(message: 'Error loading catalog items: ${failure.message}')),
-        (items) => catalogItems = items,
+        (items) {
+          catalogItems = items;
+        },
       );
 
       categoriesResult.fold(
         (failure) => emit(PurchaseListEditorErrorState(message: 'Error loading categories: ${failure.message}')),
         (loadedCategories) {
           categories = loadedCategories;
-          if (categories.isNotEmpty) {
-            selectedCategory = categories.first;
-          }
         },
       );
 
@@ -75,8 +73,9 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
         emit(PurchaseListEditorLoadedState(
           categories: categories,
           catalogItems: catalogItems,
-          selectedCategory: selectedCategory,
+          selectedCategory: null,
           selectedCatalogItem: null,
+          purchaseList: PurchaseList(),
         ));
       }
     } catch (e) {
@@ -142,10 +141,10 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
   }
 
   FutureOr<void> _onRemoveItemFromPurchaseList(
-      RemoveItemFromPurchaseListEvent event, Emitter<PurchaseListEditorState> emit) async{
+      RemoveItemFromPurchaseListEvent event, Emitter<PurchaseListEditorState> emit) async {
     if (state is PurchaseListEditorLoadedState) {
       final currentState = state as PurchaseListEditorLoadedState;
-      final items = currentState.purchaseItems ?? [];
+      final items = currentState.purchaseList.purchaseItems;
 
       /// iterate through the purchase items and remove the item with the given ID
       /// If the item is not found, do nothing
@@ -155,7 +154,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       result.fold(
         (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
         (success) {
-          emit(currentState.copyWith(purchaseItems: items));
+          emit(currentState.copyWith(purchaseList: currentState.purchaseList.copyWith(purchaseItems: items)));
         },
       );
     }
