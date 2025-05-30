@@ -75,7 +75,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
           catalogItems: catalogItems,
           selectedCategory: null,
           selectedCatalogItem: null,
-          purchaseList: PurchaseList(),
+          purchaseList: null,
         ));
       }
     } catch (e) {
@@ -144,17 +144,17 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       RemoveItemFromPurchaseListEvent event, Emitter<PurchaseListEditorState> emit) async {
     if (state is PurchaseListEditorLoadedState) {
       final currentState = state as PurchaseListEditorLoadedState;
-      final items = currentState.purchaseList.purchaseItems;
+      final items = currentState.purchaseList?.purchaseItems;
 
       /// iterate through the purchase items and remove the item with the given ID
       /// If the item is not found, do nothing
-      items.removeWhere((item) => item.id == event.id);
+      items?.removeWhere((item) => item.id == event.id);
 
       final result = await removePurchaseItemUsecase(event.id);
       result.fold(
         (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
         (success) {
-          emit(currentState.copyWith(purchaseList: currentState.purchaseList.copyWith(purchaseItems: items)));
+          emit(currentState.copyWith(purchaseList: currentState.purchaseList?.copyWith(purchaseItems: items)));
         },
       );
     }

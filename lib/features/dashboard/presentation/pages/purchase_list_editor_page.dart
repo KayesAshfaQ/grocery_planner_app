@@ -159,7 +159,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                           const Icon(Icons.add_circle_outline, color: Colors.green),
                         ],
                       ),
-                      (state.purchaseList.purchaseItems.isEmpty == true)
+                      (state.purchaseList?.purchaseItems.isEmpty == true)
                           ? const Padding(
                               padding: EdgeInsets.symmetric(vertical: 16),
                               child: Text('No items added yet. Tap + to add items.'),
@@ -167,23 +167,23 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                           : ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.purchaseList.purchaseItems.length,
+                              itemCount: state.purchaseList?.purchaseItems.length,
                               itemBuilder: (context, index) {
                                 /// Get the purchase item at the current index
-                                final item = state.purchaseList.purchaseItems[index];
+                                final item = state.purchaseList?.purchaseItems[index];
 
                                 return Card(
                                   margin: const EdgeInsets.symmetric(vertical: 4),
                                   child: ListTile(
-                                    title: Text(item.customName ?? item.catalogItem?.name ?? 'Unknown Item'),
+                                    title: Text(item?.customName ?? item?.catalogItem?.name ?? 'Unknown Item'),
                                     subtitle: Text(
-                                      '${item.quantity} pc - ${item.unitPrice != null ? '\$${item.unitPrice}' : 'No price set'}',
+                                      '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
                                     ),
                                     trailing: IconButton(
                                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                                       onPressed: () {
                                         context.read<PurchaseListEditorBloc>().add(
-                                              RemoveItemFromPurchaseListEvent(id: item.id!),
+                                              RemoveItemFromPurchaseListEvent(id: item!.id!),
                                             );
                                       },
                                     ),

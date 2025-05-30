@@ -17,9 +17,8 @@ class PurchaseListEditorLoadingState extends PurchaseListEditorState {}
 
 /// State when editor data has been loaded successfully
 class PurchaseListEditorLoadedState extends PurchaseListEditorState {
-
   /// The purchase list being edited
-  final PurchaseList purchaseList;
+  final PurchaseList? purchaseList;
 
   /// The list of categories
   final List<Category> categories;
@@ -35,7 +34,7 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
 
   /// Creates a new state with loaded editor data
   const PurchaseListEditorLoadedState({
-    required this.purchaseList,
+    this.purchaseList,
     required this.categories,
     required this.catalogItems,
     this.selectedCategory,
@@ -48,7 +47,7 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
     List<CatalogItem>? catalogItems,
     Category? selectedCategory,
     CatalogItem? selectedCatalogItem,
-    PurchaseList ? purchaseList,
+    PurchaseList? purchaseList,
   }) {
     return PurchaseListEditorLoadedState(
       purchaseList: purchaseList ?? this.purchaseList,
