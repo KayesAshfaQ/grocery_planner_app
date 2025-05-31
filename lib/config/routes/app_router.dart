@@ -1,3 +1,4 @@
+// filepath: /home/asfakul-kays/development/flutter/grocery_planner_app/lib/config/routes/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -35,23 +36,21 @@ class AppRouter {
           return Dashboard(navigationShell: navigationShell);
         },
         branches: [
-          // Grocery List Branch
+          // Purchase List Branch
           StatefulShellBranch(
             navigatorKey: _sectionNavigatorKey,
             routes: [
+              // Main route for the Purchase List
               GoRoute(
                 path: PurchaseListPage.routePath,
-                builder: (context, state) => const GroceryListShell(),
+                builder: (context, state) => const PurchaseListShell(),
                 routes: [
+                  // Route for Purchase List Editor
                   GoRoute(
                     path: PurchaseListEditorPage.routePath,
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
-                      final purchaseListBloc = state.extra as PurchaseListBloc;
-                      return BlocProvider<PurchaseListBloc>.value(
-                        value: purchaseListBloc,
-                        child: const PurchaseListEditorPage(),
-                      );
+                      return PurchaseListEditorPage.create();
                     },
                   ),
                 ],
@@ -131,9 +130,9 @@ class AppRouter {
   );
 }
 
-/// A simple wrapper for the GroceryListPage with BlocProvider
-class GroceryListShell extends StatelessWidget {
-  const GroceryListShell({super.key});
+/// A simple wrapper for the PurchaseListPage with BlocProvider
+class PurchaseListShell extends StatelessWidget {
+  const PurchaseListShell({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -64,10 +64,12 @@ class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerPr
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+
+          
+
           // Updated to use route constants from the respective page files
           context.go(
             '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}',
-            extra: context.read<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
           );
         },
         child: const Icon(Icons.add),

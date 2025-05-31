@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:grocery_planner_app/core/event/app_event_bus.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
@@ -22,6 +23,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
   final AddPurchaseListUsecase addPurchaseListUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
   final RemovePurchaseItemUsecase removePurchaseItemUsecase;
+  final AppEventBus _eventBus;
 
   /// Creates a new EditorBloc
   PurchaseListEditorBloc({
@@ -30,7 +32,9 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     required this.addPurchaseItemUsecase,
     required this.addPurchaseListUsecase,
     required this.removePurchaseItemUsecase,
-  }) : super(PurchaseListEditorInitialState()) {
+    required AppEventBus eventBus,
+  })  : _eventBus = eventBus,
+        super(PurchaseListEditorInitialState()) {
     on<LoadCategoriesAndCatalogItemsEvent>(_onLoadCategoriesAndCatalogItems);
     on<SelectCatalogItemEvent>(_onSelectCatalogItem);
     on<SelectCategoryEvent>(_onSelectCategory);
@@ -73,9 +77,6 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
         emit(PurchaseListEditorLoadedState(
           categories: categories,
           catalogItems: catalogItems,
-          selectedCategory: null,
-          selectedCatalogItem: null,
-          purchaseList: null,
         ));
       }
     } catch (e) {
@@ -134,8 +135,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     final result = await addPurchaseItemUsecase(event.item);
     result.fold(
       (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
-      (groceryItem) {
-        emit(PurchaseItemAddedState(item: groceryItem));
+      (purchaseItem) {
+        emit(PurchaseItemAddedState(item: purchaseItem));
       },
     );
   }
@@ -169,6 +170,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     result.fold(
       (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
       (purchaseList) {
+        // Notify other blocs about the new list through the event bus
+        _eventBus.fire(event);
         emit(PurchaseListAddedState(list: purchaseList));
       },
     );

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
@@ -18,6 +17,14 @@ class PurchaseListEditorPage extends StatefulWidget {
 
   /// Route path for this page (relative to parent)
   static const String routePath = 'editor';
+
+  /// Factory method that creates the page wrapped with necessary BlocProviders
+  static Widget create() {
+    return BlocProvider(
+      create: (context) => sl<PurchaseListEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
+      child: const PurchaseListEditorPage(),
+    );
+  }
 
   @override
   State<PurchaseListEditorPage> createState() => _PurchaseListEditorPageState();
@@ -80,140 +87,127 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<PurchaseListEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Add Shopping List'),
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => context.pop(),
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Shopping List'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => context.pop(),
         ),
-        body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
-          listener: (context, state) {
-            if (state is PurchaseItemAddedState) {
-              // Notify the grocery list to refresh before popping
-              final groceryBloc = context.read<PurchaseListBloc>();
-              groceryBloc.add(GetAllPurchaseItemsEvent());
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Grocery item added successfully')),
-              );
-              context.pop(context);
-            } else if (state is PurchaseListAddedState) {
-              // Notify the purchase list to refresh before popping
-              final purchaseBloc = context.read<PurchaseListBloc>();
-              purchaseBloc.add(GetAllPurchaseItemsEvent());
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Purchase list added successfully')),
-              );
-              context.pop(context);
-            } else if (state is PurchaseListEditorErrorState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: ${state.message}')),
-              );
-            }
-          },
-          builder: (context, state) {
-            if (state is PurchaseListEditorLoadingState) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (state is PurchaseListEditorLoadedState) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildNameField(),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: _buildBudgetField(),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 2,
-                            child: _buildCurrencyField(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildNoteField(),
-                      const SizedBox(height: 16),
-
-                      /// -------------- Add Purchase Item Section --------------
-                      Row(
-                        children: [
-                          Text(
-                            'Add New Item',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.add_circle_outline, color: Colors.green),
-                        ],
-                      ),
-                      (state.purchaseList?.purchaseItems.isEmpty == true)
-                          ? const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Text('No items added yet. Tap + to add items.'),
-                            )
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.purchaseList?.purchaseItems.length,
-                              itemBuilder: (context, index) {
-                                /// Get the purchase item at the current index
-                                final item = state.purchaseList?.purchaseItems[index];
-
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  child: ListTile(
-                                    title: Text(item?.customName ?? item?.catalogItem?.name ?? 'Unknown Item'),
-                                    subtitle: Text(
-                                      '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                      onPressed: () {
-                                        context.read<PurchaseListEditorBloc>().add(
-                                              RemoveItemFromPurchaseListEvent(id: item!.id!),
-                                            );
-                                      },
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: state is PurchaseListEditorLoadingState ? null : () => _submitForm(context, state),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: state is PurchaseListEditorLoadingState
-                            ? const CircularProgressIndicator()
-                            : const Text('ADD SHOPPING LIST'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            // Fallback for initial state or error state
-            return const Center(
-              child: Text('Failed to load editor. Please try again.'),
+      ),
+      body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
+        listener: (context, state) {
+          if (state is PurchaseItemAddedState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Grocery item added successfully')),
             );
-          },
-        ),
+          } else if (state is PurchaseListAddedState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Purchase list added successfully')),
+            );
+          } else if (state is PurchaseListEditorErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${state.message}')),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is PurchaseListEditorLoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is PurchaseListEditorLoadedState) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildNameField(),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: _buildBudgetField(),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: _buildCurrencyField(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildNoteField(),
+                    const SizedBox(height: 16),
+
+                    /// -------------- Add Purchase Item Section --------------
+                    Row(
+                      children: [
+                        Text(
+                          'Add New Item',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.add_circle_outline, color: Colors.green),
+                      ],
+                    ),
+                    (state.purchaseList?.purchaseItems.isNotEmpty == true)
+                        ? ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: state.purchaseList?.purchaseItems.length,
+                            itemBuilder: (context, index) {
+                              /// Get the purchase item at the current index
+                              final item = state.purchaseList?.purchaseItems[index];
+
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                child: ListTile(
+                                  title: Text(item?.customName ?? item?.catalogItem?.name ?? 'Unknown Item'),
+                                  subtitle: Text(
+                                    '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                    onPressed: () {
+                                      context.read<PurchaseListEditorBloc>().add(
+                                            RemoveItemFromPurchaseListEvent(id: item!.id!),
+                                          );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Text('No items added yet. Tap + to add items.'),
+                          ),
+
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: state is PurchaseListEditorLoadingState ? null : () => _submitForm(context, state),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: state is PurchaseListEditorLoadingState
+                          ? const CircularProgressIndicator()
+                          : const Text('ADD SHOPPING LIST'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Fallback for initial state or error state
+          return const Center(
+            child: Text('Failed to load editor. Please try again.'),
+          );
+        },
       ),
     );
   }

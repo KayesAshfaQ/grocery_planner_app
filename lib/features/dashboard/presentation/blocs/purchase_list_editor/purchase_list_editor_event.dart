@@ -60,12 +60,12 @@ class InsertCategoryEvent extends PurchaseListEditorEvent {
   List<Object> get props => [name];
 }
 
-/// Event to add a new grocery item
-class AddPurchaseListEvent extends PurchaseListEditorEvent {
-  /// The purchase item to be added
+/// Event to add a new PurchaseList
+class AddPurchaseListEvent extends PurchaseListEditorEvent implements AppEvent {
+  /// The purchase list to be added
   final PurchaseList list;
 
-  /// Creates a new event to add a purchase item
+  /// Creates a new event to add a purchase list
   const AddPurchaseListEvent({required this.list});
 
   @override

@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
+import 'package:grocery_planner_app/core/event/app_event_bus.dart';
 import 'package:grocery_planner_app/core/network/network_info.dart';
 import 'package:grocery_planner_app/features/dashboard/data/datasources/catalog_data_source.dart';
 import 'package:grocery_planner_app/features/dashboard/data/datasources/category_data_source.dart';
@@ -31,6 +32,7 @@ final sl = GetIt.instance;
 Future<void> initServiceLocator(AppDatabase database) async {
   // Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+  sl.registerLazySingleton(() => AppEventBus());
 
   // API client with Dio
   final dio = Dio();
@@ -68,25 +70,27 @@ Future<void> initServiceLocator(AppDatabase database) async {
   );
 
   // Use cases
-  sl.registerLazySingleton(() => GetPurchaseListUsecase(sl()));
+  sl.registerLazySingleton(() => GetAllPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => MarkItemAsPurchasedUsecase(sl()));
   sl.registerLazySingleton(() => AddPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => AddPurchaseItemUsecase(sl()));
   sl.registerLazySingleton(() => RemovePurchaseItemUsecase(sl()));
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
-
   // Blocs/Cubits
   sl.registerFactory(() => PurchaseListBloc(
-        getPurchaseListUsecase: sl(),
+        getAllPurchaseListUseCase: sl(),
         markItemAsPurchasedUsecase: sl(),
+        eventBus: sl(),
       ));
 
-  sl.registerFactory(() => PurchaseListEditorBloc(
+  sl.registerFactory(() => 
+  PurchaseListEditorBloc(
         getCategoriesUsecase: sl(),
         getCatalogItemsUsecase: sl(),
-        addPurchaseListUsecase: sl(), 
+        addPurchaseListUsecase: sl(),
         addPurchaseItemUsecase: sl(),
         removePurchaseItemUsecase: sl(),
+        eventBus: sl(),
       ));
 }
