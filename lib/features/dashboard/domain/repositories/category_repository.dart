@@ -5,11 +5,10 @@ import 'package:grocery_planner_app/features/dashboard/domain/entities/category.
 /// Repository interface for category operations
 abstract class CategoryRepository {
   /// Get all categories
-  Future<Either<AppException, List<Category>>> getCategories();
+  Future<Either<AppException, List<Category>>> getAllCategories();
 
   /// Search categories by name
-  Future<Either<AppException, List<Category>>> searchCategories(
-      String query);
+  Future<Either<AppException, List<Category>>> searchCategories(String query);
 
   /// Get a specific category by ID
   Future<Either<AppException, Category>> getCategoryById(String id);
@@ -22,5 +21,4 @@ abstract class CategoryRepository {
 
   /// Delete a category
   Future<Either<AppException, void>> deleteCategory(String id);
-
 }

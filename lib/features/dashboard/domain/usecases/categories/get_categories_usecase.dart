@@ -13,6 +13,6 @@ class GetCategoriesUsecase {
 
   /// Gets all available categories
   Future<Either<AppException, List<Category>>> call() async {
-    return repository.getCategories();
+    return repository.getAllCategories();
   }
 }

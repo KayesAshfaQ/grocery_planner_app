@@ -20,8 +20,7 @@ Future<void> main() async {
   ]);
 
   // Initialize database
-  final database =
-      await $FloorAppDatabase.databaseBuilder('grocery_app.db').build();
+  final database = await $FloorAppDatabase.databaseBuilder('grocery_app.db').build();
 
   // Initialize service locator
   await initServiceLocator(database);
@@ -36,7 +35,7 @@ class GroceryPlannerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Grocery Planner',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,

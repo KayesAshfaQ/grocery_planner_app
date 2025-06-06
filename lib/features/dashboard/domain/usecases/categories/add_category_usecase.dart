@@ -1,18 +1,18 @@
 import 'package:dartz/dartz.dart';
 import 'package:grocery_planner_app/core/error/exceptions.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/repositories/catalog_repository.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/repositories/category_repository.dart';
 
-/// Use case for adding a new catalog item
+/// Use case for adding a new category
 class AddCategoryUsecase {
-  /// The catalog repository
-  final CatalogRepository repository;
+  /// The category repository
+  final CategoryRepository repository;
 
-  /// Creates a new AddCatalogItem use case
+  /// Creates a new AddCategory use case
   AddCategoryUsecase(this.repository);
 
-  /// Adds a new catalog item
-  Future<Either<AppException, CatalogItem>> call(CatalogItem item) async {
-    return repository.addCatalogItem(item);
+  /// Adds a new category
+  Future<Either<AppException, Category>> call(Category item) async {
+    return repository.addCategory(item);
   }
 }
