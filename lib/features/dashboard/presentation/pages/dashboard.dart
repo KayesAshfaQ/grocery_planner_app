@@ -15,6 +15,7 @@ class Dashboard extends StatelessWidget {
   // List of icons for the bottom navigation
   static const List<IconData> _navigationIcons = [
     Icons.shopping_cart,
+    Icons.store,
     Icons.category,
     Icons.calendar_today,
     Icons.bar_chart,
@@ -24,6 +25,7 @@ class Dashboard extends StatelessWidget {
   static const List<String> _navigationLabels = [
     'Grocery List',
     'Catalog',
+    'Category',
     'Schedule',
     'Reports',
   ];

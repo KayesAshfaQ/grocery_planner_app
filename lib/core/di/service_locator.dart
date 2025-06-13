@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:grocery_planner_app/features/dashboard/domain/usecases/categories/add_category_usecase.dart';
+import 'package:grocery_planner_app/features/dashboard/presentation/blocs/category/category_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
@@ -77,6 +79,8 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerLazySingleton(() => RemovePurchaseItemUsecase(sl()));
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
+  sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
+
   // Blocs/Cubits
   sl.registerFactory(() => PurchaseListBloc(
         getAllPurchaseListUseCase: sl(),
@@ -84,13 +88,17 @@ Future<void> initServiceLocator(AppDatabase database) async {
         eventBus: sl(),
       ));
 
-  sl.registerFactory(() => 
-  PurchaseListEditorBloc(
+  sl.registerFactory(() => PurchaseListEditorBloc(
         getCategoriesUsecase: sl(),
         getCatalogItemsUsecase: sl(),
         addPurchaseListUsecase: sl(),
         addPurchaseItemUsecase: sl(),
         removePurchaseItemUsecase: sl(),
         eventBus: sl(),
+      ));
+
+  sl.registerFactory(() => CategoryBloc(
+        getCategoriesUsecase: sl(),
+        addCategoryUsecase: sl(),
       ));
 }
