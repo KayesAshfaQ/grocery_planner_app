@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:grocery_planner_app/core/error/exceptions.dart';
 import 'package:grocery_planner_app/features/dashboard/data/datasources/catalog_data_source.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/repositories/catalog_repository.dart';
 
 class CatalogRepositoryImpl implements CatalogRepository {

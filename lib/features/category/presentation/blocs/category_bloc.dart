@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:grocery_planner_app/features/category/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/add_category_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:grocery_planner_app/core/error/exceptions.dart';
-import 'package:grocery_planner_app/features/category/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 
 /// Repository interface for category operations
 abstract class CategoryRepository {

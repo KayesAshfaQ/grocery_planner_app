@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
+import 'package:grocery_planner_app/features/shared/data/models/catalog_item_model.dart';
 
 /// Data Access Object for CatalogItem operations
 @dao

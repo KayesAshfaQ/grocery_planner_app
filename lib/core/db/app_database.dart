@@ -5,12 +5,12 @@ import 'package:grocery_planner_app/core/db/converter/date_time_converter.dart';
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/category_dao.dart';
 import 'package:grocery_planner_app/core/db/dao/purchase_dao.dart';
-import 'package:grocery_planner_app/features/dashboard/data/models/catalog_item_model.dart';
-import 'package:grocery_planner_app/features/category/data/models/category_model.dart';
+import 'package:grocery_planner_app/features/shared/data/models/catalog_item_model.dart';
+import 'package:grocery_planner_app/features/shared/data/models/category_model.dart';
 // ignore: depend_on_referenced_packages
 import 'package:sqflite/sqflite.dart' as sqflite;
 // Import the core database models
-import 'package:grocery_planner_app/features/dashboard/data/models/index.dart';
+import 'package:grocery_planner_app/features/shared/data/models/index.dart';
 
 // Required for Floor to generate database
 part 'app_database.g.dart';

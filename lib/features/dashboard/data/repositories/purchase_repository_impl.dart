@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 
 import 'package:grocery_planner_app/core/error/exceptions.dart';
-import 'package:grocery_planner_app/features/dashboard/data/datasources/purchase_data_source.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/purchase_list.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/repositories/purchase_repository.dart';
+import 'package:grocery_planner_app/features/purchase_list/data/datasources/purchase_data_source.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/repositories/purchase_repository.dart';
 
 class PurchaseRepositoryImpl implements PurchaseRepository {
   final PurchaseDataSource dataSource;
