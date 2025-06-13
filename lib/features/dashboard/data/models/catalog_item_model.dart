@@ -1,6 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/category/domain/entities/category.dart';
 
 /// Database model for catalog items
 @Entity(tableName: 'catalog_items')

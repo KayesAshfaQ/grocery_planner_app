@@ -1,4 +1,4 @@
-export 'category_model.dart';
+export '../../../category/data/models/category_model.dart';
 export 'catalog_item_model.dart';
 export 'price_history.dart';
 export 'purchase_list_model.dart';

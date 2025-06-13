@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/category/domain/entities/category.dart';
 
 /// Represents a pre-registered grocery item in the catalog
 ///

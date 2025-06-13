@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/dashboard/domain/entities/catalog_item.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/category/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 
 /// Page for adding a new grocery item

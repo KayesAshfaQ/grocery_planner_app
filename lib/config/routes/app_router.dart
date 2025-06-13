@@ -1,7 +1,7 @@
 // filepath: /home/asfakul-kays/development/flutter/grocery_planner_app/lib/config/routes/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/category_page.dart';
+import 'package:grocery_planner_app/features/category/presentation/pages/category_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/purchase_list_editor_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';

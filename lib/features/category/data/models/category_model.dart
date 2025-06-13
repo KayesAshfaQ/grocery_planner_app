@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/category/domain/entities/category.dart';
 
 /// Database model for categories of grocery items
 @Entity(tableName: 'categories')
