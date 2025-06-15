@@ -12,7 +12,7 @@ class CategoryPage extends StatefulWidget {
   static const String routePath = '/categories';
 
   /// Factory method that creates the page wrapped with necessary BlocProviders
-  static Widget route() {
+  static Widget create() {
     return BlocProvider(
       create: (context) => sl<CategoryBloc>()..add(LoadCategoriesEvent()),
       child: const CategoryPage(),
@@ -25,18 +25,17 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   void _showAddCategoryBottomSheet() {
+    final categoryBloc = context.read<CategoryBloc>();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => AddCategoryBottomSheet(
-        onSave: (name, description, icon) {
-          // Add your logic to save the new category
-          print('Name: $name, Description: $description, Icon: $icon');
-          // Example: addNewCategory(name, description, icon);
-        },
+      builder: (context) => BlocProvider.value(
+        value: categoryBloc,
+        child: AddCategoryBottomSheet(),
       ),
     );
   }
@@ -53,8 +52,50 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Category Page'),
+      body: BlocListener<CategoryBloc, CategoryState>(
+        listenWhen: (previous, current) => current is CategoryAdded,
+        listener: (context, state) {
+          if (state is CategoryAdded) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Category "${state.category.name}" added successfully')),
+            );
+
+            // Reload categories when a new category is added
+            context.read<CategoryBloc>().add(LoadCategoriesEvent());
+          }
+        },
+        child: BlocBuilder<CategoryBloc, CategoryState>(
+          builder: (context, state) {
+            if (state is CategoryLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is CategoryLoaded) {
+              final categories = state.categories;
+              if (categories.isEmpty) {
+                return const Center(child: Text('No categories found.'));
+              }
+              return ListView.builder(
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return ListTile(
+                    leading: Icon(Icons.category),
+                    title: Text(category.name ?? 'Unnamed Category'),
+                    subtitle: Text(category.description ?? ''),
+                    onTap: () {
+                      // Handle category tap
+                    },
+                  );
+                },
+              );
+            } else if (state is CategoryError) {
+              return Center(child: Text('Error: ${state.message}'));
+            }
+            return const Center(
+              child: Text('Category Page'),
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,16 +1,19 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: depend_on_referenced_packages, library_prefixes
 import 'package:flutter_iconpicker/flutter_iconpicker.dart' as FlutterIconPicker;
 import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:grocery_planner_app/config/theme/app_icons.dart';
+import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 
 class AddCategoryBottomSheet extends StatefulWidget {
-  final Function(String name, String description, IconData? icon) onSave;
+  // final Function(String name, String description, IconData? icon) onSave;
 
   const AddCategoryBottomSheet({
     Key? key,
-    required this.onSave,
+    // required this.onSave,
   }) : super(key: key);
 
   @override
@@ -125,11 +128,14 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      widget.onSave(
-                        _nameController.text.trim(),
-                        _descriptionController.text.trim(),
-                        _selectedIcon,
-                      );
+                      context.read<CategoryBloc>().add(
+                            AddCategoryEvent(Category(
+                              name: _nameController.text.trim(),
+                              description: _descriptionController.text.trim(),
+                              imageUri: '${_selectedIcon?.codePoint},${_selectedIcon?.fontFamily}',
+                            )),
+                          );
+
                       Navigator.of(context).pop();
                     }
                   },

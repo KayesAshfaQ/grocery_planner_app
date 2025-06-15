@@ -58,7 +58,6 @@ class CategoryModel {
   /// Creates a model from a domain entity
   factory CategoryModel.fromEntity(Category category) {
     return CategoryModel(
-      id: category.id,
       name: category.name,
       description: category.description,
       imageUri: category.imageUri,

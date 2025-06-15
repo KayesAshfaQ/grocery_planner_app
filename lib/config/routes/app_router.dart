@@ -1,4 +1,3 @@
-// filepath: /home/asfakul-kays/development/flutter/grocery_planner_app/lib/config/routes/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/category/presentation/pages/category_page.dart';
@@ -74,9 +73,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: CategoryPage.routePath,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: CategoryPage(),
-                ),
+                builder: (context, state) {
+                  return CategoryPage.create();
+                },
               ),
             ],
           ),
