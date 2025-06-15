@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
+
+import '../blocs/category_bloc.dart';
+import '../widgets/add_category_bottom_sheet.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -22,6 +24,23 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  void _showAddCategoryBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => AddCategoryBottomSheet(
+        onSave: (name, description, icon) {
+          // Add your logic to save the new category
+          print('Name: $name, Description: $description, Icon: $icon');
+          // Example: addNewCategory(name, description, icon);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,10 +49,7 @@ class _CategoryPageState extends State<CategoryPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // Navigate to category editor page
-              // Navigator.pushNamed(context, CategoryEditorPage.routePath);
-            },
+            onPressed: _showAddCategoryBottomSheet,
           ),
         ],
       ),
