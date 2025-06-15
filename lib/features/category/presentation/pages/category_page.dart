@@ -26,7 +26,7 @@ class _CategoryPageState extends State<CategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Category Page'),
+        title: const Text('Categories'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -40,7 +40,6 @@ class _CategoryPageState extends State<CategoryPage> {
       body: const Center(
         child: Text('Category Page'),
       ),
-      
     );
   }
 }

@@ -42,6 +42,10 @@ class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Purchase List'),
+        elevation: 0,
+      ),
       body: Column(
         children: [
           TabBar(
