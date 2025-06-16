@@ -4,7 +4,7 @@ import 'package:grocery_planner_app/features/category/presentation/pages/categor
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_editor_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/catalog_page.dart';
+import 'package:grocery_planner_app/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/schedule_page.dart';
 

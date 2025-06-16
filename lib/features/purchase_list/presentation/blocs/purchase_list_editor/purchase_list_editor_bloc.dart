@@ -7,7 +7,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
-import 'package:grocery_planner_app/features/dashboard/domain/usecases/catalog/get_catalog_items_usecase.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_list_usecase.dart';
