@@ -61,9 +61,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: CatalogPage.routePath,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: CatalogPage(),
-                ),
+                builder: (context, state) {
+                  return CatalogPage.create();
+                },
               ),
             ],
           ),
