@@ -24,22 +24,6 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  void _showAddCategoryBottomSheet() {
-    final categoryBloc = context.read<CategoryBloc>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => BlocProvider.value(
-        value: categoryBloc,
-        child: AddCategoryBottomSheet(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +32,7 @@ class _CategoryPageState extends State<CategoryPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: _showAddCategoryBottomSheet,
+            onPressed: () => AddCategoryBottomSheet.show(context),
           ),
         ],
       ),

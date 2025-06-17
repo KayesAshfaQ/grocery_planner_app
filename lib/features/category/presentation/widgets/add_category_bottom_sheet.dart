@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: depend_on_referenced_packages, library_prefixes
 import 'package:flutter_iconpicker/flutter_iconpicker.dart' as FlutterIconPicker;
 import 'package:flutter_iconpicker/Models/configuration.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/config/theme/app_icons.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_form_bottom_sheet.dart';
 
 class AddCategoryBottomSheet extends StatefulWidget {
   // final Function(String name, String description, IconData? icon) onSave;
@@ -18,6 +20,17 @@ class AddCategoryBottomSheet extends StatefulWidget {
 
   @override
   State<AddCategoryBottomSheet> createState() => _AddCategoryBottomSheetState();
+
+  /// Show this bottom sheet
+  static Future<void> show(BuildContext context) {
+    return AppFormBottomSheet.show(
+      context: context,
+      formBottomSheet: BlocProvider.value(
+        value: context.read<CategoryBloc>(),
+        child: const AddCategoryBottomSheet(),
+      ),
+    );
+  }
 }
 
 class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
@@ -51,101 +64,68 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     }
   }
 
+  void _handleSubmit() {
+    context.read<CategoryBloc>().add(
+          AddCategoryEvent(Category(
+            name: _nameController.text.trim(),
+            description: _descriptionController.text.trim(),
+            imageUri: _selectedIcon != null ? '${_selectedIcon!.codePoint},${_selectedIcon!.fontFamily}' : null,
+          )),
+        );
+
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        top: 16,
-        left: 16,
-        right: 16,
-        // Add padding to avoid keyboard overlap
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return AppFormBottomSheet(
+      title: 'Add New Category',
+      formKey: _formKey,
+      onSubmit: _handleSubmit,
+      formFields: [
+        TextFormField(
+          controller: _nameController,
+          decoration: const InputDecoration(
+            labelText: 'Name',
+            border: OutlineInputBorder(),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter a category name';
+            }
+            return null;
+          },
+        ),
+        TextFormField(
+          controller: _descriptionController,
+          decoration: const InputDecoration(
+            labelText: 'Description (Optional)',
+            border: OutlineInputBorder(),
+            hintText: 'Enter a description...',
+          ),
+          maxLines: 2,
+        ),
+        Row(
           children: [
             Text(
-              'Add New Category',
-              style: Theme.of(context).textTheme.titleLarge,
+              'Category Icon (Optional):',
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
+            const SizedBox(width: 12),
+            InkWell(
+              onTap: _pickIcon,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _selectedIcon != null ? Icon(_selectedIcon, size: 30) : const Text('Select Icon'),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a category name';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                border: OutlineInputBorder(),
-                hintText: 'Enter a description...',
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text(
-                  'Category Icon (Optional):',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(width: 12),
-                InkWell(
-                  onTap: _pickIcon,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: _selectedIcon != null ? Icon(_selectedIcon, size: 30) : const Text('Select Icon'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('CANCEL'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      context.read<CategoryBloc>().add(
-                            AddCategoryEvent(Category(
-                              name: _nameController.text.trim(),
-                              description: _descriptionController.text.trim(),
-                              imageUri: '${_selectedIcon?.codePoint},${_selectedIcon?.fontFamily}',
-                            )),
-                          );
-
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text('SAVE'),
-                ),
-              ],
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 }
