@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/add_catalog_item_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
@@ -79,6 +80,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerLazySingleton(() => AddPurchaseItemUsecase(sl()));
   sl.registerLazySingleton(() => RemovePurchaseItemUsecase(sl()));
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
+  sl.registerLazySingleton(() => AddCatalogItemUsecase(sl()));
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
 
