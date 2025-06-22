@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/catalog/presentation/blocs/catalog_bloc.dart';
+import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
+
+import '../widgets/add_catalog_item_bottom_sheet.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -11,8 +14,15 @@ class CatalogPage extends StatefulWidget {
 
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create() {
-    return BlocProvider(
-      create: (context) => sl<CatalogBloc>()..add(LoadCatalogsEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => sl<CatalogBloc>()..add(LoadCatalogsEvent()),
+        ),
+        BlocProvider(
+          create: (context) => sl<CategoryBloc>(),
+        ),
+      ],
       child: const CatalogPage(),
     );
   }
@@ -30,42 +40,58 @@ class _CatalogPageState extends State<CatalogPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              AddCatalogItemBottomSheet.show(context);
+            },
           ),
         ],
       ),
-      body: BlocBuilder<CatalogBloc, CatalogState>(
-        builder: (context, state) {
-          if (state is CatalogLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
+      body: BlocListener<CatalogBloc, CatalogState>(
+        listenWhen: (previous, current) => current is CatalogAdded,
+        listener: (context, state) {
+          if (state is CatalogAdded) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Catalog "${state.catalog.name}" added successfully')),
             );
-          } else if (state is CatalogLoaded) {
-            final catalogs = state.catalogs;
-            if (catalogs.isEmpty) {
-              return const Center(child: Text('No catalogs found.'));
-            }
-            return ListView.builder(
-              itemCount: catalogs.length,
-              itemBuilder: (context, index) {
-                final item = catalogs[index];
-                return ListTile(
-                  title: Text(item.name),
-                  subtitle: Text(item.category?.name ?? 'No Category'),
-                  onTap: () {
-                    // Handle item tap
-                  },
-                );
-              },
-            );
-          } else if (state is CatalogError) {
-            return Center(child: Text('Error: ${state.message}'));
-          } else {
-            return const Center(
-              child: Text('Failed to load catalog'),
-            );
+
+            // Reload catalogs when a new catalog is added
+            context.read<CatalogBloc>().add(LoadCatalogsEvent());
           }
         },
+        child: BlocBuilder<CatalogBloc, CatalogState>(
+          builder: (context, state) {
+            if (state is CatalogLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is CatalogLoaded) {
+              final catalogs = state.catalogs;
+              if (catalogs.isEmpty) {
+                return const Center(child: Text('No catalogs found.'));
+              }
+              return ListView.builder(
+                itemCount: catalogs.length,
+                itemBuilder: (context, index) {
+                  final item = catalogs[index];
+                  return ListTile(
+                    title: Text(item.name),
+                    subtitle: Text(item.category?.name ?? 'No Category'),
+                    onTap: () {
+                      // Handle item tap
+                    },
+                  );
+                },
+              );
+            } else if (state is CatalogError) {
+              return Center(child: Text('Error: ${state.message}'));
+            } else {
+              return const Center(
+                child: Text('Failed to load catalog'),
+              );
+            }
+          },
+        ),
       ),
     );
   }
