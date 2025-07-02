@@ -1,6 +1,8 @@
 import 'package:grocery_planner_app/core/db/dao/catalog_item_dao.dart';
+import 'package:grocery_planner_app/core/db/dao/category_dao.dart';
 import 'package:grocery_planner_app/features/shared/data/models/catalog_item_model.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 
 /// Interface for local grocery data operations
 abstract class CatalogDataSource {
@@ -28,18 +30,47 @@ abstract class CatalogDataSource {
 
 class CatalogLocalDataSourceImpl extends CatalogDataSource {
   final CatalogItemDao catalogItemDao;
+  final CategoryDao categoryDao;
 
-  CatalogLocalDataSourceImpl({required this.catalogItemDao});
+  CatalogLocalDataSourceImpl({required this.catalogItemDao, required this.categoryDao});
 
   @override
   Future<List<CatalogItem>> getCatalogs() async {
     try {
+      // Fetch all catalog items from the database
       final catalogItemModels = await catalogItemDao.getAllItems();
-      if (catalogItemModels.isNotEmpty) {
-        return catalogItemModels.map((item) => item.toEntity()).toList();
-      } else {
-        return [];
+      if (catalogItemModels.isEmpty) return [];
+
+      // Extract unique category IDs
+      final categoryIds = catalogItemModels
+          .where((item) => item.categoryId != null)
+          .map((item) => item.categoryId!)
+          .toSet()
+          .map((id) => id.toString())
+          .toList();
+
+      // Fetch all needed categories in one batch
+      Map<int, Category> categoryMap = {};
+      if (categoryIds.isNotEmpty) {
+        final categories = await Future.wait(categoryIds.map((id) => categoryDao.getItemById(id)));
+
+        // Create lookup map of ID -> Category
+        for (var category in categories.where((c) => c != null)) {
+          categoryMap[category!.id!] = category.toEntity();
+        }
       }
+
+      // Associate categories with catalog items
+      return catalogItemModels
+          .map((model) => CatalogItem(
+                id: model.id,
+                name: model.name,
+                defaultUnit: model.defaultUnit,
+                barcode: model.barcode,
+                imageUri: model.imageUri,
+                category: model.categoryId != null ? categoryMap[model.categoryId] : null,
+              ))
+          .toList();
     } catch (e) {
       throw Exception('Failed to fetch catalog items: $e');
     }

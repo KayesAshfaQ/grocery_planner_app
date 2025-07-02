@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:grocery_planner_app/config/routes/app_router.dart';
 
+import 'package:grocery_planner_app/config/routes/app_router.dart';
 import 'package:grocery_planner_app/config/theme/app_theme.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';

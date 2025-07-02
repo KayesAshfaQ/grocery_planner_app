@@ -56,7 +56,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
     () => PurchaseLocalDataSourceImpl(purchaseDao: database.purchaseDao),
   );
   sl.registerLazySingleton<CatalogDataSource>(
-    () => CatalogLocalDataSourceImpl(catalogItemDao: database.catalogItemDao),
+    () => CatalogLocalDataSourceImpl(catalogItemDao: database.catalogItemDao, categoryDao: database.categoryDao),
   );
   sl.registerLazySingleton<CategoryDataSource>(
     () => CategoryLocalDataSourceImpl(categoryItemDao: database.categoryDao),
