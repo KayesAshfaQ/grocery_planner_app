@@ -131,12 +131,33 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     AddItemToPurchaseListEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
+    // Preserve current state data
+    final currentState = state;
+    List<Category> categories = [];
+    List<CatalogItem> catalogItems = [];
+    PurchaseList? purchaseList;
+
+    if (currentState is PurchaseListEditorLoadedState) {
+      categories = currentState.categories;
+      catalogItems = currentState.catalogItems;
+      purchaseList = currentState.purchaseList;
+    }
+
     emit(PurchaseListEditorLoadingState());
     final result = await addPurchaseItemUsecase(event.item);
     result.fold(
       (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
       (purchaseItem) {
-        emit(PurchaseItemAddedState(item: purchaseItem));
+        // Add the new item to the purchase list
+        final updatedItems = List<PurchaseItem>.from(purchaseList?.purchaseItems ?? [])..add(purchaseItem);
+        final updatedPurchaseList = purchaseList?.copyWith(purchaseItems: updatedItems);
+
+        // Emit loaded state with updated purchase list
+        emit(PurchaseListEditorLoadedState(
+          categories: categories,
+          catalogItems: catalogItems,
+          purchaseList: updatedPurchaseList,
+        ));
       },
     );
   }
@@ -165,6 +186,16 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     AddPurchaseListEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
+    // Preserve current state data
+    final currentState = state;
+    List<Category> categories = [];
+    List<CatalogItem> catalogItems = [];
+
+    if (currentState is PurchaseListEditorLoadedState) {
+      categories = currentState.categories;
+      catalogItems = currentState.catalogItems;
+    }
+
     emit(PurchaseListEditorLoadingState());
     final result = await addPurchaseListUsecase(event.list);
     result.fold(
@@ -172,7 +203,13 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       (purchaseList) {
         // Notify other blocs about the new list through the event bus
         _eventBus.fire(event);
-        emit(PurchaseListAddedState(list: purchaseList));
+
+        // Emit loaded state with the new purchase list and preserved data
+        emit(PurchaseListEditorLoadedState(
+          categories: categories,
+          catalogItems: catalogItems,
+          purchaseList: purchaseList,
+        ));
       },
     );
   }
