@@ -170,7 +170,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                               'Unit: ${item.defaultUnit ?? 'pcs'}',
                             ),
                             selected: isSelected,
-                            selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                            selectedTileColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                             onTap: () => _onCatalogItemSelected(item),
                             trailing: isSelected ? Icon(Icons.check, color: Theme.of(context).primaryColor) : null,
                           );
@@ -239,7 +239,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
