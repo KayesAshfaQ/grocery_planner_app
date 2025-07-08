@@ -28,6 +28,7 @@ lib/
 ├── core/                    # Core functionality 
 │   ├── di/                  # Dependency injection setup
 │   ├── error/               # Error handling
+│   ├── event/               # Event bus for cross-BLoC communication
 │   ├── network/             # Network handling
 │   ├── theme/               # Themes configuration
 │   └── util/                # Utility functions
@@ -55,6 +56,10 @@ This project follows Clean Architecture principles with three main layers:
 1. **Presentation Layer**: Contains UI components, screens, and state management (BLoC)
 2. **Domain Layer**: Contains business logic, entities, and use cases
 3. **Data Layer**: Handles data operations, API calls, and local storage
+
+### Cross-Layer Communication
+
+The application uses an **AppEventBus** for reactive communication between different BLoCs in the presentation layer, enabling loose coupling while maintaining clean architecture principles. This event-driven approach allows BLoCs to react to state changes in other parts of the application without creating direct dependencies.
 
 ### Dependencies
 
@@ -195,6 +200,188 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
   // Other event handlers...
 }
 ```
+
+## Event-Driven Architecture with AppEventBus
+
+The application uses a custom **AppEventBus** for cross-BLoC communication, enabling loose coupling between different parts of the application while maintaining reactive state management.
+
+### AppEventBus Overview
+
+The `AppEventBus` is a singleton service that implements the Observer pattern using Dart streams to facilitate communication between different BLoCs without creating direct dependencies.
+
+#### Key Features:
+- **Singleton Pattern**: Ensures single instance across the app
+- **Broadcast Stream**: Allows multiple listeners to subscribe to events
+- **Type-Safe Events**: Uses abstract `AppEvent` base class for type safety
+- **Memory Management**: Provides proper cleanup with `dispose()` method
+
+#### Implementation:
+
+```dart
+/// Base class for all app events
+abstract class AppEvent {}
+
+/// A simple event bus for app-wide communication
+class AppEventBus {
+  // Singleton pattern
+  static final AppEventBus _instance = AppEventBus._internal();
+  factory AppEventBus() => _instance;
+  AppEventBus._internal();
+
+  // The broadcast stream controller that manages events
+  final StreamController<AppEvent> _controller = StreamController<AppEvent>.broadcast();
+
+  /// The stream of app events
+  Stream<AppEvent> get stream => _controller.stream;
+
+  /// Fire an event to all listeners
+  void fire(AppEvent event) {
+    _controller.add(event);
+  }
+
+  /// Dispose resources
+  void dispose() {
+    _controller.close();
+  }
+}
+```
+
+### Usage Patterns
+
+#### 1. Event Definition
+Events must implement the `AppEvent` interface and typically extend `PurchaseListEditorEvent`:
+
+```dart
+/// Event to add a new PurchaseList
+class AddPurchaseListEvent extends PurchaseListEditorEvent implements AppEvent {
+  final PurchaseList list;
+
+  const AddPurchaseListEvent({required this.list});
+
+  @override
+  List<Object?> get props => [list];
+}
+```
+
+#### 2. Publishing Events (Event Producer)
+The `PurchaseListEditorBloc` fires events when significant operations complete:
+
+```dart
+class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
+  final AppEventBus _eventBus;
+
+  // Constructor with dependency injection
+  PurchaseListEditorBloc({
+    // other dependencies...
+    required AppEventBus eventBus,
+  }) : _eventBus = eventBus, super(PurchaseListEditorInitialState());
+
+  // Event handler that fires events to other BLoCs
+  FutureOr<void> _onAddPurchaseList(
+    AddPurchaseListEvent event,
+    Emitter<PurchaseListEditorState> emit,
+  ) async {
+    emit(PurchaseListEditorLoadingState());
+    final result = await addPurchaseListUsecase(event.list);
+    
+    result.fold(
+      (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
+      (purchaseList) {
+        // Notify other blocs about the new list through the event bus
+        _eventBus.fire(event);
+
+        // Emit success state to trigger UI feedback
+        emit(PurchaseListAddedState(list: purchaseList));
+      },
+    );
+  }
+}
+```
+
+#### 3. Consuming Events (Event Subscriber)
+The `PurchaseListBloc` subscribes to events and reacts accordingly:
+
+```dart
+class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
+  final AppEventBus _eventBus;
+  late final StreamSubscription _eventSubscription;
+
+  PurchaseListBloc({
+    // other dependencies...
+    required AppEventBus eventBus,
+  }) : _eventBus = eventBus, super(PurchaseListInitialState()) {
+    
+    // Subscribe to events from the event bus
+    _eventSubscription = _eventBus.stream.listen((event) {
+      if (event is AddPurchaseListEvent) {
+        // Refresh the purchase list when a new list is added
+        add(GetAllPurchaseItemsEvent());
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    // Clean up subscription to prevent memory leaks
+    _eventSubscription.cancel();
+    return super.close();
+  }
+}
+```
+
+#### 4. Dependency Injection Setup
+The `AppEventBus` is registered as a lazy singleton in the service locator:
+
+```dart
+// In service_locator.dart
+Future<void> initServiceLocator(AppDatabase database) async {
+  // Register AppEventBus as singleton
+  sl.registerLazySingleton(() => AppEventBus());
+
+  // Register BLoCs with AppEventBus dependency
+  sl.registerFactory(() => PurchaseListBloc(
+    getAllPurchaseListUseCase: sl(),
+    markItemAsPurchasedUsecase: sl(),
+    eventBus: sl(), // Inject the singleton instance
+  ));
+
+  sl.registerFactory(() => PurchaseListEditorBloc(
+    getCategoriesUsecase: sl(),
+    getCatalogItemsUsecase: sl(),
+    addPurchaseListUsecase: sl(),
+    addPurchaseItemUsecase: sl(),
+    removePurchaseItemUsecase: sl(),
+    eventBus: sl(), // Inject the singleton instance
+  ));
+}
+```
+
+### Benefits of This Approach
+
+1. **Loose Coupling**: BLoCs don't need direct references to each other
+2. **Scalability**: Easy to add new event types and subscribers
+3. **Testability**: Can mock the event bus for isolated testing
+4. **Maintainability**: Clear separation of concerns
+5. **Performance**: Broadcast streams are efficient for multiple listeners
+
+### Best Practices
+
+1. **Event Naming**: Use descriptive names ending with "Event"
+2. **Memory Management**: Always cancel subscriptions in the `close()` method
+3. **Error Handling**: Wrap event firing in try-catch blocks when necessary
+4. **Documentation**: Document which events each BLoC produces and consumes
+5. **Testing**: Create mock implementations for unit testing
+
+### Current Event Flow
+
+```
+PurchaseListEditorBloc → AddPurchaseListEvent → AppEventBus → PurchaseListBloc
+                      ↓                                      ↓
+              (UI Updates with                    (Refreshes purchase list
+               success feedback)                   to show new items)
+```
+
+This architecture ensures that when a user adds a new purchase list through the editor, the main purchase list view automatically refreshes to display the new data without requiring manual coordination between BLoCs.
 
 ## Getting Started
 
