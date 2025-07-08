@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/catalog/presentation/blocs/catalog_bloc.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 
 import '../widgets/add_catalog_item_bottom_sheet.dart';
 
@@ -51,9 +52,7 @@ class _CatalogPageState extends State<CatalogPage> {
         listener: (context, state) {
           if (state is CatalogAdded) {
             // Show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Catalog "${state.catalog.name}" added successfully')),
-            );
+            AppToast.showSuccess(context, 'Catalog "${state.catalog.name}" added successfully');
 
             // Reload catalogs when a new catalog is added
             context.read<CatalogBloc>().add(LoadCatalogsEvent());

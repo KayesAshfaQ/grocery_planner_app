@@ -5,6 +5,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_bottom_sheet.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 
 class AddItemBottomSheet extends StatefulWidget {
   /// The purchase list id to add items to
@@ -86,17 +87,13 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     final unitPrice = double.tryParse(_priceController.text);
 
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an item name')),
-      );
+      AppToast.showWarning(context, 'Please enter an item name');
       return;
     }
 
     // Ensure we have a valid listId
     if (widget.listId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No list selected')),
-      );
+      AppToast.showError(context, 'No list selected');
       return;
     }
 

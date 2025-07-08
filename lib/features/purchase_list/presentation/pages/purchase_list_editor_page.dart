@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
-
-import 'package:grocery_planner_app/core/di/service_locator.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/add_item_bottom_sheet.dart';
 
@@ -92,27 +93,17 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
         listener: (context, state) {
           if (state is PurchaseListAddedState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Shopping list "${state.list.name}" created successfully!'),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 3),
-              ),
+            AppToast.showSuccess(
+              context,
+              'Shopping list "${state.list.name}" created successfully!',
             );
           } else if (state is PurchaseItemAddedState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Item added successfully'),
-                backgroundColor: Colors.green,
-              ),
+            AppToast.showSuccess(
+              context,
+              'Item "${state.item.customName ?? state.item.catalogItem?.name}" added successfully!',
             );
           } else if (state is PurchaseListEditorErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error: ${state.message}'),
-                backgroundColor: Colors.red,
-              ),
-            );
+            AppToast.showError(context, state.message);
           }
         },
         builder: (context, state) {
