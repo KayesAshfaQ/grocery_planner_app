@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
@@ -89,17 +91,27 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       ),
       body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
         listener: (context, state) {
-          if (state is PurchaseItemAddedState) {
+          if (state is PurchaseListAddedState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Grocery item added successfully')),
+              SnackBar(
+                content: Text('Shopping list "${state.list.name}" created successfully!'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
             );
-          } else if (state is PurchaseListAddedState) {
+          } else if (state is PurchaseItemAddedState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Purchase list added successfully')),
+              const SnackBar(
+                content: Text('Item added successfully'),
+                backgroundColor: Colors.green,
+              ),
             );
           } else if (state is PurchaseListEditorErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}')),
+              SnackBar(
+                content: Text('Error: ${state.message}'),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -108,7 +120,40 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is PurchaseListEditorLoadedState) {
+          // Handle both loaded state and success states to prevent fallback
+          if (state is PurchaseListEditorLoadedState ||
+              state is PurchaseListAddedState ||
+              state is PurchaseItemAddedState) {
+            // Extract data based on state type
+            List<Category> categories = [];
+            List<CatalogItem> catalogItems = [];
+            PurchaseList? purchaseList;
+
+            if (state is PurchaseListEditorLoadedState) {
+              categories = state.categories;
+              catalogItems = state.catalogItems;
+              purchaseList = state.purchaseList;
+            } else if (state is PurchaseListAddedState) {
+              // For newly added list, we might not have catalog data loaded yet
+              // but we have the list
+              purchaseList = state.list;
+              // Need to reload catalog items and categories
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  context.read<PurchaseListEditorBloc>().add(LoadCategoriesAndCatalogItemsEvent());
+                }
+              });
+            } else if (state is PurchaseItemAddedState) {
+              // For newly added item, reload the full state to get updated list
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  context.read<PurchaseListEditorBloc>().add(LoadCategoriesAndCatalogItemsEvent());
+                }
+              });
+              // For now, show loading
+              return const Center(child: CircularProgressIndicator());
+            }
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Form(
@@ -145,18 +190,24 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                         const SizedBox(width: 8),
                         IconButton(
                           icon: const Icon(Icons.add_circle_outline, color: Colors.green),
-                          onPressed: () => _showAddItemBottomSheet(context, state),
+                          onPressed: () => _showAddItemBottomSheet(
+                              context,
+                              PurchaseListEditorLoadedState(
+                                categories: categories,
+                                catalogItems: catalogItems,
+                                purchaseList: purchaseList,
+                              )),
                         ),
                       ],
                     ),
-                    (state.purchaseList?.purchaseItems.isNotEmpty == true)
+                    (purchaseList?.purchaseItems.isNotEmpty == true)
                         ? ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: state.purchaseList?.purchaseItems.length,
+                            itemCount: purchaseList?.purchaseItems.length,
                             itemBuilder: (context, index) {
                               /// Get the purchase item at the current index
-                              final item = state.purchaseList?.purchaseItems[index];
+                              final item = purchaseList?.purchaseItems[index];
 
                               return Card(
                                 margin: const EdgeInsets.symmetric(vertical: 4),
@@ -184,7 +235,14 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
 
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: state is PurchaseListEditorLoadingState ? null : () => _submitForm(context, state),
+                      onPressed: () => _submitForm(
+                        context,
+                        PurchaseListEditorLoadedState(
+                          categories: categories,
+                          catalogItems: catalogItems,
+                          purchaseList: purchaseList,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
