@@ -1,5 +1,3 @@
-// ignore_for_file: dead_code
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +5,7 @@ import 'package:grocery_planner_app/features/catalog/presentation/blocs/catalog_
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
-import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_form_bottom_sheet.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_bottom_sheet.dart';
 
 class AddCatalogItemBottomSheet extends StatefulWidget {
   const AddCatalogItemBottomSheet({
@@ -19,9 +17,9 @@ class AddCatalogItemBottomSheet extends StatefulWidget {
 
   /// Show this bottom sheet
   static Future<void> show(BuildContext context) {
-    return AppFormBottomSheet.show(
+    return AppBottomSheet.show(
       context: context,
-      formBottomSheet: MultiBlocProvider(
+      child: MultiBlocProvider(
         providers: [
           BlocProvider.value(
             value: context.read<CategoryBloc>(),
@@ -30,7 +28,7 @@ class AddCatalogItemBottomSheet extends StatefulWidget {
             value: context.read<CatalogBloc>(),
           ),
         ],
-        child: AddCatalogItemBottomSheet(),
+        child: const AddCatalogItemBottomSheet(),
       ),
     );
   }
@@ -77,7 +75,7 @@ class _AddCatalogItemBottomSheetState extends State<AddCatalogItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFormBottomSheet(
+    return AppBottomSheet.form(
       title: 'Add New Catalog Item',
       formKey: _formKey,
       onSubmit: _handleSubmit,

@@ -1,19 +1,40 @@
 import 'package:flutter/material.dart';
 
-/// Base bottom sheet with consistent styling and layout
+/// Unified bottom sheet with consistent styling and layout
 ///
 /// This widget provides a standardized bottom sheet design for the app,
 /// handling padding, title styling, and basic layout structure.
-class AppBottomSheet extends StatelessWidget {
+/// Supports both regular content and form layouts with built-in validation.
+class AppBottomSheet extends StatefulWidget {
   /// Title of the bottom sheet
   final String title;
 
   /// Main content area of the bottom sheet
-  final Widget content;
+  /// If [formFields] is provided, this will be ignored
+  final Widget? content;
+
+  /// Form fields to be displayed in the bottom sheet
+  /// If provided, will automatically wrap in Form widget
+  final List<Widget>? formFields;
+
+  /// Global key for the form (required if using formFields)
+  final GlobalKey<FormState>? formKey;
 
   /// Optional footer actions (typically buttons)
   /// If null, no footer will be displayed
   final Widget? actions;
+
+  /// Callback when form is submitted (only for form mode)
+  final VoidCallback? onSubmit;
+
+  /// Text to display on the submit button (form mode only)
+  final String submitButtonText;
+
+  /// Text to display on the cancel button (form mode only)
+  final String cancelButtonText;
+
+  /// Whether the form is currently in a loading state (form mode only)
+  final bool isLoading;
 
   /// Controls if bottom sheet should size to fit content
   final bool isScrollControlled;
@@ -24,11 +45,36 @@ class AppBottomSheet extends StatelessWidget {
   const AppBottomSheet({
     Key? key,
     required this.title,
-    required this.content,
+    this.content,
     this.actions,
     this.isScrollControlled = true,
     this.onDismiss,
-  }) : super(key: key);
+  })  : formFields = null,
+        formKey = null,
+        onSubmit = null,
+        submitButtonText = 'SAVE',
+        cancelButtonText = 'CANCEL',
+        isLoading = false,
+        super(key: key);
+
+  /// Constructor for form mode
+  const AppBottomSheet.form({
+    Key? key,
+    required this.title,
+    required this.formFields,
+    required this.formKey,
+    required this.onSubmit,
+    this.submitButtonText = 'SAVE',
+    this.cancelButtonText = 'CANCEL',
+    this.isLoading = false,
+    this.isScrollControlled = true,
+    this.onDismiss,
+  })  : content = null,
+        actions = null,
+        super(key: key);
+
+  @override
+  State<AppBottomSheet> createState() => _AppBottomSheetState();
 
   /// Static method to show the bottom sheet with proper configuration
   static Future<T?> show<T>({
@@ -49,13 +95,85 @@ class AppBottomSheet extends StatelessWidget {
       builder: (context) => child,
     );
   }
+}
+
+class _AppBottomSheetState extends State<AppBottomSheet> {
+  void _handleCancel() {
+    if (widget.onDismiss != null) {
+      widget.onDismiss!();
+    }
+    Navigator.of(context).pop();
+  }
+
+  void _handleSubmit() {
+    if (widget.formKey?.currentState?.validate() == true) {
+      widget.onSubmit?.call();
+    }
+  }
+
+  Widget _buildContent() {
+    // Form mode
+    if (widget.formFields != null) {
+      return Form(
+        key: widget.formKey!,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...widget.formFields!.map((field) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: field,
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Regular content mode
+    return widget.content ?? const SizedBox.shrink();
+  }
+
+  Widget? _buildActions() {
+    // Form mode - build default form actions
+    if (widget.formFields != null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: widget.isLoading ? null : _handleCancel,
+            child: Text(widget.cancelButtonText),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: widget.isLoading ? null : _handleSubmit,
+            child: widget.isLoading
+                ? const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(widget.submitButtonText),
+          ),
+        ],
+      );
+    }
+
+    // Regular mode - use provided actions
+    return widget.actions;
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (onDismiss != null) {
-          onDismiss!();
+        if (widget.onDismiss != null) {
+          widget.onDismiss!();
         }
         return true;
       },
@@ -68,7 +186,7 @@ class AppBottomSheet extends StatelessWidget {
           left: 16,
           right: 16,
           // Add padding to avoid keyboard overlap
-          bottom: isScrollControlled ? MediaQuery.of(context).viewInsets.bottom + 8 : 8,
+          bottom: widget.isScrollControlled ? MediaQuery.of(context).viewInsets.bottom + 8 : 8,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -88,18 +206,18 @@ class AppBottomSheet extends StatelessWidget {
             ),
             // Title
             Text(
-              title,
+              widget.title,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             // Content - Make it flexible and scrollable
             Flexible(
-              child: content,
+              child: _buildContent(),
             ),
             // Actions footer
-            if (actions != null) ...[
+            if (_buildActions() != null) ...[
               const SizedBox(height: 8),
-              actions!,
+              _buildActions()!,
             ],
           ],
         ),

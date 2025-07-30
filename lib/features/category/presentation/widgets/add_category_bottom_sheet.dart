@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/config/theme/app_icons.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
-import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_form_bottom_sheet.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_bottom_sheet.dart';
 
 class AddCategoryBottomSheet extends StatefulWidget {
   // final Function(String name, String description, IconData? icon) onSave;
@@ -23,9 +23,9 @@ class AddCategoryBottomSheet extends StatefulWidget {
 
   /// Show this bottom sheet
   static Future<void> show(BuildContext context) {
-    return AppFormBottomSheet.show(
+    return AppBottomSheet.show(
       context: context,
-      formBottomSheet: BlocProvider.value(
+      child: BlocProvider.value(
         value: context.read<CategoryBloc>(),
         child: const AddCategoryBottomSheet(),
       ),
@@ -78,7 +78,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFormBottomSheet(
+    return AppBottomSheet.form(
       title: 'Add New Category',
       formKey: _formKey,
       onSubmit: _handleSubmit,
