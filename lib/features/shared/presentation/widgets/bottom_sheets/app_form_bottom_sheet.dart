@@ -82,18 +82,20 @@ class _AppFormBottomSheetState extends State<AppFormBottomSheet> {
       onDismiss: widget.onCancel,
       content: Form(
         key: widget.formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...widget.formFields.map((field) {
-              // Add spacing between form fields
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: field,
-              );
-            }).toList(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...widget.formFields.map((field) {
+                // Add spacing between form fields
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: field,
+                );
+              }).toList(),
+            ],
+          ),
         ),
       ),
       actions: Row(

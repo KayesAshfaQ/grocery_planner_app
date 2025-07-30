@@ -60,12 +60,15 @@ class AppBottomSheet extends StatelessWidget {
         return true;
       },
       child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height,
+        ),
         padding: EdgeInsets.only(
-          top: 16,
+          top: 8,
           left: 16,
           right: 16,
           // Add padding to avoid keyboard overlap
-          bottom: isScrollControlled ? MediaQuery.of(context).viewInsets.bottom + 16 : 16,
+          bottom: isScrollControlled ? MediaQuery.of(context).viewInsets.bottom + 8 : 8,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -89,11 +92,13 @@ class AppBottomSheet extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            // Content
-            content,
+            // Content - Make it flexible and scrollable
+            Flexible(
+              child: content,
+            ),
             // Actions footer
             if (actions != null) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
               actions!,
             ],
           ],
