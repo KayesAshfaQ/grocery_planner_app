@@ -33,7 +33,7 @@ class AppTheme {
       foregroundColor: Colors.white,
       elevation: 0,
     ),
-    cardTheme: const CardTheme(
+    cardTheme: const CardThemeData(
       color: _cardColor,
       elevation: 2,
       margin: EdgeInsets.all(8),
@@ -73,7 +73,7 @@ class AppTheme {
       foregroundColor: Colors.white,
       elevation: 0,
     ),
-    cardTheme: const CardTheme(
+    cardTheme: const CardThemeData(
       color: _darkCardColor,
       elevation: 2,
       margin: EdgeInsets.all(8),
