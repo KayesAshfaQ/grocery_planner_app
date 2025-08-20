@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grocery_planner_app/features/catalog/domain/usecases/add_catalog_item_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_list_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
@@ -29,6 +30,8 @@ import 'package:grocery_planner_app/features/purchase_list/domain/usecases/mark_
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
+
+
 
 final sl = GetIt.instance;
 
@@ -75,26 +78,30 @@ Future<void> initServiceLocator(AppDatabase database) async {
 
   // Use cases
   sl.registerLazySingleton(() => GetAllPurchaseListUsecase(sl()));
-  sl.registerLazySingleton(() => MarkItemAsPurchasedUsecase(sl()));
   sl.registerLazySingleton(() => AddPurchaseListUsecase(sl()));
+  sl.registerLazySingleton(() => RemovePurchaseListUsecase(sl()));
+
   sl.registerLazySingleton(() => AddPurchaseItemUsecase(sl()));
+  sl.registerLazySingleton(() => MarkItemAsPurchasedUsecase(sl()));
   sl.registerLazySingleton(() => RemovePurchaseItemUsecase(sl()));
+
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => AddCatalogItemUsecase(sl()));
+  
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
 
   // Blocs/Cubits
   sl.registerFactory(() => PurchaseListBloc(
         getAllPurchaseListUseCase: sl(),
-        markItemAsPurchasedUsecase: sl(),
+        addPurchaseListUsecase: sl(),
+        removePurchaseListUsecase: sl(),
         eventBus: sl(),
       ));
 
   sl.registerFactory(() => PurchaseListEditorBloc(
         getCategoriesUsecase: sl(),
         getCatalogItemsUsecase: sl(),
-        addPurchaseListUsecase: sl(),
         addPurchaseItemUsecase: sl(),
         removePurchaseItemUsecase: sl(),
         eventBus: sl(),

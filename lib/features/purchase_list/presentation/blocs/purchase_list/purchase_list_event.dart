@@ -24,20 +24,39 @@ class GetPurchaseListsByStatusEvent extends PurchaseListEvent {
   List<Object> get props => [isPurchased];
 }
 
-/// Event to mark a purchase item as purchased
-class MarkPurchaseItemAsPurchasedEvent extends PurchaseListEvent {
-  /// The ID of the purchase item to mark as purchased
-  final String id;
 
-  /// Optional actual price paid for the item
-  final double? actualPrice;
+/// Event to update an existing purchase item
+class UpdatePurchaseListEvent extends PurchaseListEvent {
+  /// The purchase item to be updated
+  final PurchaseList item;
 
-  /// Creates a new event to mark a purchase item as purchased
-  const MarkPurchaseItemAsPurchasedEvent({
-    required this.id,
-    this.actualPrice,
-  });
+  /// Creates a new event to update a purchase item
+  const UpdatePurchaseListEvent({required this.item});
 
   @override
-  List<Object?> get props => [id, actualPrice];
+  List<Object?> get props => [item];
+}
+
+/// Event to add a new purchase list
+class AddPurchaseListEvent extends PurchaseListEvent implements AppEvent {
+  /// The purchase list to be added
+  final PurchaseList item;
+
+  /// Creates a new event to add a purchase list
+  const AddPurchaseListEvent({required this.item});
+
+  @override
+  List<Object?> get props => [item];
+}
+
+/// Event to remove a purchase list
+class RemovePurchaseListEvent extends PurchaseListEvent {
+  /// The ID of the purchase list to remove
+  final int id;
+
+  /// Creates a new event to remove a purchase list
+  const RemovePurchaseListEvent({required this.id});
+
+  @override
+  List<Object?> get props => [id];
 }
