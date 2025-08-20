@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/purchase_list_card.dart';
 
 import '../widgets/add_purchase_list_bottom_sheet.dart';
+import 'purchase_list_editor_page.dart';
 
 class PurchaseListPage extends StatefulWidget {
   const PurchaseListPage({super.key});
@@ -70,11 +72,6 @@ class _PurchaseListPageState extends State<PurchaseListPage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Updated to use route constants from the respective page files
-          /*  context.go(
-            '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}',
-          ); */
-
           AddPurchaseListBottomSheet.show(context);
         },
         child: const Icon(Icons.add),
@@ -116,6 +113,12 @@ class _PurchaseListContent extends StatelessWidget {
             final listItem = items[index];
             return PurchaseListCard(
               purchaseList: listItem,
+              onPressed: () {
+                // Navigate to the purchase list details page
+                context.go(
+                  '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}',
+                );
+              },
             );
           },
         );
