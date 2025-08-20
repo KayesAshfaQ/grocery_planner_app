@@ -10,7 +10,6 @@ import 'package:grocery_planner_app/features/shared/domain/entities/purchase_lis
 import 'package:grocery_planner_app/features/catalog/domain/usecases/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
-import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
 
 part 'purchase_list_editor_event.dart';
@@ -20,7 +19,6 @@ part 'purchase_list_editor_state.dart';
 class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
   final GetCategoriesUsecase getCategoriesUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
-  final AddPurchaseListUsecase addPurchaseListUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
   final RemovePurchaseItemUsecase removePurchaseItemUsecase;
   final AppEventBus _eventBus;
@@ -30,7 +28,6 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     required this.getCategoriesUsecase,
     required this.getCatalogItemsUsecase,
     required this.addPurchaseItemUsecase,
-    required this.addPurchaseListUsecase,
     required this.removePurchaseItemUsecase,
     required AppEventBus eventBus,
   })  : _eventBus = eventBus,
@@ -40,7 +37,6 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     on<SelectCategoryEvent>(_onSelectCategory);
     on<FindCategoryByIdEvent>(_onFindCategoryById);
     on<InsertCategoryEvent>(_onInsertCategory);
-    on<AddPurchaseListEvent>(_onAddPurchaseList);
     on<AddItemToPurchaseListEvent>(_onAddItemToPurchaseList);
     on<RemoveItemFromPurchaseListEvent>(_onRemoveItemFromPurchaseList);
   }
@@ -161,21 +157,5 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     }
   }
 
-  FutureOr<void> _onAddPurchaseList(
-    AddPurchaseListEvent event,
-    Emitter<PurchaseListEditorState> emit,
-  ) async {
-    emit(PurchaseListEditorLoadingState());
-    final result = await addPurchaseListUsecase(event.list);
-    result.fold(
-      (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
-      (purchaseList) {
-        // Notify other blocs about the new list through the event bus
-        _eventBus.fire(event);
 
-        // Emit success state to trigger UI feedback
-        emit(PurchaseListAddedState(list: purchaseList));
-      },
-    );
-  }
 }

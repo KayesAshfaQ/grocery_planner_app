@@ -182,12 +182,13 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                         IconButton(
                           icon: const Icon(Icons.add_circle_outline, color: Colors.green),
                           onPressed: () => _showAddItemBottomSheet(
-                              context,
-                              PurchaseListEditorLoadedState(
-                                categories: categories,
-                                catalogItems: catalogItems,
-                                purchaseList: purchaseList,
-                              )),
+                            context,
+                            PurchaseListEditorLoadedState(
+                              categories: categories,
+                              catalogItems: catalogItems,
+                              purchaseList: purchaseList,
+                            ),
+                          ),
                         ),
                       ],
                     ),

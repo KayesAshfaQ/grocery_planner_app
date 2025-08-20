@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
-import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_editor_page.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/purchase_list_card.dart';
+
+import '../widgets/add_purchase_list_bottom_sheet.dart';
 
 class PurchaseListPage extends StatefulWidget {
   const PurchaseListPage({super.key});
@@ -15,7 +15,8 @@ class PurchaseListPage extends StatefulWidget {
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create() {
     return BlocProvider(
-      create: (context) => sl<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
+      create: (context) =>
+          sl<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
       child: const PurchaseListPage(),
     );
   }
@@ -24,7 +25,8 @@ class PurchaseListPage extends StatefulWidget {
   State<PurchaseListPage> createState() => _PurchaseListPageState();
 }
 
-class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerProviderStateMixin {
+class _PurchaseListPageState extends State<PurchaseListPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -69,9 +71,11 @@ class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerPr
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Updated to use route constants from the respective page files
-          context.go(
+          /*  context.go(
             '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}',
-          );
+          ); */
+
+          AddPurchaseListBottomSheet.show(context);
         },
         child: const Icon(Icons.add),
       ),
@@ -86,15 +90,20 @@ class _PurchaseListContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PurchaseListBloc, PurchaseListState>(builder: (context, state) {
+    return BlocBuilder<PurchaseListBloc, PurchaseListState>(
+        builder: (context, state) {
       if (state is PurchaseListLoadingState) {
         return const Center(child: CircularProgressIndicator());
       } else if (state is PurchaseListLoadedState) {
-        final items = state.items.where((item) => item.isCompleted == isPurchased).toList();
+        final items = state.items
+            .where((item) => item.isCompleted == isPurchased)
+            .toList();
         if (items.isEmpty) {
           return Center(
             child: Text(
-              isPurchased ? 'No purchased items yet' : 'No items to buy yet. Add some!',
+              isPurchased
+                  ? 'No purchased items yet'
+                  : 'No items to buy yet. Add some!',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           );
@@ -129,7 +138,9 @@ class _PurchaseListContent extends StatelessWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  context.read<PurchaseListBloc>().add(GetAllPurchaseItemsEvent());
+                  context
+                      .read<PurchaseListBloc>()
+                      .add(GetAllPurchaseItemsEvent());
                 },
                 child: const Text('Try Again'),
               ),
