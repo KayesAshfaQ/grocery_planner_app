@@ -372,6 +372,78 @@ Future<void> initServiceLocator(AppDatabase database) async {
 4. **Documentation**: Document which events each BLoC produces and consumes
 5. **Testing**: Create mock implementations for unit testing
 
+## BLoC Usage Patterns
+
+### When to Use `sl<Bloc>()..add()` vs `context.read<Bloc>().add()`
+
+Understanding when to use each pattern is crucial for proper BLoC management in Flutter applications.
+
+#### **`sl<Bloc>()..add()` - Creating New Instances**
+
+**Use Case:** Creating a **new instance** of the bloc with initial setup
+
+```dart
+// ✅ Factory method for creating pages with new bloc instances
+static Widget create({required String id}) {
+  return BlocProvider(
+    create: (context) => sl<PurchaseListEditorBloc>()..add(LoadInitialDataEvent(id: id)),
+    child: const PurchaseListEditorPage(),
+  );
+}
+```
+
+**When to use:**
+- In factory methods when creating pages
+- When you need a fresh bloc instance
+- During initial setup/dependency injection
+- The bloc doesn't exist in the widget tree yet
+
+**What it does:**
+1. Creates a new bloc instance via service locator
+2. Immediately adds an event to initialize the bloc
+3. Usually wrapped in `BlocProvider.create()`
+
+#### **`context.read<Bloc>().add()` - Using Existing Instances**
+
+**Use Case:** Accessing an **existing bloc** from the widget tree
+
+```dart
+// ✅ User interaction with existing bloc instance
+onPressed: () {
+  context.read<PurchaseListEditorBloc>().add(
+    RemoveItemFromPurchaseListEvent(id: item.id)
+  );
+}
+```
+
+**When to use:**
+- Inside widget methods (like button onPressed callbacks)
+- When the bloc already exists in the widget tree
+- For user interactions and events
+- When you need to trigger actions from UI components
+
+**What it does:**
+1. Finds the existing bloc in the widget tree
+2. Adds an event to that existing instance
+3. Throws error if bloc doesn't exist in tree
+
+#### **Key Rule**
+
+```dart
+// ✅ CREATION: Use sl<>()..add() for bloc instantiation
+BlocProvider(
+  create: (context) => sl<SomeBloc>()..add(InitialEvent()),
+  child: SomePage(),
+)
+
+// ✅ INTERACTION: Use context.read<>().add() for user actions
+FloatingActionButton(
+  onPressed: () => context.read<SomeBloc>().add(UserActionEvent()),
+)
+```
+
+**Remember:** Use `sl<>()..add()` for **creation**, use `context.read<>().add()` for **interaction**.
+
 ### Current Event Flow
 
 ```
