@@ -77,8 +77,7 @@ class PurchaseListCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: purchaseList.isCompleted == true
                           ? Colors.green.withValues(alpha: 0.2)
@@ -119,8 +118,7 @@ class PurchaseListCard extends StatelessWidget {
                         if (item.isPurchased) {
                           if (item.totalPrice != null) {
                             totalPrice += item.totalPrice!;
-                          } else if (item.unitPrice != null &&
-                              item.quantity != 0) {
+                          } else if (item.unitPrice != null && item.quantity != 0) {
                             totalPrice += item.unitPrice! * item.quantity;
                           } else {
                             // Handle case where totalPrice is null and unitPrice or quantity is not available
@@ -143,14 +141,15 @@ class PurchaseListCard extends StatelessWidget {
                   ]
                 ],
               ),
-              if (purchaseList.note != null &&
-                  purchaseList.note!.isNotEmpty) ...[
+              if (purchaseList.note != null && purchaseList.note!.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
                   'Note: ${purchaseList.note}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontStyle: FontStyle.italic,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
               const SizedBox(height: 16),
