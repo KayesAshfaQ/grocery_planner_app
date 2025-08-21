@@ -177,49 +177,53 @@ class _AppBottomSheetState extends State<AppBottomSheet> {
         }
         return true;
       },
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height,
-        ),
-        padding: EdgeInsets.only(
-          top: 8,
-          left: 16,
-          right: 16,
-          // Add padding to avoid keyboard overlap
-          bottom: widget.isScrollControlled ? MediaQuery.of(context).viewInsets.bottom + 8 : 8,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title bar with drag handle
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+      child: SafeArea(
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height,
+          ),
+          padding: EdgeInsets.only(
+            top: 8,
+            left: 16,
+            right: 16,
+            // Add padding to avoid keyboard overlap
+            bottom: widget.isScrollControlled
+                ? MediaQuery.of(context).viewInsets.bottom + 8
+                : 8,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title bar with drag handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            // Title
-            Text(
-              widget.title,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            // Content - Make it flexible and scrollable
-            Flexible(
-              child: _buildContent(),
-            ),
-            // Actions footer
-            if (_buildActions() != null) ...[
-              const SizedBox(height: 8),
-              _buildActions()!,
+              // Title
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              // Content - Make it flexible and scrollable
+              Flexible(
+                child: _buildContent(),
+              ),
+              // Actions footer
+              if (_buildActions() != null) ...[
+                const SizedBox(height: 8),
+                _buildActions()!,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
