@@ -57,9 +57,16 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   }
 
   @override
-  Future<PurchaseList> getPurchaseListById(String id) {
-    // TODO: implement getPurchaseListById
-    throw UnimplementedError();
+  Future<PurchaseList> getPurchaseListById(String id) async {
+    try {
+      final purchaseListModel = await purchaseDao.getListById(id);
+      if (purchaseListModel == null) {
+        throw Exception('Purchase list not found with ID: $id');
+      }
+      return purchaseListModel.toEntity();
+    } catch (e) {
+      throw Exception('Failed to fetch purchase list by ID: $e');
+    }
   }
 
   @override

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/core/event/app_event_bus.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/get_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
@@ -17,6 +18,7 @@ part 'purchase_list_editor_state.dart';
 
 /// BLoC for managing grocery item editor operations
 class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
+  final GetPurchaseListUsecase getPurchaseListUsecase;
   final GetCategoriesUsecase getCategoriesUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
@@ -25,6 +27,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
 
   /// Creates a new EditorBloc
   PurchaseListEditorBloc({
+    required this.getPurchaseListUsecase,
     required this.getCategoriesUsecase,
     required this.getCatalogItemsUsecase,
     required this.addPurchaseItemUsecase,
@@ -32,7 +35,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     required AppEventBus eventBus,
   })  : _eventBus = eventBus,
         super(PurchaseListEditorInitialState()) {
-    on<LoadCategoriesAndCatalogItemsEvent>(_onLoadCategoriesAndCatalogItems);
+    on<LoadInitialDataEvent>(_onLoadInitialData);
     on<SelectCatalogItemEvent>(_onSelectCatalogItem);
     on<SelectCategoryEvent>(_onSelectCategory);
     on<FindCategoryByIdEvent>(_onFindCategoryById);
@@ -41,28 +44,40 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     on<RemoveItemFromPurchaseListEvent>(_onRemoveItemFromPurchaseList);
   }
 
-  FutureOr<void> _onLoadCategoriesAndCatalogItems(
-    LoadCategoriesAndCatalogItemsEvent event,
+  FutureOr<void> _onLoadInitialData(
+    LoadInitialDataEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
     emit(PurchaseListEditorLoadingState());
 
     try {
+      final purchaseListResult = await getPurchaseListUsecase.byId(event.id);
       final categoriesResult = await getCategoriesUsecase();
       final catalogItemsResult = await getCatalogItemsUsecase();
 
+      late PurchaseList purchaseList;
       List<Category> categories = [];
       List<CatalogItem> catalogItems = [];
 
+      purchaseListResult.fold(
+        (failure) => emit(PurchaseListEditorErrorState(
+            message: 'Error loading purchase list: ${failure.message}')),
+        (list) {
+          purchaseList = list;
+        },
+      );
+
       catalogItemsResult.fold(
-        (failure) => emit(PurchaseListEditorErrorState(message: 'Error loading catalog items: ${failure.message}')),
+        (failure) => emit(PurchaseListEditorErrorState(
+            message: 'Error loading catalog items: ${failure.message}')),
         (items) {
           catalogItems = items;
         },
       );
 
       categoriesResult.fold(
-        (failure) => emit(PurchaseListEditorErrorState(message: 'Error loading categories: ${failure.message}')),
+        (failure) => emit(
+            PurchaseListEditorErrorState(message: 'Error loading categories: ${failure.message}')),
         (loadedCategories) {
           categories = loadedCategories;
         },
@@ -71,6 +86,7 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       // Only emit the loaded state if we didn't emit an error state
       if (state is PurchaseListEditorLoadingState) {
         emit(PurchaseListEditorLoadedState(
+          purchaseList: purchaseList,
           categories: categories,
           catalogItems: catalogItems,
         ));
@@ -106,7 +122,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
   ) async {
     if (state is PurchaseListEditorLoadedState) {
       final currentState = state as PurchaseListEditorLoadedState;
-      final category = currentState.categories.firstWhere((category) => category.id == event.categoryId);
+      final category =
+          currentState.categories.firstWhere((category) => category.id == event.categoryId);
       emit(currentState.copyWith(selectedCategory: category));
     }
   }
@@ -151,11 +168,10 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       result.fold(
         (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
         (success) {
-          emit(currentState.copyWith(purchaseList: currentState.purchaseList?.copyWith(purchaseItems: items)));
+          emit(currentState.copyWith(
+              purchaseList: currentState.purchaseList?.copyWith(purchaseItems: items)));
         },
       );
     }
   }
-
-
 }

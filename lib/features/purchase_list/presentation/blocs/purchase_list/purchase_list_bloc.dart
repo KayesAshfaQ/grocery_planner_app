@@ -13,7 +13,7 @@ part 'purchase_list_state.dart';
 
 /// BLoC for managing grocery item operations
 class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
-  final GetAllPurchaseListUsecase getAllPurchaseListUseCase;
+  final GetPurchaseListUsecase getAllPurchaseListUseCase;
   final AddPurchaseListUsecase addPurchaseListUsecase;
   final RemovePurchaseListUsecase removePurchaseListUsecase;
   final AppEventBus _eventBus;

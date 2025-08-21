@@ -33,6 +33,10 @@ class AddItemBottomSheet extends StatefulWidget {
 
 class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController(text: '1');
+  final TextEditingController _unitController = TextEditingController(text: 'pcs');
+  final TextEditingController _priceController = TextEditingController();
 
   CatalogItem? _selectedCatalogItem;
   List<CatalogItem> _filteredCatalogItems = [];
@@ -46,6 +50,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   @override
   void dispose() {
     _searchController.dispose();
+    _nameController.dispose();
+    _quantityController.dispose();
+    _unitController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -57,8 +65,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           _filteredCatalogItems = state.catalogItems;
         } else {
           _filteredCatalogItems = state.catalogItems
-              .where(
-                  (item) => item.name.toLowerCase().contains(_searchController.text.toLowerCase()))
+              .where((item) => item.name.toLowerCase().contains(_searchController.text.toLowerCase()))
               .toList();
         }
       });
@@ -68,7 +75,43 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   void _onCatalogItemSelected(CatalogItem item) {
     setState(() {
       _selectedCatalogItem = item;
+      _nameController.text = item.name;
+      _unitController.text = item.defaultUnit ?? 'pcs';
     });
+  }
+
+  void _handleAddItem() {
+    final name = _nameController.text.trim();
+    final quantity = double.tryParse(_quantityController.text) ?? 1.0;
+    final unit = _unitController.text.trim();
+    final unitPrice = double.tryParse(_priceController.text);
+
+    if (name.isEmpty) {
+      AppToast.showWarning(context, 'Please enter an item name');
+      return;
+    }
+
+    // Ensure we have a valid listId
+    if (widget.listId == null) {
+      AppToast.showError(context, 'No list selected');
+      return;
+    }
+
+    final newItem = PurchaseItem(
+      listId: widget.listId!,
+      catalogItem: _selectedCatalogItem,
+      customName: _selectedCatalogItem == null ? name : null,
+      quantity: quantity,
+      unitPrice: unitPrice,
+      isPurchased: false,
+      note: unit.isNotEmpty ? 'Unit: $unit' : null,
+    );
+
+    context.read<PurchaseListEditorBloc>().add(
+          AddItemToPurchaseListEvent(item: newItem),
+        );
+
+    context.pop();
   }
 
   @override
@@ -124,12 +167,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                               'Unit: ${item.defaultUnit ?? 'pcs'}',
                             ),
                             selected: isSelected,
-                            selectedTileColor:
-                                Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            selectedTileColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                             onTap: () => _onCatalogItemSelected(item),
-                            trailing: isSelected
-                                ? Icon(Icons.check, color: Theme.of(context).primaryColor)
-                                : null,
+                            trailing: isSelected ? Icon(Icons.check, color: Theme.of(context).primaryColor) : null,
                           );
                         },
                       ),
@@ -140,7 +180,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   ],
 
                   // Custom item form
-                  /* Text(
+                  Text(
                     'Item details:',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
@@ -189,7 +229,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
-                  ), */
+                  ),
 
                   if (_selectedCatalogItem != null) ...[
                     const SizedBox(height: 12),
@@ -211,11 +251,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                           ),
                           TextButton(
                             onPressed: () {
-                              /* setState(() {
+                              setState(() {
                                 _selectedCatalogItem = null;
                                 _nameController.clear();
                                 _unitController.text = 'pcs';
-                              }); */
+                              });
                             },
                             child: const Text('Clear'),
                           ),
@@ -235,7 +275,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _handleAddItem,
                   child: const Text('ADD ITEM'),
                 ),
               ],

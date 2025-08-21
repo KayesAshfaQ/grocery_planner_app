@@ -17,8 +17,7 @@ class PurchaseListPage extends StatefulWidget {
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create() {
     return BlocProvider(
-      create: (context) =>
-          sl<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
+      create: (context) => sl<PurchaseListBloc>()..add(GetAllPurchaseItemsEvent()),
       child: const PurchaseListPage(),
     );
   }
@@ -27,8 +26,7 @@ class PurchaseListPage extends StatefulWidget {
   State<PurchaseListPage> createState() => _PurchaseListPageState();
 }
 
-class _PurchaseListPageState extends State<PurchaseListPage>
-    with SingleTickerProviderStateMixin {
+class _PurchaseListPageState extends State<PurchaseListPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -87,20 +85,15 @@ class _PurchaseListContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PurchaseListBloc, PurchaseListState>(
-        builder: (context, state) {
+    return BlocBuilder<PurchaseListBloc, PurchaseListState>(builder: (context, state) {
       if (state is PurchaseListLoadingState) {
         return const Center(child: CircularProgressIndicator());
       } else if (state is PurchaseListLoadedState) {
-        final items = state.items
-            .where((item) => item.isCompleted == isPurchased)
-            .toList();
+        final items = state.items.where((item) => item.isCompleted == isPurchased).toList();
         if (items.isEmpty) {
           return Center(
             child: Text(
-              isPurchased
-                  ? 'No purchased items yet'
-                  : 'No items to buy yet. Add some!',
+              isPurchased ? 'No purchased items yet' : 'No items to buy yet. Add some!',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           );
@@ -116,7 +109,7 @@ class _PurchaseListContent extends StatelessWidget {
               onPressed: () {
                 // Navigate to the purchase list details page
                 context.go(
-                  '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}',
+                  '${PurchaseListPage.routePath}/${PurchaseListEditorPage.routePath}/${listItem.id}',
                 );
               },
             );
@@ -141,9 +134,7 @@ class _PurchaseListContent extends StatelessWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  context
-                      .read<PurchaseListBloc>()
-                      .add(GetAllPurchaseItemsEvent());
+                  context.read<PurchaseListBloc>().add(GetAllPurchaseItemsEvent());
                 },
                 child: const Text('Try Again'),
               ),
