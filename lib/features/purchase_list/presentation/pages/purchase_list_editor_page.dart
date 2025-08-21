@@ -22,7 +22,8 @@ class PurchaseListEditorPage extends StatefulWidget {
   /// Factory method that creates the page wrapped with necessary BlocProviders
   static Widget create({required String id}) {
     return BlocProvider(
-      create: (context) => sl<PurchaseListEditorBloc>()..add(LoadInitialDataEvent(id: id)),
+      create: (context) =>
+          sl<PurchaseListEditorBloc>()..add(LoadInitialDataEvent(id: id)),
       child: const PurchaseListEditorPage(),
     );
   }
@@ -32,20 +33,7 @@ class PurchaseListEditorPage extends StatefulWidget {
 }
 
 class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _budgetController = TextEditingController();
-  final _currencyController = TextEditingController();
-  final _noteController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _budgetController.dispose();
-    _currencyController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
+  // final _formKey = GlobalKey<FormState>();
 
   void _showAddItemBottomSheet(
     BuildContext context,
@@ -54,7 +42,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     AddItemBottomSheet.show(context, listId: listId);
   }
 
-  void _submitForm(BuildContext context, PurchaseListEditorLoadedState state) {
+  /* void _submitForm(BuildContext context, PurchaseListEditorLoadedState state) {
     if (_formKey.currentState?.validate() != true) {
       return;
     }
@@ -64,7 +52,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     final currency = _currencyController.text;
     final note = _noteController.text;
 
-    /* context.read<PurchaseListEditorBloc>().add(
+    context.read<PurchaseListEditorBloc>().add(
           AddPurchaseListEvent(
             list: PurchaseList(
               name: name,
@@ -73,8 +61,8 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
               note: note,
             ),
           ),
-        ); */
-  }
+        );
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +108,11 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              // if (state is PurchaseListEditorLoadedState) {
-              //   _showAddItemBottomSheet(context, state);
-              // }
+              final loaded = state as PurchaseListEditorLoadedState;
+              final listId = loaded.purchaseList?.id;
+              if (listId != null) {
+                _showAddItemBottomSheet(context, listId);
+              }
             },
             tooltip: 'Add Item',
             child: const Icon(Icons.add),
@@ -133,14 +123,15 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     );
   }
 
-  Widget _buildBody(
-      BuildContext context, PurchaseListEditorState? state, PurchaseList? purchaseList) {
+  Widget _buildBody(BuildContext context, PurchaseListEditorState? state,
+      PurchaseList? purchaseList) {
     if (state is PurchaseListEditorLoadingState) {
       return const Center(child: CircularProgressIndicator());
     }
 
     // Handle both loaded state and success states to prevent fallback
-    if (state is PurchaseListEditorLoadedState || state is PurchaseItemAddedState) {
+    if (state is PurchaseListEditorLoadedState ||
+        state is PurchaseItemAddedState) {
       return _body(context, purchaseList);
     }
 
@@ -217,16 +208,19 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
-                            title:
-                                Text(item?.customName ?? item?.catalogItem?.name ?? 'Unknown Item'),
+                            title: Text(item?.customName ??
+                                item?.catalogItem?.name ??
+                                'Unknown Item'),
                             subtitle: Text(
                               '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
                             ),
                             trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.red),
+                              icon: const Icon(Icons.delete_outline,
+                                  color: Colors.red),
                               onPressed: () {
                                 context.read<PurchaseListEditorBloc>().add(
-                                      RemoveItemFromPurchaseListEvent(id: item!.id!),
+                                      RemoveItemFromPurchaseListEvent(
+                                          id: item!.id!),
                                     );
                               },
                             ),
@@ -250,7 +244,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     );
   }
 
-  Widget _buildNameField() {
+  /* Widget _buildNameField() {
     return TextFormField(
       controller: _nameController,
       decoration: const InputDecoration(
@@ -311,5 +305,5 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       ),
       maxLines: 2,
     );
-  }
+  } */
 }
