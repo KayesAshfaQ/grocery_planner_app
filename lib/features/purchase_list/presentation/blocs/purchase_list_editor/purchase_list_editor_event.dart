@@ -9,8 +9,17 @@ abstract class PurchaseListEditorEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Event to load categories and catalog items
-class LoadCategoriesAndCatalogItemsEvent extends PurchaseListEditorEvent {}
+/// Event to load initial data for the editor
+class LoadInitialDataEvent extends PurchaseListEditorEvent {
+  /// The ID of the purchase list to load
+  final String id;
+
+  /// Creates a new event to load a purchase list by ID
+  const LoadInitialDataEvent({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}
 
 /// Event to select a catalog item
 class SelectCatalogItemEvent extends PurchaseListEditorEvent {

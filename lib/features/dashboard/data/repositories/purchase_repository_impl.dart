@@ -53,9 +53,13 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   }
 
   @override
-  Future<Either<AppException, PurchaseList>> getPurchaseListById(String id) {
-    // TODO: implement getPurchaseListById
-    throw UnimplementedError();
+  Future<Either<AppException, PurchaseList>> getPurchaseListById(String id) async{
+    try {
+      final purchaseList = await dataSource.getPurchaseListById(id);
+      return Right(purchaseList);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
   }
 
   @override

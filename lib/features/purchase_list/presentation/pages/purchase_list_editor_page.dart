@@ -19,9 +19,9 @@ class PurchaseListEditorPage extends StatefulWidget {
   static const String routePath = 'editor';
 
   /// Factory method that creates the page wrapped with necessary BlocProviders
-  static Widget create() {
+  static Widget create(/* BuildContext context, */ {required String id}) {
     return BlocProvider(
-      create: (context) => sl<PurchaseListEditorBloc>()..add(LoadCategoriesAndCatalogItemsEvent()),
+      create: (context) => sl<PurchaseListEditorBloc>()..add(LoadInitialDataEvent(id: id)),
       child: const PurchaseListEditorPage(),
     );
   }
@@ -68,7 +68,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     final currency = _currencyController.text;
     final note = _noteController.text;
 
-    context.read<PurchaseListEditorBloc>().add(
+    /* context.read<PurchaseListEditorBloc>().add(
           AddPurchaseListEvent(
             list: PurchaseList(
               name: name,
@@ -77,7 +77,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
               note: note,
             ),
           ),
-        );
+        ); */
   }
 
   @override
@@ -92,12 +92,13 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       ),
       body: BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
         listener: (context, state) {
-          if (state is PurchaseListAddedState) {
+          /* if (state is PurchaseListAddedState) {
             AppToast.showSuccess(
               context,
               'Shopping list "${state.list.name}" created successfully!',
             );
-          } else if (state is PurchaseItemAddedState) {
+          } else */
+          if (state is PurchaseItemAddedState) {
             AppToast.showSuccess(
               context,
               'Item "${state.item.customName ?? state.item.catalogItem?.name}" added successfully!',
@@ -112,9 +113,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
           }
 
           // Handle both loaded state and success states to prevent fallback
-          if (state is PurchaseListEditorLoadedState ||
-              state is PurchaseListAddedState ||
-              state is PurchaseItemAddedState) {
+          if (state is PurchaseListEditorLoadedState || state is PurchaseItemAddedState) {
             // Extract data based on state type
             List<Category> categories = [];
             List<CatalogItem> catalogItems = [];
@@ -124,7 +123,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
               categories = state.categories;
               catalogItems = state.catalogItems;
               purchaseList = state.purchaseList;
-            } else if (state is PurchaseListAddedState) {
+            } /* else if (state is PurchaseListAddedState) {
               // For newly added list, we might not have catalog data loaded yet
               // but we have the list
               purchaseList = state.list;
@@ -134,13 +133,14 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                   context.read<PurchaseListEditorBloc>().add(LoadCategoriesAndCatalogItemsEvent());
                 }
               });
-            } else if (state is PurchaseItemAddedState) {
+            } */
+            else if (state is PurchaseItemAddedState) {
               // For newly added item, reload the full state to get updated list
-              WidgetsBinding.instance.addPostFrameCallback((_) {
+              /*  WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   context.read<PurchaseListEditorBloc>().add(LoadCategoriesAndCatalogItemsEvent());
                 }
-              });
+              }); */
               // For now, show loading
               return const Center(child: CircularProgressIndicator());
             }
@@ -204,7 +204,9 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                               return Card(
                                 margin: const EdgeInsets.symmetric(vertical: 4),
                                 child: ListTile(
-                                  title: Text(item?.customName ?? item?.catalogItem?.name ?? 'Unknown Item'),
+                                  title: Text(item?.customName ??
+                                      item?.catalogItem?.name ??
+                                      'Unknown Item'),
                                   subtitle: Text(
                                     '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
                                   ),

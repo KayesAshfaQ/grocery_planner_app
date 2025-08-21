@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/category/presentation/pages/category_page.dart';
@@ -45,10 +47,19 @@ class AppRouter {
                 routes: [
                   // Route for Purchase List Editor
                   GoRoute(
-                    path: PurchaseListEditorPage.routePath,
+                    path: '${PurchaseListEditorPage.routePath}/:purchaseListId',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
-                      return PurchaseListEditorPage.create();
+                      final purchaseListId = state.pathParameters['purchaseListId'];
+
+                      // log the purchaseListId for debugging
+                      log('Purchase List ID: $purchaseListId');
+
+                      if (purchaseListId == null || purchaseListId.isEmpty) {
+                        throw Exception('Purchase List ID is required');
+                      }
+
+                      return PurchaseListEditorPage.create(id: purchaseListId);
                     },
                   ),
                 ],

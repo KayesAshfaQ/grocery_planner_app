@@ -31,8 +31,6 @@ import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remov
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 
-
-
 final sl = GetIt.instance;
 
 /// Registers all dependencies for the app
@@ -47,7 +45,8 @@ Future<void> initServiceLocator(AppDatabase database) async {
   // dio.interceptors.add(LogInterceptor(responseBody: true));
 
   sl.registerLazySingleton<Dio>(() => dio);
-  sl.registerLazySingleton<ApiClient>(() => ApiClient(dio: sl(), baseUrl: 'https://yourapi.com/api'));
+  sl.registerLazySingleton<ApiClient>(
+      () => ApiClient(dio: sl(), baseUrl: 'https://yourapi.com/api'));
 
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -59,7 +58,8 @@ Future<void> initServiceLocator(AppDatabase database) async {
     () => PurchaseLocalDataSourceImpl(purchaseDao: database.purchaseDao),
   );
   sl.registerLazySingleton<CatalogDataSource>(
-    () => CatalogLocalDataSourceImpl(catalogItemDao: database.catalogItemDao, categoryDao: database.categoryDao),
+    () => CatalogLocalDataSourceImpl(
+        catalogItemDao: database.catalogItemDao, categoryDao: database.categoryDao),
   );
   sl.registerLazySingleton<CategoryDataSource>(
     () => CategoryLocalDataSourceImpl(categoryItemDao: database.categoryDao),
@@ -77,7 +77,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   );
 
   // Use cases
-  sl.registerLazySingleton(() => GetAllPurchaseListUsecase(sl()));
+  sl.registerLazySingleton(() => GetPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => AddPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => RemovePurchaseListUsecase(sl()));
 
@@ -87,7 +87,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
 
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => AddCatalogItemUsecase(sl()));
-  
+
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
 
@@ -100,6 +100,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
       ));
 
   sl.registerFactory(() => PurchaseListEditorBloc(
+        getPurchaseListUsecase: sl(),
         getCategoriesUsecase: sl(),
         getCatalogItemsUsecase: sl(),
         addPurchaseItemUsecase: sl(),
