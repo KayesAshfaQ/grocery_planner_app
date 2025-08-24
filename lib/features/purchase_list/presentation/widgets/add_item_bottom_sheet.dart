@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -57,11 +59,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           _filteredCatalogItems = state.catalogItems;
         } else {
           _filteredCatalogItems = state.catalogItems
-              .where((item) => item.name
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()))
+              .where(
+                  (item) => item.name.toLowerCase().contains(_searchController.text.toLowerCase()))
               .toList();
         }
+        log('Filtered items count: ${_filteredCatalogItems.length}');
       });
     }
   }
@@ -82,118 +84,141 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             _filteredCatalogItems = state.catalogItems;
           }
 
-          return AppBottomSheet(
-            title: 'Add New Item',
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Search field for catalog items
-                TextField(
-                  controller: _searchController,
-                  decoration: const InputDecoration(
-                    labelText: 'Search catalog items',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Catalog items list
-                if (_filteredCatalogItems.isNotEmpty) ...[
-                  Text(
-                    'Select from catalog:',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 200, // Limit the ListView height
-                    ),
-                    child: ListView.builder(
-                      itemCount: _filteredCatalogItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _filteredCatalogItems[index];
-                        final isSelected = _selectedCatalogItem?.id == item.id;
-
-                        return ListTile(
-                          dense: true,
-                          // leading: CircleAvatar(
-                          //   backgroundImage: item.imageUrl != null
-                          //       ? NetworkImage(item.imageUrl!)
-                          //       : null,
-                          //   child: item.imageUrl == null
-                          //       ? Text(item.name[0].toUpperCase())
-                          //       : null,
-                          // ),
-                          title: Text(item.name),
-                          subtitle: Text(
-                            'Unit: ${item.defaultUnit ?? 'pcs'}',
-                          ),
-                          selected: isSelected,
-                          selectedTileColor: Theme.of(context)
-                              .primaryColor
-                              .withValues(alpha: 0.1),
-                          onTap: () => _onCatalogItemSelected(item),
-                          trailing: isSelected
-                              ? Icon(Icons.check,
-                                  color: Theme.of(context).primaryColor)
-                              : null,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-
-                if (_selectedCatalogItem != null) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color:
-                          Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info, color: Theme.of(context).primaryColor),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Using catalog item: ${_selectedCatalogItem!.name}',
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedCatalogItem = null;
-                            });
-                          },
-                          child: const Text('Clear'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.8, // Limit the ListView height
             ),
-            actions: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => context.pop(),
-                  style: ButtonStyle(visualDensity: VisualDensity.compact),
-                  child: const Text('CANCEL'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ButtonStyle(visualDensity: VisualDensity.compact),
-                  child: const Text('ADD ITEM'),
-                ),
-              ],
+            child: AppBottomSheet(
+              title: 'Add New Item',
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Search field for catalog items
+                  TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      labelText: 'Search catalog items',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Catalog items list
+                  if (_filteredCatalogItems.isNotEmpty) ...[
+                    Text(
+                      'Select from catalog:',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _filteredCatalogItems.length,
+                        itemBuilder: (context, index) {
+                          final item = _filteredCatalogItems[index];
+                          final isSelected = _selectedCatalogItem?.id == item.id;
+
+                          return ListTile(
+                            dense: true,
+                            // leading: CircleAvatar(
+                            //   backgroundImage: item.imageUrl != null
+                            //       ? NetworkImage(item.imageUrl!)
+                            //       : null,
+                            //   child: item.imageUrl == null
+                            //       ? Text(item.name[0].toUpperCase())
+                            //       : null,
+                            // ),
+                            title: Text(item.name),
+                            subtitle: Text(
+                              'Unit: ${item.defaultUnit ?? 'pcs'}',
+                            ),
+                            selected: isSelected,
+                            selectedTileColor:
+                                Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            onTap: () => _onCatalogItemSelected(item),
+                            trailing: isSelected
+                                ? Icon(Icons.check, color: Theme.of(context).primaryColor)
+                                : null,
+                          );
+                        },
+                      ),
+                    ),
+                  ] else ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          // height: 200,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // icon empty state
+                                Icon(
+                                  Icons.search_off,
+                                  size: 64,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 12),
+                                const Text('No catalog items found.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  if (_selectedCatalogItem != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info, color: Theme.of(context).primaryColor),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Using catalog item: ${_selectedCatalogItem!.name}',
+                              style: TextStyle(color: Theme.of(context).primaryColor),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedCatalogItem = null;
+                              });
+                            },
+                            child: const Text('Clear'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              actions: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => context.pop(),
+                    style: ButtonStyle(visualDensity: VisualDensity.compact),
+                    child: const Text('CANCEL'),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(visualDensity: VisualDensity.compact),
+                    child: const Text('ADD ITEM'),
+                  ),
+                ],
+              ),
             ),
           );
         }

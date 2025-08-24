@@ -170,14 +170,14 @@ class _AppBottomSheetState extends State<AppBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (widget.onDismiss != null) {
-          widget.onDismiss!();
-        }
-        return true;
-      },
-      child: SafeArea(
+    return SafeArea(
+      child: WillPopScope(
+        onWillPop: () async {
+          if (widget.onDismiss != null) {
+            widget.onDismiss!();
+          }
+          return true;
+        },
         child: Container(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height,
@@ -187,9 +187,7 @@ class _AppBottomSheetState extends State<AppBottomSheet> {
             left: 16,
             right: 16,
             // Add padding to avoid keyboard overlap
-            bottom: widget.isScrollControlled
-                ? MediaQuery.of(context).viewInsets.bottom + 8
-                : 8,
+            bottom: widget.isScrollControlled ? MediaQuery.of(context).viewInsets.bottom + 8 : 8,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
