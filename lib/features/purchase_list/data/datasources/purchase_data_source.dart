@@ -10,7 +10,7 @@ abstract class PurchaseDataSource {
   Future<List<PurchaseList>> getPurchaseLists();
 
   /// Fetches a purchase item by its ID
-  Future<PurchaseList> getPurchaseListById(String id);
+  Future<PurchaseList> getPurchaseListById(int id);
 
   /// Fetches purchase items by their purchase status
   Future<List<PurchaseList>> getPurchaseListsByStatus(bool isPurchased);
@@ -21,8 +21,8 @@ abstract class PurchaseDataSource {
   /// Update an existing purchase list in local storage
   Future<PurchaseList> updatePurchaseList(PurchaseList item);
 
-  /// Deletes a purchase list from local storage
-  Future<void> deletePurchaseList(String id);
+  /// Deletes a purchase list by its ID
+  Future<void> deletePurchaseList(int id);
 
   /// Adds a new purchase item to local storage
   Future<void> addPurchaseItem(PurchaseItem item);
@@ -57,13 +57,20 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   }
 
   @override
-  Future<PurchaseList> getPurchaseListById(String id) async {
+  Future<PurchaseList> getPurchaseListById(int id) async {
     try {
       final purchaseListModel = await purchaseDao.getListById(id);
       if (purchaseListModel == null) {
         throw Exception('Purchase list not found with ID: $id');
       }
-      return purchaseListModel.toEntity();
+
+      // Fetch all purchase items for this list
+      final purchaseItemModels = await purchaseDao.getAllItemsByListId(id);
+      final purchaseItems =
+          purchaseItemModels.map((item) => item.toEntity()).toList();
+
+      // Convert to entity with the loaded purchase items
+      return purchaseListModel.toEntity(purchaseItems: purchaseItems);
     } catch (e) {
       throw Exception('Failed to fetch purchase list by ID: $e');
     }
@@ -91,7 +98,7 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   }
 
   @override
-  Future<void> deletePurchaseList(String id) {
+  Future<void> deletePurchaseList(int id) {
     // TODO: implement deletePurchaseList
     throw UnimplementedError();
   }
