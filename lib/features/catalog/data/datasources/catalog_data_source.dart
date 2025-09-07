@@ -46,7 +46,7 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
           .where((item) => item.categoryId != null)
           .map((item) => item.categoryId!)
           .toSet()
-          .map((id) => id.toString())
+          .map((id) => id)
           .toList();
 
       // Fetch all needed categories in one batch

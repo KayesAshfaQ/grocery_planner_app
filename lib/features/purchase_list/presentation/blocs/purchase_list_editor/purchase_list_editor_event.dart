@@ -12,7 +12,7 @@ abstract class PurchaseListEditorEvent extends Equatable {
 /// Event to load initial data for the editor
 class LoadInitialDataEvent extends PurchaseListEditorEvent {
   /// The ID of the purchase list to load
-  final String id;
+  final int id;
 
   /// Creates a new event to load a purchase list by ID
   const LoadInitialDataEvent({required this.id});
@@ -103,6 +103,19 @@ class AddItemToPurchaseListEvent extends PurchaseListEditorEvent {
 
   @override
   List<Object?> get props => [item];
+}
+
+/// Event to add multiple items to the current purchase list
+class AddMultipleItemsToPurchaseListEvent extends PurchaseListEditorEvent
+    implements AppEvent {
+  /// The list of purchase items to be added
+  final List<PurchaseItem> items;
+
+  /// Creates a new event to add multiple purchase items
+  const AddMultipleItemsToPurchaseListEvent({required this.items});
+
+  @override
+  List<Object?> get props => [items];
 }
 
 /// Event to remove an item from the current purchase list
