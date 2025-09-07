@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/core/extensions/string_extension.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
-import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
-import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/add_item_bottom_sheet.dart';
@@ -20,7 +18,7 @@ class PurchaseListEditorPage extends StatefulWidget {
   static const String routePath = 'editor';
 
   /// Factory method that creates the page wrapped with necessary BlocProviders
-  static Widget create({required String id}) {
+  static Widget create({required int id}) {
     return BlocProvider(
       create: (context) =>
           sl<PurchaseListEditorBloc>()..add(LoadInitialDataEvent(id: id)),
@@ -68,34 +66,18 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<PurchaseListEditorBloc, PurchaseListEditorState>(
       listener: (context, state) {
-        if (state is PurchaseItemAddedState) {
-          AppToast.showSuccess(
-            context,
-            'Item "${state.item.customName ?? state.item.catalogItem?.name}" added successfully!',
-          );
-        } else if (state is PurchaseListEditorErrorState) {
+        if (state is PurchaseListEditorErrorState) {
           AppToast.showError(context, state.message);
         }
+        // Note: Success messages are now handled by the UI components that trigger the actions
+        // This follows the efficient state management pattern where we don't need dedicated success states
       },
       builder: (context, state) {
         // Extract data based on state type
-        List<Category> categories = [];
-        List<CatalogItem> catalogItems = [];
         PurchaseList? purchaseList;
 
         if (state is PurchaseListEditorLoadedState) {
-          categories = state.categories;
-          catalogItems = state.catalogItems;
           purchaseList = state.purchaseList;
-        } else if (state is PurchaseItemAddedState) {
-          // For newly added item, reload the full state to get updated list
-          /*  WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  context.read<PurchaseListEditorBloc>().add(LoadCategoriesAndCatalogItemsEvent());
-                }
-              }); */
-          // For now, show loading
-          return const Center(child: CircularProgressIndicator());
         }
 
         return Scaffold(
@@ -129,9 +111,8 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Handle both loaded state and success states to prevent fallback
-    if (state is PurchaseListEditorLoadedState ||
-        state is PurchaseItemAddedState) {
+    // Handle loaded state with efficient state management
+    if (state is PurchaseListEditorLoadedState) {
       return _body(context, purchaseList);
     }
 
