@@ -100,6 +100,45 @@ Reusable widgets live in `lib/features/shared/presentation/widgets/`. Key exampl
 - States include Loading, Success, Error variants
 - Use `AppEventBus` for cross-BLoC communication (see pattern above)
 
+#### **Efficient State Updates Pattern** (Preferred over dedicated states):
+
+When performing operations like Add/Update/Delete, prefer updating the existing loaded state instead of creating dedicated operation states:
+
+```dart
+FutureOr<void> _onAddItem(AddItemEvent event, Emitter<State> emit) async {
+  emit(LoadingState());
+  final result = await usecase(event.item);
+  
+  result.fold(
+    (failure) => emit(ErrorState(message: failure.toString())),
+    (newItem) {
+      // ✅ PREFERRED: Update existing loaded state
+      if (state is LoadedState) {
+        final currentState = state as LoadedState;
+        final updatedItems = [...currentState.items, newItem];
+        emit(LoadedState(items: updatedItems));
+      } else {
+        // Fallback: Trigger full reload
+        add(GetAllItemsEvent());
+      }
+    },
+  );
+}
+```
+
+**Benefits:**
+- ✅ No need for dedicated `ItemAddedState`, `ItemUpdatedState`, etc.
+- ✅ UI stays responsive with immediate state updates
+- ✅ Simpler state management with fewer state classes
+- ✅ Consistent user experience without loading flickers
+- ✅ Efficient memory usage by reusing existing state structure
+
+**Use this pattern for:** Add, Update, Delete operations that modify existing collections
+
+**Example from PurchaseListBloc:** The `_onAddPurchaseList` method efficiently updates the loaded state by adding the new item to the existing list instead of creating a separate `PurchaseListAddedState`.
+
+**When to use dedicated states:** Complex operations that require different UI handling or when the state structure doesn't easily support inline updates.
+
 ## UI/UX Patterns
 
 ### Bottom Sheet Best Practices
