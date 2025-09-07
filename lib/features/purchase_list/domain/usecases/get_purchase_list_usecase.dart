@@ -22,7 +22,7 @@ class GetPurchaseListUsecase {
   }
 
   /// Gets a purchase list by its ID
-  Future<Either<AppException, PurchaseList>> byId(String id) async {
+  Future<Either<AppException, PurchaseList>> byId(int id) async {
     return repository.getPurchaseListById(id);
   }
 }

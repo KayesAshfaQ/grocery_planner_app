@@ -50,14 +50,16 @@ class AppRouter {
                     path: '${PurchaseListEditorPage.routePath}/:purchaseListId',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
-                      final purchaseListId = state.pathParameters['purchaseListId'];
+                      // Parse the ID as int for efficiency and type safety
+                      final purchaseListId = int.tryParse(
+                          state.pathParameters['purchaseListId'] ?? '');
+                      if (purchaseListId == null) {
+                        throw Exception(
+                            'Invalid Purchase List ID: $purchaseListId');
+                      }
 
                       // log the purchaseListId for debugging
                       log('Purchase List ID: $purchaseListId');
-
-                      if (purchaseListId == null || purchaseListId.isEmpty) {
-                        throw Exception('Purchase List ID is required');
-                      }
 
                       return PurchaseListEditorPage.create(id: purchaseListId);
                     },
@@ -106,7 +108,8 @@ class AppRouter {
                       final id = state.pathParameters['id'];
                       return Scaffold(
                         body: Center(
-                          child: Text('Schedule Detail Screen for ID: $id - Implement me'),
+                          child: Text(
+                              'Schedule Detail Screen for ID: $id - Implement me'),
                         ),
                       );
                     },
@@ -131,7 +134,8 @@ class AppRouter {
                       final itemId = state.pathParameters['itemId'];
                       return Scaffold(
                         body: Center(
-                          child: Text('Price History Screen for Item ID: $itemId - Implement me'),
+                          child: Text(
+                              'Price History Screen for Item ID: $itemId - Implement me'),
                         ),
                       );
                     },
