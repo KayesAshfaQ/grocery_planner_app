@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
 
 /// Database model for purchase lists
@@ -70,7 +71,7 @@ class PurchaseListModel {
   ///
   /// This method is used to convert the database model into a domain entity
   /// that can be used in the application logic.
-  PurchaseList toEntity() {
+  PurchaseList toEntity({List<PurchaseItem>? purchaseItems}) {
     return PurchaseList(
       id: id,
       name: name,
@@ -79,7 +80,7 @@ class PurchaseListModel {
       currencySymbol: currencySymbol,
       note: note,
       createdAt: createdAt,
-      purchaseItems: [],
+      purchaseItems: purchaseItems ?? [],
     );
   }
 
