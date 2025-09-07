@@ -10,7 +10,7 @@ abstract class CategoryDao {
 
   /// Get a specific category item by ID
   @Query('SELECT * FROM categories WHERE id = :id')
-  Future<CategoryModel?> getItemById(String id);
+  Future<CategoryModel?> getItemById(int id);
 
   /// Insert a new category item
   @insert

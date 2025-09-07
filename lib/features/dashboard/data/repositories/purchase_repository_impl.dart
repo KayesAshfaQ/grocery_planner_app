@@ -14,7 +14,8 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   });
 
   @override
-  Future<Either<AppException, PurchaseList>> addPurchaseList(PurchaseList item) async {
+  Future<Either<AppException, PurchaseList>> addPurchaseList(
+      PurchaseList item) async {
     try {
       await dataSource.addPurchaseList(item);
       return Right(item);
@@ -24,9 +25,14 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   }
 
   @override
-  Future<Either<AppException, PurchaseItem>> addPurchaseItem(PurchaseItem item) {
-    // TODO: implement addPurchaseItem
-    throw UnimplementedError();
+  Future<Either<AppException, PurchaseItem>> addPurchaseItem(
+      PurchaseItem item) async {
+    try {
+      await dataSource.addPurchaseItem(item);
+      return Right(item);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
   }
 
   @override
@@ -37,23 +43,23 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
     } catch (error) {
       return Left(AppException(message: error.toString()));
     }
-    
   }
 
   @override
-  Future<Either<AppException, void>> deletePurchaseList(String id) {
+  Future<Either<AppException, void>> deletePurchaseList(int id) {
     // TODO: implement deletePurchaseList
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, List<PurchaseItem>>> getPurchaseItemsByCategory(String category) {
+  Future<Either<AppException, List<PurchaseItem>>> getPurchaseItemsByCategory(
+      String category) {
     // TODO: implement getPurchaseItemsByCategory
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, PurchaseList>> getPurchaseListById(String id) async{
+  Future<Either<AppException, PurchaseList>> getPurchaseListById(int id) async {
     try {
       final purchaseList = await dataSource.getPurchaseListById(id);
       return Right(purchaseList);
@@ -73,19 +79,22 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   }
 
   @override
-  Future<Either<AppException, List<PurchaseList>>> getPurchaseListsByStatus(bool isPurchased) {
+  Future<Either<AppException, List<PurchaseList>>> getPurchaseListsByStatus(
+      bool isPurchased) {
     // TODO: implement getPurchaseListsByStatus
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, PurchaseItem>> markItemAsPurchased(String id, {double? actualPrice}) {
+  Future<Either<AppException, PurchaseItem>> markItemAsPurchased(String id,
+      {double? actualPrice}) {
     // TODO: implement markItemAsPurchased
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, PurchaseList>> updatePurchaseList(PurchaseList item) {
+  Future<Either<AppException, PurchaseList>> updatePurchaseList(
+      PurchaseList item) {
     // TODO: implement updatePurchaseList
     throw UnimplementedError();
   }

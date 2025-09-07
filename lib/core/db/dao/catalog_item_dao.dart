@@ -10,7 +10,7 @@ abstract class CatalogItemDao {
 
   /// Get a specific catalog item by ID
   @Query('SELECT * FROM catalog_items WHERE id = :id')
-  Future<CatalogItemModel?> getItemById(String id);
+  Future<CatalogItemModel?> getItemById(int id);
 
   /// Insert a new catalog item
   @insert

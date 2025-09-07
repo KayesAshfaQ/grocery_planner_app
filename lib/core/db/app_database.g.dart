@@ -201,7 +201,7 @@ class _$CategoryDao extends CategoryDao {
   }
 
   @override
-  Future<CategoryModel?> getItemById(String id) async {
+  Future<CategoryModel?> getItemById(int id) async {
     return _queryAdapter.query('SELECT * FROM categories WHERE id = ?1',
         mapper: (Map<String, Object?> row) => CategoryModel(
             id: row['id'] as int?,
@@ -339,7 +339,7 @@ class _$CatalogItemDao extends CatalogItemDao {
   }
 
   @override
-  Future<CatalogItemModel?> getItemById(String id) async {
+  Future<CatalogItemModel?> getItemById(int id) async {
     return _queryAdapter.query('SELECT * FROM catalog_items WHERE id = ?1',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
             id: row['id'] as int?,
@@ -528,7 +528,7 @@ class _$PurchaseDao extends PurchaseDao {
   }
 
   @override
-  Future<PurchaseListModel?> getListById(String id) async {
+  Future<PurchaseListModel?> getListById(int id) async {
     return _queryAdapter.query('SELECT * FROM purchase_lists WHERE id = ?1',
         mapper: (Map<String, Object?> row) => PurchaseListModel(
             id: row['id'] as int?,
@@ -544,14 +544,14 @@ class _$PurchaseDao extends PurchaseDao {
   }
 
   @override
-  Future<void> deleteListById(String id) async {
+  Future<void> deleteListById(int id) async {
     await _queryAdapter.queryNoReturn(
         'DELETE FROM purchase_lists WHERE id = ?1',
         arguments: [id]);
   }
 
   @override
-  Future<List<PurchaseItemModel>> getAllItemsByListId(String listId) async {
+  Future<List<PurchaseItemModel>> getAllItemsByListId(int listId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM purchase_items WHERE listId = ?1 ORDER BY created_at DESC',
         mapper: (Map<String, Object?> row) => PurchaseItemModel(id: row['id'] as int?, listId: row['list_id'] as int, catalogId: row['catalog_id'] as int?, customName: row['custom_name'] as String?, quantity: row['quantity'] as double, unitPrice: row['unit_price'] as double?, totalPrice: row['total_price'] as double?, note: row['note'] as String?, isPurchased: (row['is_purchased'] as int) != 0, purchasedAt: row['purchased_at'] as String?),
@@ -559,7 +559,7 @@ class _$PurchaseDao extends PurchaseDao {
   }
 
   @override
-  Future<PurchaseItemModel?> getItemById(String id) async {
+  Future<PurchaseItemModel?> getItemById(int id) async {
     return _queryAdapter.query('SELECT * FROM purchase_items WHERE id = ?1',
         mapper: (Map<String, Object?> row) => PurchaseItemModel(
             id: row['id'] as int?,
