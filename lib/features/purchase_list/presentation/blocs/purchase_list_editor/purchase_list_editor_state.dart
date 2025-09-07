@@ -68,18 +68,6 @@ class PurchaseListEditorLoadedState extends PurchaseListEditorState {
       ];
 }
 
-/// State when a purchase item is added
-class PurchaseItemAddedState extends PurchaseListEditorState {
-  /// The purchase item added
-  final PurchaseItem item;
-
-  /// Creates a new state with the purchase item added
-  const PurchaseItemAddedState({required this.item});
-
-  @override
-  List<Object> get props => [item];
-}
-
 /// State when purchase list is updated
 class PurchaseListUpdatedState extends PurchaseListEditorState {
   /// The purchase list updated

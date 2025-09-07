@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,13 +18,15 @@ part 'purchase_list_editor_event.dart';
 part 'purchase_list_editor_state.dart';
 
 /// BLoC for managing grocery item editor operations
-class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
+class PurchaseListEditorBloc
+    extends Bloc<PurchaseListEditorEvent, PurchaseListEditorState> {
   final GetPurchaseListUsecase getPurchaseListUsecase;
   final GetCategoriesUsecase getCategoriesUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
   final RemovePurchaseItemUsecase removePurchaseItemUsecase;
   final AppEventBus _eventBus;
+  late final StreamSubscription _eventSubscription;
 
   /// Creates a new EditorBloc
   PurchaseListEditorBloc({
@@ -41,7 +44,19 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     on<FindCategoryByIdEvent>(_onFindCategoryById);
     on<InsertCategoryEvent>(_onInsertCategory);
     on<AddItemToPurchaseListEvent>(_onAddItemToPurchaseList);
+    on<AddMultipleItemsToPurchaseListEvent>(_onAddMultipleItemsToPurchaseList);
     on<RemoveItemFromPurchaseListEvent>(_onRemoveItemFromPurchaseList);
+
+    // Subscribe to events from the event bus
+    _eventSubscription = _eventBus.stream.listen((event) {
+      if (event is AddMultipleItemsToPurchaseListEvent) {
+        log('PurchaseListEditorBloc: Detected AddMultipleItemsToPurchaseListEvent from EventBus');
+        // if (event.items.isNotEmpty) {
+        //   final listId = event.items.first.listId;
+        //   add(LoadInitialDataEvent(id: listId));
+        // }
+      }
+    });
   }
 
   FutureOr<void> _onLoadInitialData(
@@ -76,8 +91,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
       );
 
       categoriesResult.fold(
-        (failure) => emit(
-            PurchaseListEditorErrorState(message: 'Error loading categories: ${failure.message}')),
+        (failure) => emit(PurchaseListEditorErrorState(
+            message: 'Error loading categories: ${failure.message}')),
         (loadedCategories) {
           categories = loadedCategories;
         },
@@ -122,8 +137,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
   ) async {
     if (state is PurchaseListEditorLoadedState) {
       final currentState = state as PurchaseListEditorLoadedState;
-      final category =
-          currentState.categories.firstWhere((category) => category.id == event.categoryId);
+      final category = currentState.categories
+          .firstWhere((category) => category.id == event.categoryId);
       emit(currentState.copyWith(selectedCategory: category));
     }
   }
@@ -135,7 +150,8 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     if (state is PurchaseListEditorLoadedState) {
       final currentState = state as PurchaseListEditorLoadedState;
       final newCategory = Category(name: event.name);
-      final updatedCategories = List<Category>.from(currentState.categories)..add(newCategory);
+      final updatedCategories = List<Category>.from(currentState.categories)
+        ..add(newCategory);
       emit(currentState.copyWith(categories: updatedCategories));
     }
   }
@@ -144,18 +160,76 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
     AddItemToPurchaseListEvent event,
     Emitter<PurchaseListEditorState> emit,
   ) async {
+    if (state is! PurchaseListEditorLoadedState) {
+      emit(PurchaseListEditorErrorState(
+          message: 'Cannot add item: editor not loaded'));
+      return;
+    }
+
+    final currentState = state as PurchaseListEditorLoadedState;
     emit(PurchaseListEditorLoadingState());
+
     final result = await addPurchaseItemUsecase(event.item);
     result.fold(
-      (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
+      (failure) =>
+          emit(PurchaseListEditorErrorState(message: failure.toString())),
       (purchaseItem) {
-        emit(PurchaseItemAddedState(item: purchaseItem));
+        // ✅ EFFICIENT: Update existing loaded state with new item
+        final currentItems = currentState.purchaseList?.purchaseItems ?? [];
+        final updatedItems = [...currentItems, purchaseItem];
+        final updatedPurchaseList =
+            currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
+
+        emit(currentState.copyWith(purchaseList: updatedPurchaseList));
       },
     );
   }
 
+  FutureOr<void> _onAddMultipleItemsToPurchaseList(
+    AddMultipleItemsToPurchaseListEvent event,
+    Emitter<PurchaseListEditorState> emit,
+  ) async {
+    if (state is! PurchaseListEditorLoadedState) {
+      emit(PurchaseListEditorErrorState(
+          message: 'Cannot add items: editor not loaded'));
+      return;
+    }
+
+    final currentState = state as PurchaseListEditorLoadedState;
+    emit(PurchaseListEditorLoadingState());
+
+    List<PurchaseItem> addedItems = [];
+    List<String> errors = [];
+
+    // Add each item one by one
+    for (PurchaseItem item in event.items) {
+      final result = await addPurchaseItemUsecase(item);
+      result.fold(
+        (failure) => errors.add(
+            'Failed to add ${item.customName ?? item.catalogItem?.name ?? 'item'}: ${failure.message}'),
+        (purchaseItem) => addedItems.add(purchaseItem),
+      );
+    }
+
+    if (errors.isNotEmpty) {
+      emit(PurchaseListEditorErrorState(message: errors.join('\n')));
+    } else {
+      // ✅ EFFICIENT: Update existing loaded state with new items
+      final currentItems = currentState.purchaseList?.purchaseItems ?? [];
+      final updatedItems = [...currentItems, ...addedItems];
+      final updatedPurchaseList =
+          currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
+
+      emit(currentState.copyWith(purchaseList: updatedPurchaseList));
+
+      // Fire event through EventBus to notify other parts of the app (like the main purchase list)
+      _eventBus.fire(AddMultipleItemsToPurchaseListEvent(items: addedItems));
+    }
+  }
+
   FutureOr<void> _onRemoveItemFromPurchaseList(
-      RemoveItemFromPurchaseListEvent event, Emitter<PurchaseListEditorState> emit) async {
+      RemoveItemFromPurchaseListEvent event,
+      Emitter<PurchaseListEditorState> emit) async {
     if (state is PurchaseListEditorLoadedState) {
       final currentState = state as PurchaseListEditorLoadedState;
       final items = currentState.purchaseList?.purchaseItems;
@@ -166,12 +240,20 @@ class PurchaseListEditorBloc extends Bloc<PurchaseListEditorEvent, PurchaseListE
 
       final result = await removePurchaseItemUsecase(event.id);
       result.fold(
-        (failure) => emit(PurchaseListEditorErrorState(message: failure.toString())),
+        (failure) =>
+            emit(PurchaseListEditorErrorState(message: failure.toString())),
         (success) {
           emit(currentState.copyWith(
-              purchaseList: currentState.purchaseList?.copyWith(purchaseItems: items)));
+              purchaseList:
+                  currentState.purchaseList?.copyWith(purchaseItems: items)));
         },
       );
     }
+  }
+
+  @override
+  Future<void> close() {
+    _eventSubscription.cancel();
+    return super.close();
   }
 }
