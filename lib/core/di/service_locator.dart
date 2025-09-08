@@ -30,6 +30,14 @@ import 'package:grocery_planner_app/features/purchase_list/domain/usecases/mark_
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
+import 'package:grocery_planner_app/features/settings/data/datasources/local/settings_local_data_source.dart';
+import 'package:grocery_planner_app/features/settings/data/repositories/settings_repository_impl.dart';
+import 'package:grocery_planner_app/features/settings/domain/repositories/settings_repository.dart';
+import 'package:grocery_planner_app/features/settings/domain/usecases/get_user_settings_usecase.dart';
+import 'package:grocery_planner_app/features/settings/domain/usecases/update_default_currency_usecase.dart';
+import 'package:grocery_planner_app/features/settings/domain/usecases/update_user_settings_usecase.dart';
+import 'package:grocery_planner_app/features/settings/presentation/blocs/settings_bloc.dart';
+import 'package:grocery_planner_app/core/services/user_settings_service.dart';
 
 final sl = GetIt.instance;
 
@@ -59,10 +67,14 @@ Future<void> initServiceLocator(AppDatabase database) async {
   );
   sl.registerLazySingleton<CatalogDataSource>(
     () => CatalogLocalDataSourceImpl(
-        catalogItemDao: database.catalogItemDao, categoryDao: database.categoryDao),
+        catalogItemDao: database.catalogItemDao,
+        categoryDao: database.categoryDao),
   );
   sl.registerLazySingleton<CategoryDataSource>(
     () => CategoryLocalDataSourceImpl(categoryItemDao: database.categoryDao),
+  );
+  sl.registerLazySingleton<SettingsLocalDataSource>(
+    () => SettingsLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
   // Repositories
@@ -74,6 +86,9 @@ Future<void> initServiceLocator(AppDatabase database) async {
   );
   sl.registerLazySingleton<CategoryRepository>(
     () => CategoryRepositoryImpl(dataSource: sl()),
+  );
+  sl.registerLazySingleton<SettingsRepository>(
+    () => SettingsRepositoryImpl(localDataSource: sl()),
   );
 
   // Use cases
@@ -90,6 +105,17 @@ Future<void> initServiceLocator(AppDatabase database) async {
 
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
+
+  sl.registerLazySingleton(() => GetUserSettingsUsecase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateUserSettingsUsecase(repository: sl()));
+  sl.registerLazySingleton(
+      () => UpdateDefaultCurrencyUsecase(repository: sl()));
+
+  // Services (for easy access across the app)
+  sl.registerLazySingleton(() => UserSettingsService(
+        getUserSettingsUsecase: sl(),
+        updateDefaultCurrencyUsecase: sl(),
+      ));
 
   // Blocs/Cubits
   sl.registerFactory(() => PurchaseListBloc(
@@ -116,5 +142,11 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerFactory(() => CatalogBloc(
         getCatalogItemsUsecase: sl(),
         addCatalogItemUsecase: sl(),
+      ));
+
+  sl.registerFactory(() => SettingsBloc(
+        getUserSettingsUsecase: sl(),
+        updateUserSettingsUsecase: sl(),
+        updateDefaultCurrencyUsecase: sl(),
       ));
 }

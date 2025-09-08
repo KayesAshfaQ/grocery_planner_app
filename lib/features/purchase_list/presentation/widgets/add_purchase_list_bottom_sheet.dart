@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grocery_planner_app/core/di/service_locator.dart';
+import 'package:grocery_planner_app/core/services/user_settings_service.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_bottom_sheet.dart';
@@ -12,7 +14,8 @@ class AddPurchaseListBottomSheet extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AddPurchaseListBottomSheet> createState() => _AddPurchaseListBottomSheetState();
+  State<AddPurchaseListBottomSheet> createState() =>
+      _AddPurchaseListBottomSheetState();
 
   /// Show this bottom sheet
   static Future<void> show(BuildContext context, {int? listId}) {
@@ -26,10 +29,14 @@ class AddPurchaseListBottomSheet extends StatefulWidget {
   }
 }
 
-class _AddPurchaseListBottomSheetState extends State<AddPurchaseListBottomSheet> {
+class _AddPurchaseListBottomSheetState
+    extends State<AddPurchaseListBottomSheet> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _budgetController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+
+  // Get settings service for accessing user preferences
+  final UserSettingsService _settingsService = sl<UserSettingsService>();
 
   @override
   void initState() {
@@ -57,7 +64,7 @@ class _AddPurchaseListBottomSheetState extends State<AddPurchaseListBottomSheet>
     final newList = PurchaseList(
       name: name,
       budget: budget,
-      // currencySymbol: currency,
+      currencySymbol: _settingsService.defaultCurrency,
       note: note,
     );
 
@@ -66,7 +73,7 @@ class _AddPurchaseListBottomSheetState extends State<AddPurchaseListBottomSheet>
   }
 
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) {
     return BlocBuilder<PurchaseListBloc, PurchaseListState>(
       builder: (context, state) {
         if (state is PurchaseListLoadedState) {
