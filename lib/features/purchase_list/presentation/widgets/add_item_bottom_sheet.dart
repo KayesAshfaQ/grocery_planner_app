@@ -50,15 +50,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   void _initializeSelectedItems() {
     final state = context.read<PurchaseListEditorBloc>().state;
     if (state is PurchaseListEditorLoadedState) {
-      final purchaseListItems = state.purchaseList?.purchaseItems ?? [];
-      final catalogItemsInList = purchaseListItems
-          .map((purchaseItem) => purchaseItem.catalogItem)
-          .where((catalogItem) => catalogItem != null)
-          .cast<CatalogItem>()
-          .toList();
-
+      // Note: For now, we'll start with empty selection since we'd need to fetch
+      // the full CatalogItem objects from the repository to properly initialize
       setState(() {
-        _selectedCatalogItems = [...catalogItemsInList];
+        _selectedCatalogItems = [];
       });
     }
   }
@@ -67,16 +62,16 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     final state = context.read<PurchaseListEditorBloc>().state;
     if (state is! PurchaseListEditorLoadedState) return [];
 
-    final existingCatalogItems = state.purchaseList?.purchaseItems
-            .map((purchaseItem) => purchaseItem.catalogItem)
-            .where((catalogItem) => catalogItem != null)
-            .cast<CatalogItem>()
+    final existingCatalogIds = state.purchaseList?.purchaseItems
+            .map((purchaseItem) => purchaseItem.catalogId)
+            .where((catalogId) => catalogId != null)
+            .cast<int>()
             .toList() ??
         [];
 
     return _selectedCatalogItems
-        .where((selectedItem) => !existingCatalogItems
-            .any((existing) => existing.id == selectedItem.id))
+        .where((selectedItem) => !existingCatalogIds
+            .any((existingId) => existingId == selectedItem.id))
         .toList();
   }
 
@@ -121,17 +116,17 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     if (state is! PurchaseListEditorLoadedState) return;
 
     // Get currently existing catalog items in the purchase list
-    final existingCatalogItems = state.purchaseList?.purchaseItems
-            .map((purchaseItem) => purchaseItem.catalogItem)
-            .where((catalogItem) => catalogItem != null)
-            .cast<CatalogItem>()
+    final existingCatalogIds = state.purchaseList?.purchaseItems
+            .map((purchaseItem) => purchaseItem.catalogId)
+            .where((catalogId) => catalogId != null)
+            .cast<int>()
             .toList() ??
         [];
 
     // Only create purchase items for newly selected catalog items (not already in list)
     final newCatalogItems = _selectedCatalogItems
-        .where((selectedItem) => !existingCatalogItems
-            .any((existing) => existing.id == selectedItem.id))
+        .where((selectedItem) => !existingCatalogIds
+            .any((existingId) => existingId == selectedItem.id))
         .toList();
 
     if (newCatalogItems.isEmpty) {
@@ -144,7 +139,8 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     final purchaseItems = newCatalogItems.map((catalogItem) {
       return PurchaseItem(
         listId: widget.listId!,
-        catalogItem: catalogItem,
+        catalogId: catalogItem.id,
+        customName: catalogItem.name,
         quantity: 1.0, // Default quantity
         isPurchased: false,
       );
@@ -225,13 +221,13 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                             // Check if item is already in the purchase list
                             final state =
                                 context.read<PurchaseListEditorBloc>().state;
-                            final isAlreadyInList = state
-                                    is PurchaseListEditorLoadedState &&
-                                (state.purchaseList?.purchaseItems.any(
-                                        (purchaseItem) =>
-                                            purchaseItem.catalogItem?.id ==
-                                            item.id) ??
-                                    false);
+                            final isAlreadyInList =
+                                state is PurchaseListEditorLoadedState &&
+                                    (state.purchaseList?.purchaseItems.any(
+                                            (purchaseItem) =>
+                                                purchaseItem.catalogId ==
+                                                item.id) ??
+                                        false);
 
                             return ListTile(
                               dense: true,

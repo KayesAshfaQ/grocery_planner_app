@@ -206,7 +206,7 @@ class PurchaseListEditorBloc
       final result = await addPurchaseItemUsecase(item);
       result.fold(
         (failure) => errors.add(
-            'Failed to add ${item.customName ?? item.catalogItem?.name ?? 'item'}: ${failure.message}'),
+            'Failed to add ${item.customName ?? 'catalog item #${item.catalogId}'}: ${failure.message}'),
         (purchaseItem) => addedItems.add(purchaseItem),
       );
     }

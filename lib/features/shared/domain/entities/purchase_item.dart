@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 
 /// Database model for items in a purchase list
 class PurchaseItem extends Equatable {
@@ -9,8 +8,8 @@ class PurchaseItem extends Equatable {
   /// Foreign key reference to the purchase list this item belongs to
   final int listId;
 
-  /// Catalog-item of this purchase list item
-  final CatalogItem? catalogItem;
+  /// Optional foreign key reference to the catalog item this purchase is based on
+  final int? catalogId;
 
   /// Optional custom name for the item (overrides catalog name
   final String? customName;
@@ -36,7 +35,7 @@ class PurchaseItem extends Equatable {
   const PurchaseItem({
     this.id,
     required this.listId,
-    this.catalogItem,
+    this.catalogId,
     this.customName,
     required this.quantity,
     this.unitPrice,
@@ -50,7 +49,7 @@ class PurchaseItem extends Equatable {
     return {
       'item_id': id,
       'list_id': listId,
-      'catalog_id': catalogItem,
+      'catalog_id': catalogId,
       'custom_name': customName,
       'quantity': quantity,
       'unit_price': unitPrice,
@@ -65,7 +64,7 @@ class PurchaseItem extends Equatable {
     return PurchaseItem(
       id: map['item_id'],
       listId: map['list_id'],
-      catalogItem: map['catalog_id'],
+      catalogId: map['catalog_id'],
       customName: map['custom_name'],
       quantity: map['quantity'],
       unitPrice: map['unit_price'],
@@ -80,7 +79,7 @@ class PurchaseItem extends Equatable {
   List<Object?> get props => [
         id,
         listId,
-        catalogItem,
+        catalogId,
         customName,
         quantity,
         unitPrice,

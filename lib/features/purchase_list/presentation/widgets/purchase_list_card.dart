@@ -61,11 +61,11 @@ class PurchaseListCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Builder(
                           builder: (context) {
-                            final categories = purchaseList.purchaseItems
-                                .map((item) => item.catalogItem?.category?.name)
-                                .where((name) => name != null)
-                                .toSet()
-                                .join(', ');
+                            // Note: Since we no longer have direct access to catalog categories
+                            // from purchase items, we'll show a generic message for now
+                            final itemCount = purchaseList.purchaseItems.length;
+                            final categories =
+                                itemCount == 1 ? '1 item' : '$itemCount items';
 
                             return Text(
                               'Category: ${categories.isNotEmpty ? categories : 'Unknown'}',
