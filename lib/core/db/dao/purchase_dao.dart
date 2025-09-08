@@ -31,11 +31,11 @@ abstract class PurchaseDao {
 
   /// Get all purchase items by list ID
   @Query(
-      'SELECT * FROM purchase_items WHERE listId = :listId ORDER BY created_at DESC')
+      'SELECT * FROM purchase_list_items WHERE list_id = :listId ORDER BY id DESC')
   Future<List<PurchaseItemModel>> getAllItemsByListId(int listId);
 
   /// Get a specific purchase item by ID
-  @Query('SELECT * FROM purchase_items WHERE id = :id')
+  @Query('SELECT * FROM purchase_list_items WHERE id = :id')
   Future<PurchaseItemModel?> getItemById(int id);
 
   /// Insert a new purchase item
@@ -51,6 +51,6 @@ abstract class PurchaseDao {
   Future<void> deleteItem(PurchaseItemModel item);
 
   /// Delete a purchase item by ID
-  @Query('DELETE FROM purchase_items WHERE id = :id')
+  @Query('DELETE FROM purchase_list_items WHERE id = :id')
   Future<void> deleteItemById(int id);
 }
