@@ -190,8 +190,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             title: Text(item?.customName ??
-                                item?.catalogItem?.name ??
-                                'Unknown Item'),
+                                'Item #${item?.catalogId ?? 'N/A'}'),
                             subtitle: Text(
                               '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
                             ),

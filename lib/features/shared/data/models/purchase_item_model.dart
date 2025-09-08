@@ -1,5 +1,4 @@
 import 'package:floor/floor.dart';
-import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
 
 /// Database model for items in a purchase list
@@ -90,11 +89,11 @@ class PurchaseItemModel {
 
   // Converts the model to a domain entity
 
-  PurchaseItem toEntity({CatalogItem? catalogItem}) {
+  PurchaseItem toEntity() {
     return PurchaseItem(
       id: id,
       listId: listId,
-      catalogItem: catalogItem, // Can be provided externally or null
+      catalogId: catalogId,
       customName: customName,
       quantity: quantity,
       unitPrice: unitPrice,
@@ -110,7 +109,7 @@ class PurchaseItemModel {
     return PurchaseItemModel(
       id: item.id,
       listId: item.listId,
-      catalogId: item.catalogItem?.id,
+      catalogId: item.catalogId,
       customName: item.customName,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
