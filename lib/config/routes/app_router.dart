@@ -2,13 +2,14 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:grocery_planner_app/features/catalog/presentation/pages/catalog_page.dart';
 import 'package:grocery_planner_app/features/category/presentation/pages/category_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
-import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_editor_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';
-import 'package:grocery_planner_app/features/catalog/presentation/pages/catalog_page.dart';
-import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/schedule_page.dart';
+import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_editor_page.dart';
+import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_page.dart';
+import 'package:grocery_planner_app/features/settings/presentation/pages/settings_page.dart';
 
 // Create keys for `root` & `section` navigator avoiding unnecessary rebuilds
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -119,28 +120,14 @@ class AppRouter {
             ],
           ),
 
-          // Reports Branch
+          // Settings Branch
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: ReportsPage.routePath,
+                path: SettingsPage.routePath,
                 pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ReportsPage(),
+                  child: SettingsPage(),
                 ),
-                routes: [
-                  GoRoute(
-                    path: 'price-history/:itemId',
-                    builder: (context, state) {
-                      final itemId = state.pathParameters['itemId'];
-                      return Scaffold(
-                        body: Center(
-                          child: Text(
-                              'Price History Screen for Item ID: $itemId - Implement me'),
-                        ),
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),

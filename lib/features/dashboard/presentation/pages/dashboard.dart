@@ -18,7 +18,7 @@ class Dashboard extends StatelessWidget {
     Icons.store,
     Icons.category,
     Icons.calendar_today,
-    Icons.bar_chart,
+    Icons.settings,
   ];
 
   // List of labels for the bottom navigation
@@ -27,7 +27,7 @@ class Dashboard extends StatelessWidget {
     'Catalog',
     'Category',
     'Schedule',
-    'Reports',
+    'Settings',
   ];
 
   @override
