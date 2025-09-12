@@ -25,7 +25,7 @@ class PurchaseList extends Equatable {
   final String? note;
 
   /// Timestamp when this list was created
-  final String? createdAt;
+  final DateTime? createdAt;
 
   const PurchaseList({
     this.id,
@@ -47,7 +47,7 @@ class PurchaseList extends Equatable {
     String? currencySymbol,
     List<PurchaseItem>? purchaseItems,
     String? note,
-    String? createdAt,
+    DateTime? createdAt,
   }) {
     return PurchaseList(
       id: id ?? this.id,

@@ -106,7 +106,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `price_history` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `catalog_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `is_completed` INTEGER, `budget` REAL, `currency_symbol` TEXT, `note` TEXT, `created_at` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `is_completed` INTEGER, `budget` REAL, `currency_symbol` TEXT, `note` TEXT, `created_at` INTEGER)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `purchase_list_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `catalog_id` INTEGER, `custom_name` TEXT, `quantity` REAL NOT NULL, `unit_price` REAL, `total_price` REAL, `note` TEXT, `is_purchased` INTEGER NOT NULL, `purchased_at` TEXT)');
         await database.execute(
@@ -413,7 +413,8 @@ class _$PurchaseDao extends PurchaseDao {
                   'budget': item.budget,
                   'currency_symbol': item.currencySymbol,
                   'note': item.note,
-                  'created_at': item.createdAt
+                  'created_at':
+                      _nullableDateTimeConverter.encode(item.createdAt)
                 }),
         _purchaseItemModelInsertionAdapter = InsertionAdapter(
             database,
@@ -443,7 +444,8 @@ class _$PurchaseDao extends PurchaseDao {
                   'budget': item.budget,
                   'currency_symbol': item.currencySymbol,
                   'note': item.note,
-                  'created_at': item.createdAt
+                  'created_at':
+                      _nullableDateTimeConverter.encode(item.createdAt)
                 }),
         _purchaseItemModelUpdateAdapter = UpdateAdapter(
             database,
@@ -474,7 +476,8 @@ class _$PurchaseDao extends PurchaseDao {
                   'budget': item.budget,
                   'currency_symbol': item.currencySymbol,
                   'note': item.note,
-                  'created_at': item.createdAt
+                  'created_at':
+                      _nullableDateTimeConverter.encode(item.createdAt)
                 }),
         _purchaseItemModelDeletionAdapter = DeletionAdapter(
             database,
@@ -524,7 +527,8 @@ class _$PurchaseDao extends PurchaseDao {
             budget: row['budget'] as double?,
             currencySymbol: row['currency_symbol'] as String?,
             note: row['note'] as String?,
-            createdAt: row['created_at'] as String?));
+            createdAt:
+                _nullableDateTimeConverter.decode(row['created_at'] as int?)));
   }
 
   @override
@@ -539,7 +543,8 @@ class _$PurchaseDao extends PurchaseDao {
             budget: row['budget'] as double?,
             currencySymbol: row['currency_symbol'] as String?,
             note: row['note'] as String?,
-            createdAt: row['created_at'] as String?),
+            createdAt:
+                _nullableDateTimeConverter.decode(row['created_at'] as int?)),
         arguments: [id]);
   }
 
@@ -548,6 +553,42 @@ class _$PurchaseDao extends PurchaseDao {
     await _queryAdapter.queryNoReturn(
         'DELETE FROM purchase_lists WHERE id = ?1',
         arguments: [id]);
+  }
+
+  @override
+  Future<List<PurchaseListModel>> getListsByDateRange(
+    int startTime,
+    int endTime,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_lists WHERE created_at BETWEEN ?1 AND ?2 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [startTime, endTime]);
+  }
+
+  @override
+  Future<List<PurchaseListModel>> getListsCreatedToday(int todayStart) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_lists WHERE created_at >= ?1 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [todayStart]);
+  }
+
+  @override
+  Future<List<PurchaseListModel>> getListsCreatedThisWeek(int weekStart) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_lists WHERE created_at >= ?1 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [weekStart]);
+  }
+
+  @override
+  Future<List<PurchaseListModel>> getListsCreatedThisMonth(
+      int monthStart) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_lists WHERE created_at >= ?1 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [monthStart]);
   }
 
   @override
@@ -630,3 +671,4 @@ class _$PurchaseDao extends PurchaseDao {
 
 // ignore_for_file: unused_element
 final _dateTimeConverter = DateTimeConverter();
+final _nullableDateTimeConverter = NullableDateTimeConverter();
