@@ -29,6 +29,27 @@ abstract class PurchaseDao {
   @Query('DELETE FROM purchase_lists WHERE id = :id')
   Future<void> deleteListById(int id);
 
+  /// Get purchase lists created within a date range
+  @Query(
+      'SELECT * FROM purchase_lists WHERE created_at BETWEEN :startTime AND :endTime ORDER BY created_at DESC')
+  Future<List<PurchaseListModel>> getListsByDateRange(
+      int startTime, int endTime);
+
+  /// Get purchase lists created today
+  @Query(
+      'SELECT * FROM purchase_lists WHERE created_at >= :todayStart ORDER BY created_at DESC')
+  Future<List<PurchaseListModel>> getListsCreatedToday(int todayStart);
+
+  /// Get purchase lists created this week
+  @Query(
+      'SELECT * FROM purchase_lists WHERE created_at >= :weekStart ORDER BY created_at DESC')
+  Future<List<PurchaseListModel>> getListsCreatedThisWeek(int weekStart);
+
+  /// Get purchase lists created this month
+  @Query(
+      'SELECT * FROM purchase_lists WHERE created_at >= :monthStart ORDER BY created_at DESC')
+  Future<List<PurchaseListModel>> getListsCreatedThisMonth(int monthStart);
+
   /// Get all purchase items by list ID
   @Query(
       'SELECT * FROM purchase_list_items WHERE list_id = :listId ORDER BY id DESC')

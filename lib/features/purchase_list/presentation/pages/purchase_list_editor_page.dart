@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/core/extensions/string_extension.dart';
+import 'package:grocery_planner_app/core/extensions/datetime_extension.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
@@ -162,9 +162,11 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
           // date of the list
           Text(
             purchaseList?.createdAt != null
-                ? 'Created on: ${purchaseList!.createdAt!.toLocalDateTime()}'
+                ? 'Created ${purchaseList!.createdAt!.relativeTime}'
                 : 'No date available',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                ),
           ),
 
           // -------------- Purchase Item Section --------------

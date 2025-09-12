@@ -66,6 +66,7 @@ class _AddPurchaseListBottomSheetState
       budget: budget,
       currencySymbol: _settingsService.defaultCurrency,
       note: note,
+      createdAt: DateTime.now(),
     );
 
     context.read<PurchaseListBloc>().add(AddPurchaseListEvent(item: newList));

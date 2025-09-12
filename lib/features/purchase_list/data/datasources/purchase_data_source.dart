@@ -1,4 +1,5 @@
 import 'package:grocery_planner_app/core/db/dao/purchase_dao.dart';
+import 'package:grocery_planner_app/core/extensions/datetime_extension.dart';
 import 'package:grocery_planner_app/features/shared/data/models/purchase_item_model.dart';
 import 'package:grocery_planner_app/features/shared/data/models/purchase_list_model.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
@@ -35,6 +36,19 @@ abstract class PurchaseDataSource {
 
   /// Fetches purchase items by their category
   Future<List<PurchaseItem>> getPurchaseItemsByCategory(String category);
+
+  /// Fetches purchase lists created within a date range
+  Future<List<PurchaseList>> getPurchaseListsByDateRange(
+      DateTime start, DateTime end);
+
+  /// Fetches purchase lists created today
+  Future<List<PurchaseList>> getPurchaseListsCreatedToday();
+
+  /// Fetches purchase lists created this week
+  Future<List<PurchaseList>> getPurchaseListsCreatedThisWeek();
+
+  /// Fetches purchase lists created this month
+  Future<List<PurchaseList>> getPurchaseListsCreatedThisMonth();
 }
 
 class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
@@ -131,5 +145,51 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   Future<List<PurchaseItem>> getPurchaseItemsByCategory(String category) {
     // TODO: implement getPurchaseItemsByCategory
     throw UnimplementedError();
+  }
+
+  @override
+  Future<List<PurchaseList>> getPurchaseListsByDateRange(
+      DateTime start, DateTime end) async {
+    try {
+      final range = DateTimeUtils.createRange(start, end);
+      final purchaseListModels =
+          await purchaseDao.getListsByDateRange(range.start, range.end);
+      return purchaseListModels.map((item) => item.toEntity()).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch purchase lists by date range: $e');
+    }
+  }
+
+  @override
+  Future<List<PurchaseList>> getPurchaseListsCreatedToday() async {
+    try {
+      final purchaseListModels = await purchaseDao
+          .getListsCreatedToday(DateTimeUtils.todayStartMillis);
+      return purchaseListModels.map((item) => item.toEntity()).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch today\'s purchase lists: $e');
+    }
+  }
+
+  @override
+  Future<List<PurchaseList>> getPurchaseListsCreatedThisWeek() async {
+    try {
+      final purchaseListModels = await purchaseDao
+          .getListsCreatedThisWeek(DateTimeUtils.weekStartMillis);
+      return purchaseListModels.map((item) => item.toEntity()).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch this week\'s purchase lists: $e');
+    }
+  }
+
+  @override
+  Future<List<PurchaseList>> getPurchaseListsCreatedThisMonth() async {
+    try {
+      final purchaseListModels = await purchaseDao
+          .getListsCreatedThisMonth(DateTimeUtils.monthStartMillis);
+      return purchaseListModels.map((item) => item.toEntity()).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch this month\'s purchase lists: $e');
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:floor/floor.dart';
-import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
-import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
+
+import '../../../../core/db/converter/nullable_date_time_converter.dart';
+import '../../domain/entities/purchase_item.dart';
+import '../../domain/entities/purchase_list.dart';
 
 /// Database model for purchase lists
 @Entity(tableName: 'purchase_lists')
@@ -31,7 +33,8 @@ class PurchaseListModel {
 
   /// Timestamp when this list was created
   @ColumnInfo(name: 'created_at')
-  final String? createdAt;
+  @TypeConverters([NullableDateTimeConverter])
+  final DateTime? createdAt;
 
   PurchaseListModel({
     this.id,
