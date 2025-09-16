@@ -165,7 +165,11 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                 ? 'Created ${purchaseList!.createdAt!.relativeTime}'
                 : 'No date available',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color
+                      ?.withValues(alpha: 0.7),
                 ),
           ),
 
@@ -188,24 +192,21 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                         /// Get the purchase item at the current index
                         final item = purchaseList?.purchaseItems[index];
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          child: ListTile(
-                            title: Text(item?.customName ??
-                                'Item #${item?.catalogId ?? 'N/A'}'),
-                            subtitle: Text(
-                              '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline,
-                                  color: Colors.red),
-                              onPressed: () {
-                                context.read<PurchaseListEditorBloc>().add(
-                                      RemoveItemFromPurchaseListEvent(
-                                          id: item!.id!),
-                                    );
-                              },
-                            ),
+                        return ListTile(
+                          title: Text(item?.customName ??
+                              'Item #${item?.catalogId ?? 'N/A'}'),
+                          subtitle: Text(
+                            '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.red),
+                            onPressed: () {
+                              context.read<PurchaseListEditorBloc>().add(
+                                    RemoveItemFromPurchaseListEvent(
+                                        id: item!.id!),
+                                  );
+                            },
                           ),
                         );
                       },

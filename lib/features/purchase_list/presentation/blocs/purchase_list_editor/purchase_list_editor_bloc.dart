@@ -230,25 +230,30 @@ class PurchaseListEditorBloc
   FutureOr<void> _onRemoveItemFromPurchaseList(
       RemoveItemFromPurchaseListEvent event,
       Emitter<PurchaseListEditorState> emit) async {
-    if (state is PurchaseListEditorLoadedState) {
-      final currentState = state as PurchaseListEditorLoadedState;
-      final items = currentState.purchaseList?.purchaseItems;
-
-      /// iterate through the purchase items and remove the item with the given ID
-      /// If the item is not found, do nothing
-      items?.removeWhere((item) => item.id == event.id);
-
-      final result = await removePurchaseItemUsecase(event.id);
-      result.fold(
-        (failure) =>
-            emit(PurchaseListEditorErrorState(message: failure.toString())),
-        (success) {
-          emit(currentState.copyWith(
-              purchaseList:
-                  currentState.purchaseList?.copyWith(purchaseItems: items)));
-        },
-      );
+    if (state is! PurchaseListEditorLoadedState) {
+      emit(PurchaseListEditorErrorState(
+          message: 'Cannot remove item: editor not loaded'));
+      return;
     }
+
+    final currentState = state as PurchaseListEditorLoadedState;
+    emit(PurchaseListEditorLoadingState());
+
+    final result = await removePurchaseItemUsecase(event.id);
+    result.fold(
+      (failure) =>
+          emit(PurchaseListEditorErrorState(message: failure.toString())),
+      (success) {
+        // ✅ EFFICIENT: Update existing loaded state by removing item
+        final currentItems = currentState.purchaseList?.purchaseItems ?? [];
+        final updatedItems =
+            currentItems.where((item) => item.id != event.id).toList();
+        final updatedPurchaseList =
+            currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
+
+        emit(currentState.copyWith(purchaseList: updatedPurchaseList));
+      },
+    );
   }
 
   @override

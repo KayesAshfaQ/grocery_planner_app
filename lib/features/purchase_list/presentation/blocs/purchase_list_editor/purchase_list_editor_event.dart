@@ -119,7 +119,8 @@ class AddMultipleItemsToPurchaseListEvent extends PurchaseListEditorEvent
 }
 
 /// Event to remove an item from the current purchase list
-class RemoveItemFromPurchaseListEvent extends PurchaseListEditorEvent {
+class RemoveItemFromPurchaseListEvent extends PurchaseListEditorEvent
+    implements AppEvent {
   /// The ID of the purchase item to remove
   final int id;
 
