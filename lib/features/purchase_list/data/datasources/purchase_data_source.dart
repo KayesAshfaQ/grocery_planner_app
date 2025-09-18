@@ -65,7 +65,16 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
     try {
       final purchaseListModels = await purchaseDao.getAllLists();
       if (purchaseListModels.isNotEmpty) {
-        return purchaseListModels.map((item) => item.toEntity()).toList();
+        // For each purchase list, fetch its associated purchase items
+        List<PurchaseList> purchaseLists = [];
+        for (final listModel in purchaseListModels) {
+          final purchaseItemModels =
+              await purchaseDao.getAllItemsByListId(listModel.id!);
+          final purchaseItems =
+              purchaseItemModels.map((item) => item.toEntity()).toList();
+          purchaseLists.add(listModel.toEntity(purchaseItems: purchaseItems));
+        }
+        return purchaseLists;
       } else {
         return [];
       }
