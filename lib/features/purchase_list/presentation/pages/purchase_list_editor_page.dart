@@ -168,14 +168,6 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
             overflow: TextOverflow.ellipsis,
           ),
 
-          // budget of the list
-          Text(
-            purchaseList?.budget != null
-                ? 'Budget: ${purchaseList!.budget} ${purchaseList.currencySymbol ?? 'USD'}'
-                : 'No budget set',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-
           // date of the list
           Text(
             purchaseList?.createdAt != null
@@ -189,6 +181,101 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                       ?.withValues(alpha: 0.7),
                 ),
           ),
+          const SizedBox(height: 8),
+
+          // budget of the list
+          Text(
+            purchaseList?.budget != null
+                ? 'Budget: ${purchaseList!.budget} ${purchaseList.currencySymbol ?? 'USD'}'
+                : 'No budget set',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+
+          // Budget progress bar
+          if (purchaseList?.budget != null && purchaseList!.budget! > 0) ...[
+            Builder(
+              builder: (context) {
+                // Calculate total spent from items with unit prices
+                final totalSpent = purchaseList.purchaseItems
+                    .where((item) => item.unitPrice != null)
+                    .fold<double>(0.0,
+                        (sum, item) => sum + (item.unitPrice! * item.quantity));
+
+                final budget = purchaseList.budget!;
+                final progress = totalSpent / budget;
+                final remainingBudget = budget - totalSpent;
+
+                // Determine color based on budget usage
+                Color progressColor;
+                if (progress <= 0.5) {
+                  progressColor = Colors.green;
+                } else if (progress <= 0.8) {
+                  progressColor = Colors.orange;
+                } else {
+                  progressColor = Colors.red;
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Remaining: ${remainingBudget.toStringAsFixed(2)} ${purchaseList.currencySymbol ?? 'USD'}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            // fontSize: 12,
+                            color: remainingBudget >= 0
+                                ? Colors.green
+                                : Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Spent: ${totalSpent.toStringAsFixed(2)} ${purchaseList.currencySymbol ?? 'USD'}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: progressColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '${(progress * 100).toStringAsFixed(0)}% used',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: progressColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        backgroundColor: Colors.grey[300],
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(progressColor),
+                        minHeight: 8,
+                      ),
+                    ),
+                    if (progress > 1.0) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '⚠️ Over budget by ${(totalSpent - budget).toStringAsFixed(2)} ${purchaseList.currencySymbol ?? 'USD'}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ],
 
           // -------------- Purchase Item Section --------------
           const SizedBox(height: 16),
