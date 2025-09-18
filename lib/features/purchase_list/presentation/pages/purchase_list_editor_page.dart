@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/core/extensions/datetime_extension.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/add_item_bottom_sheet.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/quantity_update_bottom_sheet.dart';
 
 /// Page for adding a new grocery item
 class PurchaseListEditorPage extends StatefulWidget {
@@ -38,6 +40,21 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
     int listId,
   ) {
     AddItemBottomSheet.show(context, listId: listId);
+  }
+
+  void _showQuantityUpdateBottomSheet(
+    BuildContext context,
+    PurchaseItem item,
+  ) {
+    QuantityUpdateBottomSheet.show(
+      context,
+      item: item,
+      onUpdate: (updatedItem) {
+        context.read<PurchaseListEditorBloc>().add(
+              UpdatePurchaseListEvent(item: updatedItem),
+            );
+      },
+    );
   }
 
   /* void _submitForm(BuildContext context, PurchaseListEditorLoadedState state) {
@@ -208,6 +225,11 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                                   );
                             },
                           ),
+                          onTap: () {
+                            if (item != null) {
+                              _showQuantityUpdateBottomSheet(context, item);
+                            }
+                          },
                         );
                       },
                     )

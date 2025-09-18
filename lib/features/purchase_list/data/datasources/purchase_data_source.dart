@@ -28,6 +28,9 @@ abstract class PurchaseDataSource {
   /// Adds a new purchase item to local storage
   Future<void> addPurchaseItem(PurchaseItem item);
 
+  /// Updates an existing purchase item in local storage
+  Future<void> updatePurchaseItem(PurchaseItem item);
+
   /// Marks a purchase item as purchased, optionally with an actual price
   Future<PurchaseItem> markItemAsPurchased(String id, {double? actualPrice});
 
@@ -123,6 +126,15 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
       await purchaseDao.insertItem(PurchaseItemModel.fromEntity(item));
     } catch (e) {
       throw Exception('Failed to add purchase item: $e');
+    }
+  }
+
+  @override
+  Future<void> updatePurchaseItem(PurchaseItem item) async {
+    try {
+      await purchaseDao.updateItem(PurchaseItemModel.fromEntity(item));
+    } catch (e) {
+      throw Exception('Failed to update purchase item: $e');
     }
   }
 

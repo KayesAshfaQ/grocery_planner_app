@@ -36,6 +36,17 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   }
 
   @override
+  Future<Either<AppException, PurchaseItem>> updatePurchaseItem(
+      PurchaseItem item) async {
+    try {
+      await dataSource.updatePurchaseItem(item);
+      return Right(item);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
+  }
+
+  @override
   Future<Either<AppException, void>> removePurchaseItem(int id) async {
     try {
       await dataSource.removePurchaseItem(id);

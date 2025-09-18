@@ -75,6 +75,33 @@ class PurchaseItem extends Equatable {
     );
   }
 
+  /// Creates a copy of this PurchaseItem with the given fields replaced with new values
+  PurchaseItem copyWith({
+    int? id,
+    int? listId,
+    int? catalogId,
+    String? customName,
+    double? quantity,
+    double? unitPrice,
+    double? totalPrice,
+    String? note,
+    bool? isPurchased,
+    String? purchasedAt,
+  }) {
+    return PurchaseItem(
+      id: id ?? this.id,
+      listId: listId ?? this.listId,
+      catalogId: catalogId ?? this.catalogId,
+      customName: customName ?? this.customName,
+      quantity: quantity ?? this.quantity,
+      unitPrice: unitPrice ?? this.unitPrice,
+      totalPrice: totalPrice ?? this.totalPrice,
+      note: note ?? this.note,
+      isPurchased: isPurchased ?? this.isPurchased,
+      purchasedAt: purchasedAt ?? this.purchasedAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

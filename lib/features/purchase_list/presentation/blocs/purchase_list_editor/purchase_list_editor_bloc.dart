@@ -12,6 +12,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/purchase_lis
 import 'package:grocery_planner_app/features/catalog/domain/usecases/get_catalog_items_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
 
 part 'purchase_list_editor_event.dart';
@@ -24,6 +25,7 @@ class PurchaseListEditorBloc
   final GetCategoriesUsecase getCategoriesUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
+  final UpdatePurchaseItemUsecase updatePurchaseItemUsecase;
   final RemovePurchaseItemUsecase removePurchaseItemUsecase;
   final AppEventBus _eventBus;
   late final StreamSubscription _eventSubscription;
@@ -34,6 +36,7 @@ class PurchaseListEditorBloc
     required this.getCategoriesUsecase,
     required this.getCatalogItemsUsecase,
     required this.addPurchaseItemUsecase,
+    required this.updatePurchaseItemUsecase,
     required this.removePurchaseItemUsecase,
     required AppEventBus eventBus,
   })  : _eventBus = eventBus,
@@ -45,6 +48,7 @@ class PurchaseListEditorBloc
     on<InsertCategoryEvent>(_onInsertCategory);
     on<AddItemToPurchaseListEvent>(_onAddItemToPurchaseList);
     on<AddMultipleItemsToPurchaseListEvent>(_onAddMultipleItemsToPurchaseList);
+    on<UpdatePurchaseListEvent>(_onUpdatePurchaseItem);
     on<RemoveItemFromPurchaseListEvent>(_onRemoveItemFromPurchaseList);
 
     // Subscribe to events from the event bus
@@ -248,6 +252,35 @@ class PurchaseListEditorBloc
         final currentItems = currentState.purchaseList?.purchaseItems ?? [];
         final updatedItems =
             currentItems.where((item) => item.id != event.id).toList();
+        final updatedPurchaseList =
+            currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
+
+        emit(currentState.copyWith(purchaseList: updatedPurchaseList));
+      },
+    );
+  }
+
+  FutureOr<void> _onUpdatePurchaseItem(UpdatePurchaseListEvent event,
+      Emitter<PurchaseListEditorState> emit) async {
+    if (state is! PurchaseListEditorLoadedState) {
+      emit(PurchaseListEditorErrorState(
+          message: 'Cannot update item: editor not loaded'));
+      return;
+    }
+
+    final currentState = state as PurchaseListEditorLoadedState;
+    emit(PurchaseListEditorLoadingState());
+
+    final result = await updatePurchaseItemUsecase(event.item);
+    result.fold(
+      (failure) =>
+          emit(PurchaseListEditorErrorState(message: failure.toString())),
+      (updatedItem) {
+        // ✅ EFFICIENT: Update existing loaded state by replacing the item
+        final currentItems = currentState.purchaseList?.purchaseItems ?? [];
+        final updatedItems = currentItems.map((item) {
+          return item.id == updatedItem.id ? updatedItem : item;
+        }).toList();
         final updatedPurchaseList =
             currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
 
