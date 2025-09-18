@@ -82,7 +82,8 @@ class AddPurchaseListEvent extends PurchaseListEditorEvent implements AppEvent {
 }
 
 /// Event to update an existing purchase item
-class UpdatePurchaseListEvent extends PurchaseListEditorEvent {
+class UpdatePurchaseListEvent extends PurchaseListEditorEvent
+    implements AppEvent {
   /// The purchase item to be updated
   final PurchaseItem item;
 
@@ -94,7 +95,8 @@ class UpdatePurchaseListEvent extends PurchaseListEditorEvent {
 }
 
 /// Event to add an item to the current purchase list
-class AddItemToPurchaseListEvent extends PurchaseListEditorEvent {
+class AddItemToPurchaseListEvent extends PurchaseListEditorEvent
+    implements AppEvent {
   /// The purchase item to be added
   final PurchaseItem item;
 

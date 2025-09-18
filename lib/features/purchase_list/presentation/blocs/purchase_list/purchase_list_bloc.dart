@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:grocery_planner_app/core/event/app_event_bus.dart';
+import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_list.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_list_usecase.dart';
@@ -34,7 +35,12 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
 
     // Subscribe to events from the event bus
     _eventSubscription = _eventBus.stream.listen((event) {
-      if (event is AddPurchaseListEvent) {
+      // Refresh the list when any purchase-related operation happens
+      // This is a simple, robust approach that works with any editor changes
+      if (event is AddItemToPurchaseListEvent ||
+          event is RemoveItemFromPurchaseListEvent ||
+          event is UpdatePurchaseListEvent ||
+          event is AddMultipleItemsToPurchaseListEvent) {
         add(GetAllPurchaseItemsEvent());
       }
     });
@@ -80,7 +86,7 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
       (failure) => emit(PurchaseListErrorState(message: failure.toString())),
       (purchaseList) {
         // Notify other blocs about the new list through the event bus
-        // _eventBus.fire(event);
+        // _eventBus.fire(AddPurchaseListEvent(item: purchaseList));
 
         // Only update if we have a loaded state
         if (state is PurchaseListLoadedState) {

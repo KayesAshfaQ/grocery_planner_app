@@ -185,6 +185,9 @@ class PurchaseListEditorBloc
             currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
 
         emit(currentState.copyWith(purchaseList: updatedPurchaseList));
+
+        // 🔥 Fire existing BLoC event to notify main purchase list page to refresh
+        _eventBus.fire(AddItemToPurchaseListEvent(item: purchaseItem));
       },
     );
   }
@@ -226,7 +229,7 @@ class PurchaseListEditorBloc
 
       emit(currentState.copyWith(purchaseList: updatedPurchaseList));
 
-      // Fire event through EventBus to notify other parts of the app (like the main purchase list)
+      // 🔥 Fire shared event to notify main purchase list page to refresh
       _eventBus.fire(AddMultipleItemsToPurchaseListEvent(items: addedItems));
     }
   }
@@ -256,6 +259,9 @@ class PurchaseListEditorBloc
             currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
 
         emit(currentState.copyWith(purchaseList: updatedPurchaseList));
+
+        // 🔥 Fire existing BLoC event to notify main purchase list page to refresh
+        _eventBus.fire(RemoveItemFromPurchaseListEvent(id: event.id));
       },
     );
   }
@@ -285,6 +291,9 @@ class PurchaseListEditorBloc
             currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
 
         emit(currentState.copyWith(purchaseList: updatedPurchaseList));
+
+        // 🔥 Fire existing BLoC event to notify main purchase list page to refresh
+        _eventBus.fire(UpdatePurchaseListEvent(item: updatedItem));
       },
     );
   }
