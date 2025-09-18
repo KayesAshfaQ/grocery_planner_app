@@ -20,9 +20,6 @@ class PurchaseItem extends Equatable {
   /// Optional unit price of the item
   final double? unitPrice;
 
-  /// Optional total price (overrides quantity*unit_price if specified)
-  final double? totalPrice;
-
   /// Optional note about this item
   final String? note;
 
@@ -39,7 +36,6 @@ class PurchaseItem extends Equatable {
     this.customName,
     required this.quantity,
     this.unitPrice,
-    this.totalPrice,
     this.note,
     required this.isPurchased,
     this.purchasedAt,
@@ -53,7 +49,6 @@ class PurchaseItem extends Equatable {
       'custom_name': customName,
       'quantity': quantity,
       'unit_price': unitPrice,
-      'total_price': totalPrice,
       'note': note,
       'is_purchased': isPurchased ? 1 : 0,
       'purchased_at': purchasedAt,
@@ -68,7 +63,6 @@ class PurchaseItem extends Equatable {
       customName: map['custom_name'],
       quantity: map['quantity'],
       unitPrice: map['unit_price'],
-      totalPrice: map['total_price'],
       note: map['note'],
       isPurchased: map['is_purchased'] == 1,
       purchasedAt: map['purchased_at'],
@@ -83,7 +77,6 @@ class PurchaseItem extends Equatable {
     String? customName,
     double? quantity,
     double? unitPrice,
-    double? totalPrice,
     String? note,
     bool? isPurchased,
     String? purchasedAt,
@@ -95,7 +88,6 @@ class PurchaseItem extends Equatable {
       customName: customName ?? this.customName,
       quantity: quantity ?? this.quantity,
       unitPrice: unitPrice ?? this.unitPrice,
-      totalPrice: totalPrice ?? this.totalPrice,
       note: note ?? this.note,
       isPurchased: isPurchased ?? this.isPurchased,
       purchasedAt: purchasedAt ?? this.purchasedAt,
@@ -110,7 +102,6 @@ class PurchaseItem extends Equatable {
         customName,
         quantity,
         unitPrice,
-        totalPrice,
         note,
         isPurchased,
         purchasedAt,

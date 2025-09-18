@@ -117,16 +117,10 @@ class PurchaseListCard extends StatelessWidget {
                       for (var item in purchaseList.purchaseItems) {
                         // calculate total price
                         if (item.isPurchased) {
-                          if (item.totalPrice != null) {
-                            totalPrice += item.totalPrice!;
-                          } else if (item.unitPrice != null &&
-                              item.quantity != 0) {
+                          if (item.unitPrice != null && item.quantity != 0) {
                             totalPrice += item.unitPrice! * item.quantity;
-                          } else {
-                            // Handle case where totalPrice is null and unitPrice or quantity is not available
-                            // This could be a logging statement or a default value
-                            // For now, we just skip adding to total_price
                           }
+                          // If unitPrice is null, we skip adding to total price
                         }
 
                         // calculate total quantity

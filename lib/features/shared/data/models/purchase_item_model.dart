@@ -28,10 +28,6 @@ class PurchaseItemModel {
   @ColumnInfo(name: 'unit_price')
   final double? unitPrice;
 
-  /// Optional total price (overrides quantity*unit_price if specified)
-  @ColumnInfo(name: 'total_price')
-  final double? totalPrice;
-
   /// Optional note about this item
   @ColumnInfo(name: 'note')
   final String? note;
@@ -51,7 +47,6 @@ class PurchaseItemModel {
     this.customName,
     required this.quantity,
     this.unitPrice,
-    this.totalPrice,
     this.note,
     required this.isPurchased,
     this.purchasedAt,
@@ -65,7 +60,6 @@ class PurchaseItemModel {
       'custom_name': customName,
       'quantity': quantity,
       'unit_price': unitPrice,
-      'total_price': totalPrice,
       'note': note,
       'is_purchased': isPurchased ? 1 : 0,
       'purchased_at': purchasedAt,
@@ -80,7 +74,6 @@ class PurchaseItemModel {
       customName: map['custom_name'],
       quantity: map['quantity'],
       unitPrice: map['unit_price'],
-      totalPrice: map['total_price'],
       note: map['note'],
       isPurchased: map['is_purchased'] == 1,
       purchasedAt: map['purchased_at'],
@@ -97,7 +90,6 @@ class PurchaseItemModel {
       customName: customName,
       quantity: quantity,
       unitPrice: unitPrice,
-      totalPrice: totalPrice,
       note: note,
       isPurchased: isPurchased,
       purchasedAt: purchasedAt,
@@ -113,7 +105,6 @@ class PurchaseItemModel {
       customName: item.customName,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
-      totalPrice: item.totalPrice,
       note: item.note,
       isPurchased: item.isPurchased,
       purchasedAt: item.purchasedAt,
