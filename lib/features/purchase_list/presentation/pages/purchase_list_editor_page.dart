@@ -9,7 +9,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/purchase_ite
 import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/add_item_bottom_sheet.dart';
-import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/quantity_update_bottom_sheet.dart';
+import 'package:grocery_planner_app/features/purchase_list/presentation/widgets/quantity_update_bottom_sheet.dart';
 
 /// Page for adding a new grocery item
 class PurchaseListEditorPage extends StatefulWidget {
