@@ -192,55 +192,194 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
 
           // -------------- Purchase Item Section --------------
           const SizedBox(height: 16),
-          Text(
-            'Add New Item',
-            style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Shopping Items',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              if (purchaseList?.purchaseItems.isNotEmpty == true) ...[
+                Builder(
+                  builder: (context) {
+                    final items = purchaseList!.purchaseItems;
+                    final completed =
+                        items.where((item) => item.isPurchased).length;
+                    final total = items.length;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: completed == total
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$completed/$total',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: completed == total
+                              ? Colors.green
+                              : Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ],
           ),
           Card(
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: (purchaseList?.purchaseItems.isNotEmpty == true)
-                  ? ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: purchaseList?.purchaseItems.length,
-                      itemBuilder: (context, index) {
-                        /// Get the purchase item at the current index
-                        final item = purchaseList?.purchaseItems[index];
+                  ? Builder(
+                      builder: (context) {
+                        // Sort items: unpurchased first, then purchased
+                        final sortedItems =
+                            List<PurchaseItem>.from(purchaseList!.purchaseItems)
+                              ..sort((a, b) {
+                                if (a.isPurchased == b.isPurchased) return 0;
+                                return a.isPurchased
+                                    ? 1
+                                    : -1; // unpurchased items first
+                              });
 
-                        return ListTile(
-                          title: Text(item?.customName ??
-                              'Item #${item?.catalogId ?? 'N/A'}'),
-                          subtitle: Text(
-                            '${item?.quantity} pc - ${item?.unitPrice != null ? '\$${item?.unitPrice}' : 'No price set'}',
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline,
-                                color: Colors.red),
-                            onPressed: () {
-                              if (item?.id != null) {
-                                context.read<PurchaseListEditorBloc>().add(
-                                      RemoveItemFromPurchaseListEvent(
-                                          id: item!.id!),
-                                    );
-                              }
-                            },
-                          ),
-                          onTap: () {
-                            if (item != null) {
-                              _showQuantityUpdateBottomSheet(context, item);
-                            }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: sortedItems.length,
+                          itemBuilder: (context, index) {
+                            /// Get the purchase item at the current index
+                            final item = sortedItems[index];
+
+                            return ListTile(
+                              leading: GestureDetector(
+                                onTap: () {
+                                  final wasNotPurchased = !item.isPurchased;
+                                  final updatedItem = item.copyWith(
+                                    isPurchased: !item.isPurchased,
+                                    purchasedAt: !item.isPurchased
+                                        ? DateTime.now().toIso8601String()
+                                        : null,
+                                  );
+                                  context.read<PurchaseListEditorBloc>().add(
+                                        UpdatePurchaseListEvent(
+                                            item: updatedItem),
+                                      );
+
+                                  // Show success feedback
+                                  if (wasNotPurchased) {
+                                    AppToast.showSuccess(context,
+                                        '✓ ${item.customName ?? 'Item'} marked as purchased');
+                                  }
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: item.isPurchased == true
+                                          ? Colors.green
+                                          : Colors.grey[400]!,
+                                      width: 2,
+                                    ),
+                                    color: item.isPurchased == true
+                                        ? Colors.green
+                                        : Colors.transparent,
+                                  ),
+                                  child: item.isPurchased == true
+                                      ? const Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 16,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              title: Text(
+                                item.customName ??
+                                    'Item #${item.catalogId ?? 'N/A'}',
+                                style: TextStyle(
+                                  decoration: item.isPurchased == true
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                  color: item.isPurchased == true
+                                      ? Colors.grey
+                                      : null,
+                                ),
+                              ),
+                              subtitle: Text(
+                                '${item.quantity} pc - ${item.unitPrice != null ? '\$${item.unitPrice}' : 'No price set'}',
+                                style: TextStyle(
+                                  color: item.isPurchased == true
+                                      ? Colors.grey
+                                      : null,
+                                ),
+                              ),
+                              trailing: item.isPurchased
+                                  ? null
+                                  : IconButton(
+                                      icon: const Icon(Icons.delete_outline,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        if (item.id != null) {
+                                          context
+                                              .read<PurchaseListEditorBloc>()
+                                              .add(
+                                                RemoveItemFromPurchaseListEvent(
+                                                    id: item.id!),
+                                              );
+                                        }
+                                      },
+                                    ),
+                              // Disable editing for purchased items
+                              onTap: item.isPurchased
+                                  ? null
+                                  : () {
+                                      _showQuantityUpdateBottomSheet(
+                                          context, item);
+                                    },
+                            );
                           },
                         );
                       },
                     )
-                  : const Center(
+                  : Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 48.0),
-                        child: Text(
-                          'No items added yet.\nTap \'➕ button\' to add items.',
-                          textAlign: TextAlign.center,
+                        padding: const EdgeInsets.symmetric(vertical: 48.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.shopping_cart_outlined,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No items in your shopping list yet.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap the ➕ button to add items from your catalog.',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
                     ),
