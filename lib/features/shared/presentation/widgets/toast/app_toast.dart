@@ -72,7 +72,10 @@ class AppToast {
     Duration duration = const Duration(seconds: 3),
     bool showAction = true,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    if (!context.mounted) return;
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
@@ -99,7 +102,8 @@ class AppToast {
                 label: 'Dismiss',
                 textColor: textColor ?? Colors.white,
                 onPressed: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                   // Use the cached ScaffoldMessenger to avoid context lookup
+                  scaffoldMessenger.hideCurrentSnackBar();
                 },
               )
             : null,
