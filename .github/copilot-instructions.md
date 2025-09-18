@@ -214,9 +214,31 @@ AppBottomSheet.form(
   onSubmit: () => _handleSubmit(),
 );
 
+// Interactive bottom sheet with custom controls (like QuantityUpdateBottomSheet)
+AppBottomSheet.show(
+  context: context,
+  child: CustomBottomSheet(
+    onUpdate: (data) => context.read<SomeBloc>().add(UpdateEvent(data)),
+  ),
+);
+
 // Consistent toast notifications
 AppToast.showSuccess(context, 'Item added successfully');
 AppToast.showError(context, 'Failed to save item');
+```
+
+### Interactive List Items Pattern
+```dart
+// Tappable list items for inline editing
+ListTile(
+  title: Text(item.name),
+  subtitle: Text('${item.quantity} pcs'),
+  trailing: IconButton(
+    icon: Icon(Icons.delete),
+    onPressed: () => _handleDelete(item),
+  ),
+  onTap: () => _showEditBottomSheet(context, item), // Tap to edit
+)
 ```
 
 ### Error Handling
@@ -232,6 +254,7 @@ AppToast.showError(context, 'Failed to save item');
 3. **Database Models**: Include proper `@Entity` annotations and converters for complex types
 4. **Service Locator**: Register BLoCs as factories, services as singletons in `service_locator.dart`
 5. **Route Parameters**: Parse IDs as integers for type safety (`int.tryParse(state.pathParameters['id'])`)
+6. **Entity Updates**: Use `copyWith` methods for immutable entity updates instead of creating new instances
 
 ## Testing Approach
 - Use `bloc_test` for BLoC unit tests
