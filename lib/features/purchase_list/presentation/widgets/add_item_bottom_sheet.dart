@@ -263,20 +263,16 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                                 'Unit: ${item.defaultUnit ?? 'pcs'}',
                               ),
                               selected: isSelected,
-                              selectedTileColor: isAlreadyInList
-                                  ? Colors.orange.withValues(alpha: 0.1)
-                                  : Theme.of(context)
-                                      .primaryColor
-                                      .withValues(alpha: 0.1),
-                              onTap: () => _onCatalogItemSelected(item),
+                              selectedTileColor: Theme.of(context)
+                                  .primaryColor
+                                  .withValues(alpha: 0.1),
+                              onTap: isAlreadyInList
+                                  ? null
+                                  : () => _onCatalogItemSelected(item),
                               trailing: isSelected
                                   ? Icon(
-                                      isAlreadyInList
-                                          ? Icons.check_circle
-                                          : Icons.check,
-                                      color: isAlreadyInList
-                                          ? Colors.orange
-                                          : Theme.of(context).primaryColor,
+                                      Icons.check,
+                                      color: Theme.of(context).primaryColor,
                                     )
                                   : null,
                             );
