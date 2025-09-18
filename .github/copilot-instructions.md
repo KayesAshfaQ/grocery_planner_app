@@ -146,6 +146,7 @@ flutter build ios
 - Events implement `Equatable` for proper comparison
 - States include Loading, Success, Error variants
 - Use `AppEventBus` for cross-BLoC communication (see pattern above)
+- **🚨 CRITICAL: Avoid unnecessary loading states in CRUD operations** - use efficient state updates to prevent UI flickers and screen snapping
 
 #### **Efficient State Updates Pattern** (Preferred over dedicated states):
 
@@ -153,13 +154,15 @@ When performing operations like Add/Update/Delete, prefer updating the existing 
 
 ```dart
 FutureOr<void> _onAddItem(AddItemEvent event, Emitter<State> emit) async {
-  emit(LoadingState());
+  // ❌ AVOID: Unnecessary loading state causes UI flickers
+  // emit(LoadingState());
+  
   final result = await usecase(event.item);
   
   result.fold(
     (failure) => emit(ErrorState(message: failure.toString())),
     (newItem) {
-      // ✅ PREFERRED: Update existing loaded state
+      // ✅ PREFERRED: Update existing loaded state directly
       if (state is LoadedState) {
         final currentState = state as LoadedState;
         final updatedItems = [...currentState.items, newItem];
@@ -179,6 +182,9 @@ FutureOr<void> _onAddItem(AddItemEvent event, Emitter<State> emit) async {
 - ✅ Simpler state management with fewer state classes
 - ✅ Consistent user experience without loading flickers
 - ✅ Efficient memory usage by reusing existing state structure
+- ✅ **Avoids unnecessary loading states that cause screen snapping/refreshing**
+
+**Critical Rule:** For CRUD operations on existing loaded data, avoid `emit(LoadingState())` as it causes jarring UI transitions and poor user experience.
 
 **Use this pattern for:** Add, Update, Delete operations that modify existing collections
 
