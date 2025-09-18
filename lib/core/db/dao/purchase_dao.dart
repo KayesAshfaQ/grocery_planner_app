@@ -61,7 +61,7 @@ abstract class PurchaseDao {
 
   /// Insert a new purchase item
   @insert
-  Future<void> insertItem(PurchaseItemModel item);
+  Future<int> insertItem(PurchaseItemModel item);
 
   /// Update an existing purchase item
   @update

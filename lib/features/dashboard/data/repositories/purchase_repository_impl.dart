@@ -28,8 +28,8 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   Future<Either<AppException, PurchaseItem>> addPurchaseItem(
       PurchaseItem item) async {
     try {
-      await dataSource.addPurchaseItem(item);
-      return Right(item);
+      final insertedItem = await dataSource.addPurchaseItem(item);
+      return Right(insertedItem);
     } catch (error) {
       return Left(AppException(message: error.toString()));
     }

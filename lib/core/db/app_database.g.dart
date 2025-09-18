@@ -636,8 +636,8 @@ class _$PurchaseDao extends PurchaseDao {
   }
 
   @override
-  Future<void> insertItem(PurchaseItemModel item) async {
-    await _purchaseItemModelInsertionAdapter.insert(
+  Future<int> insertItem(PurchaseItemModel item) {
+    return _purchaseItemModelInsertionAdapter.insertAndReturnId(
         item, OnConflictStrategy.abort);
   }
 

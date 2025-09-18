@@ -219,10 +219,12 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                             icon: const Icon(Icons.delete_outline,
                                 color: Colors.red),
                             onPressed: () {
-                              context.read<PurchaseListEditorBloc>().add(
-                                    RemoveItemFromPurchaseListEvent(
-                                        id: item!.id!),
-                                  );
+                              if (item?.id != null) {
+                                context.read<PurchaseListEditorBloc>().add(
+                                      RemoveItemFromPurchaseListEvent(
+                                          id: item!.id!),
+                                    );
+                              }
                             },
                           ),
                           onTap: () {

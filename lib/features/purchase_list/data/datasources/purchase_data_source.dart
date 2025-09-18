@@ -26,7 +26,8 @@ abstract class PurchaseDataSource {
   Future<void> deletePurchaseList(int id);
 
   /// Adds a new purchase item to local storage
-  Future<void> addPurchaseItem(PurchaseItem item);
+  /// Adds a new purchase item to the database and returns the item with generated ID
+  Future<PurchaseItem> addPurchaseItem(PurchaseItem item);
 
   /// Updates an existing purchase item in local storage
   Future<void> updatePurchaseItem(PurchaseItem item);
@@ -121,9 +122,12 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   }
 
   @override
-  Future<void> addPurchaseItem(PurchaseItem item) async {
+  Future<PurchaseItem> addPurchaseItem(PurchaseItem item) async {
     try {
-      await purchaseDao.insertItem(PurchaseItemModel.fromEntity(item));
+      final insertedId =
+          await purchaseDao.insertItem(PurchaseItemModel.fromEntity(item));
+      // Return the item with the generated ID
+      return item.copyWith(id: insertedId);
     } catch (e) {
       throw Exception('Failed to add purchase item: $e');
     }
