@@ -47,33 +47,13 @@ class PurchaseListCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          purchaseList.name ?? 'Unnamed List',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            decoration: purchaseList.isCompleted == true
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Builder(
-                          builder: (context) {
-                            // Note: Since we no longer have direct access to catalog categories
-                            // from purchase items, we'll show a generic message for now
-                            final itemCount = purchaseList.purchaseItems.length;
-                            final categories =
-                                itemCount == 1 ? '1 item' : '$itemCount items';
-
-                            return Text(
-                              'Category: ${categories.isNotEmpty ? categories : 'Unknown'}',
-                              style: theme.textTheme.bodyMedium,
-                            );
-                          },
-                        ),
-                      ],
+                    child: Text(
+                      purchaseList.name ?? 'Unnamed List',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        decoration: purchaseList.isCompleted == true
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
                     ),
                   ),
                   Container(
@@ -98,43 +78,86 @@ class PurchaseListCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              /* Text(
-                '${purchaseList.purchaseItems.length} ${purchaseList.purchaseItems.length == 1 ? 'item' : 'items'}',
-                style: theme.textTheme.bodyLarge,
-              ), */
               Row(
                 children: [
-                  Text(
-                    '${purchaseList.purchaseItems.length} ${purchaseList.purchaseItems.length == 1 ? 'item' : 'items'}',
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  if (purchaseList.isCompleted == true) ...[
-                    const Spacer(),
-                    Builder(builder: (context) {
-                      double totalPrice = 0.0;
-                      int totalQty = 0;
+                  Builder(
+                    builder: (context) {
+                      final itemCount = purchaseList.purchaseItems.length;
+                      final purchasedCount = purchaseList.purchaseItems
+                          .where((item) => item.isPurchased)
+                          .length;
 
-                      for (var item in purchaseList.purchaseItems) {
-                        // calculate total price
-                        if (item.isPurchased) {
-                          if (item.unitPrice != null && item.quantity != 0) {
-                            totalPrice += item.unitPrice! * item.quantity;
-                          }
-                          // If unitPrice is null, we skip adding to total price
-                        }
-
-                        // calculate total quantity
-                        totalQty += item.quantity.toInt();
+                      String statusText;
+                      if (purchaseList.isCompleted == true) {
+                        statusText = 'All items purchased';
+                      } else if (purchasedCount > 0) {
+                        statusText =
+                            '$purchasedCount out of $itemCount ${purchaseList.purchaseItems.length == 1 ? 'item' : 'items'} purchased';
+                      } else {
+                        statusText = 'Ready to shop';
                       }
 
                       return Text(
-                        '${currencyFormat.format(totalPrice)} per $totalQty',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        statusText,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: purchaseList.isCompleted == true
+                              ? Colors.green.shade600
+                              : purchasedCount > 0
+                                  ? Colors.orange.shade600
+                                  : theme.textTheme.bodyMedium?.color,
                         ),
                       );
-                    }),
-                  ]
+                    },
+                  ),
+                  const Spacer(),
+                  Builder(builder: (context) {
+                    double totalPurchasedPrice = 0.0;
+                    double totalQty = 0.0;
+                    double purchasedQty = 0.0;
+
+                    for (var item in purchaseList.purchaseItems) {
+                      // Calculate total quantity
+                      totalQty += item.quantity;
+
+                      // Calculate purchased quantity and price
+                      if (item.isPurchased) {
+                        purchasedQty += item.quantity;
+
+                        // Only add to price if item has a unit price
+                        if (item.unitPrice != null) {
+                          totalPurchasedPrice +=
+                              item.unitPrice! * item.quantity;
+                        }
+                      }
+                    }
+
+                    // Format quantity display
+                    String quantityText =
+                        'Qty: ${purchasedQty.toInt()}/${totalQty.toInt()}';
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          quantityText,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        // Only show price if there are purchased items with prices
+                        if (purchasedQty > 0 && totalPurchasedPrice > 0) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            currencyFormat.format(totalPurchasedPrice),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  }),
                 ],
               ),
               if (purchaseList.note != null &&
