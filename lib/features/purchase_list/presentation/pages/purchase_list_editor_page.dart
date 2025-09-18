@@ -107,10 +107,11 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              final loaded = state as PurchaseListEditorLoadedState;
-              final listId = loaded.purchaseList?.id;
-              if (listId != null) {
-                _showAddItemBottomSheet(context, listId);
+              if (state is PurchaseListEditorLoadedState) {
+                final listId = state.purchaseList?.id;
+                if (listId != null) {
+                  _showAddItemBottomSheet(context, listId);
+                }
               }
             },
             tooltip: 'Add Item',

@@ -171,7 +171,7 @@ class PurchaseListEditorBloc
     }
 
     final currentState = state as PurchaseListEditorLoadedState;
-    emit(PurchaseListEditorLoadingState());
+    // emit(PurchaseListEditorLoadingState());
 
     final result = await addPurchaseItemUsecase(event.item);
     result.fold(
@@ -200,7 +200,7 @@ class PurchaseListEditorBloc
     }
 
     final currentState = state as PurchaseListEditorLoadedState;
-    emit(PurchaseListEditorLoadingState());
+    // emit(PurchaseListEditorLoadingState());
 
     List<PurchaseItem> addedItems = [];
     List<String> errors = [];
@@ -241,7 +241,7 @@ class PurchaseListEditorBloc
     }
 
     final currentState = state as PurchaseListEditorLoadedState;
-    emit(PurchaseListEditorLoadingState());
+    // emit(PurchaseListEditorLoadingState());
 
     final result = await removePurchaseItemUsecase(event.id);
     result.fold(
@@ -269,7 +269,7 @@ class PurchaseListEditorBloc
     }
 
     final currentState = state as PurchaseListEditorLoadedState;
-    emit(PurchaseListEditorLoadingState());
+    // emit(PurchaseListEditorLoadingState());
 
     final result = await updatePurchaseItemUsecase(event.item);
     result.fold(
