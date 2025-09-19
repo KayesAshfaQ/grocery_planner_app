@@ -36,6 +36,17 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   }
 
   @override
+  Future<Either<AppException, List<PurchaseItem>>> addMultiplePurchaseItems(
+      List<PurchaseItem> items) async {
+    try {
+      final insertedItems = await dataSource.addMultiplePurchaseItems(items);
+      return Right(insertedItems);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
+  }
+
+  @override
   Future<Either<AppException, PurchaseItem>> updatePurchaseItem(
       PurchaseItem item) async {
     try {

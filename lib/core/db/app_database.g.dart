@@ -642,6 +642,12 @@ class _$PurchaseDao extends PurchaseDao {
   }
 
   @override
+  Future<List<int>> insertItems(List<PurchaseItemModel> items) {
+    return _purchaseItemModelInsertionAdapter.insertListAndReturnIds(
+        items, OnConflictStrategy.abort);
+  }
+
+  @override
   Future<void> updateList(PurchaseListModel item) async {
     await _purchaseListModelUpdateAdapter.update(
         item, OnConflictStrategy.abort);

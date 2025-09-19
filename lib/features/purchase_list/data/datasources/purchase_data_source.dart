@@ -29,6 +29,10 @@ abstract class PurchaseDataSource {
   /// Adds a new purchase item to the database and returns the item with generated ID
   Future<PurchaseItem> addPurchaseItem(PurchaseItem item);
 
+  /// Adds multiple purchase items to local storage in a single transaction
+  /// Returns the items with generated IDs
+  Future<List<PurchaseItem>> addMultiplePurchaseItems(List<PurchaseItem> items);
+
   /// Updates an existing purchase item in local storage
   Future<void> updatePurchaseItem(PurchaseItem item);
 
@@ -145,6 +149,25 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
       return item.copyWith(id: insertedId);
     } catch (e) {
       throw Exception('Failed to add purchase item: $e');
+    }
+  }
+
+  @override
+  Future<List<PurchaseItem>> addMultiplePurchaseItems(
+      List<PurchaseItem> items) async {
+    try {
+      final models =
+          items.map((item) => PurchaseItemModel.fromEntity(item)).toList();
+      final insertedIds = await purchaseDao.insertItems(models);
+
+      // Return the items with their generated IDs
+      return items.asMap().entries.map((entry) {
+        final index = entry.key;
+        final item = entry.value;
+        return item.copyWith(id: insertedIds[index]);
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to add multiple purchase items: $e');
     }
   }
 

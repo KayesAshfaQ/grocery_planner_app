@@ -224,33 +224,24 @@ class PurchaseListEditorBloc
     final currentState = state as PurchaseListEditorLoadedState;
     // emit(PurchaseListEditorLoadingState());
 
-    List<PurchaseItem> addedItems = [];
-    List<String> errors = [];
+    // ✅ OPTIMIZED: Use bulk insert API instead of for loop
+    final result = await addPurchaseItemUsecase.addMultiple(event.items);
+    result.fold(
+      (failure) =>
+          emit(PurchaseListEditorErrorState(message: failure.toString())),
+      (addedItems) {
+        // ✅ EFFICIENT: Update existing loaded state with new items
+        final currentItems = currentState.purchaseList?.purchaseItems ?? [];
+        final updatedItems = [...currentItems, ...addedItems];
+        final updatedPurchaseList =
+            currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
 
-    // Add each item one by one
-    for (PurchaseItem item in event.items) {
-      final result = await addPurchaseItemUsecase(item);
-      result.fold(
-        (failure) => errors.add(
-            'Failed to add ${item.customName ?? 'catalog item #${item.catalogId}'}: ${failure.message}'),
-        (purchaseItem) => addedItems.add(purchaseItem),
-      );
-    }
+        emit(currentState.copyWith(purchaseList: updatedPurchaseList));
 
-    if (errors.isNotEmpty) {
-      emit(PurchaseListEditorErrorState(message: errors.join('\n')));
-    } else {
-      // ✅ EFFICIENT: Update existing loaded state with new items
-      final currentItems = currentState.purchaseList?.purchaseItems ?? [];
-      final updatedItems = [...currentItems, ...addedItems];
-      final updatedPurchaseList =
-          currentState.purchaseList?.copyWith(purchaseItems: updatedItems);
-
-      emit(currentState.copyWith(purchaseList: updatedPurchaseList));
-
-      // 🔥 Fire shared event to notify main purchase list page to refresh
-      _eventBus.fire(AddMultipleItemsToPurchaseListEvent(items: addedItems));
-    }
+        // 🔥 Fire shared event to notify main purchase list page to refresh
+        _eventBus.fire(AddMultipleItemsToPurchaseListEvent(items: addedItems));
+      },
+    );
   }
 
   FutureOr<void> _onRemoveItemFromPurchaseList(

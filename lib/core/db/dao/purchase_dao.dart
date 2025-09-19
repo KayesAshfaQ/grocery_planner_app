@@ -63,6 +63,10 @@ abstract class PurchaseDao {
   @insert
   Future<int> insertItem(PurchaseItemModel item);
 
+  /// Insert multiple purchase items in a single transaction
+  @insert
+  Future<List<int>> insertItems(List<PurchaseItemModel> items);
+
   /// Update an existing purchase item
   @update
   Future<void> updateItem(PurchaseItemModel item);

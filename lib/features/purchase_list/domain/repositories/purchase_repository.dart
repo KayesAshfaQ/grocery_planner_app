@@ -21,6 +21,10 @@ abstract class PurchaseRepository {
   /// Add a new purchase item
   Future<Either<AppException, PurchaseItem>> addPurchaseItem(PurchaseItem item);
 
+  /// Add multiple purchase items in a single transaction
+  Future<Either<AppException, List<PurchaseItem>>> addMultiplePurchaseItems(
+      List<PurchaseItem> items);
+
   /// Update an existing purchase item
   Future<Either<AppException, PurchaseItem>> updatePurchaseItem(
       PurchaseItem item);

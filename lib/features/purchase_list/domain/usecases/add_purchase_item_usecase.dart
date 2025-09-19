@@ -15,4 +15,10 @@ class AddPurchaseItemUsecase {
   Future<Either<AppException, PurchaseItem>> call(PurchaseItem item) async {
     return repository.addPurchaseItem(item);
   }
+
+  /// Adds multiple purchase items in a single transaction
+  Future<Either<AppException, List<PurchaseItem>>> addMultiple(
+      List<PurchaseItem> items) async {
+    return repository.addMultiplePurchaseItems(items);
+  }
 }
