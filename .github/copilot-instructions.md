@@ -123,6 +123,56 @@ return PurchaseListEditorPage.create(id: id);
 - Access via `sl<Type>()` throughout the app
 - **Pattern**: BLoCs as factories, services as singletons
 
+### Use Case Design Patterns
+- **Use Cases represent application-specific business rules** and orchestrate data flow
+- **Single Responsibility**: Each use case should have one clear business purpose
+- **Consolidation Rule**: If multiple operations serve the **same business case**, consolidate them into a single use case with multiple methods instead of creating separate use case classes
+
+#### **Use Case Consolidation Pattern**:
+```dart
+// ✅ PREFERRED: Single use case with related methods
+class AddPurchaseItemUsecase {
+  final PurchaseRepository repository;
+  
+  AddPurchaseItemUsecase(this.repository);
+  
+  /// Adds a single purchase item
+  Future<Either<AppException, PurchaseItem>> call(PurchaseItem item) async {
+    return repository.addPurchaseItem(item);
+  }
+  
+  /// Adds multiple purchase items in a single transaction
+  Future<Either<AppException, List<PurchaseItem>>> addMultiple(List<PurchaseItem> items) async {
+    return repository.addMultiplePurchaseItems(items);
+  }
+}
+```
+
+```dart
+// ❌ AVOID: Separate use cases for the same business purpose
+class AddPurchaseItemUsecase { ... }           // Single item
+class AddMultiplePurchaseItemsUsecase { ... }  // Bulk items - UNNECESSARY
+```
+
+**When to consolidate:**
+- Operations serve the **same core business purpose** (e.g., "adding items to list")
+- Different variants of the same operation (single vs bulk, different parameters)
+- Related CRUD operations that work on the same entity type
+
+**When to separate:**
+- **Fundamentally different business operations** with different purposes
+- Different transaction scopes or error handling requirements
+- Operations that will evolve independently with different dependencies
+
+**Usage pattern:**
+```dart
+// Single item
+final result = await addPurchaseItemUsecase(item);
+
+// Bulk operation
+final result = await addPurchaseItemUsecase.addMultiple(items);
+```
+
 ### Build & Test Commands
 ```bash
 # Database code generation (after model changes)
@@ -261,6 +311,7 @@ ListTile(
 4. **Service Locator**: Register BLoCs as factories, services as singletons in `service_locator.dart`
 5. **Route Parameters**: Parse IDs as integers for type safety (`int.tryParse(state.pathParameters['id'])`)
 6. **Entity Updates**: Use `copyWith` methods for immutable entity updates instead of creating new instances
+7. **Use Case Consolidation**: For related business operations (single vs bulk, variations of same purpose), use one use case class with multiple methods instead of creating separate use case classes
 
 ## Testing Approach
 - Use `bloc_test` for BLoC unit tests
