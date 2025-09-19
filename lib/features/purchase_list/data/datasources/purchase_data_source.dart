@@ -119,9 +119,15 @@ class PurchaseLocalDataSourceImpl extends PurchaseDataSource {
   }
 
   @override
-  Future<PurchaseList> updatePurchaseList(PurchaseList item) {
-    // TODO: implement updatePurchaseList
-    throw UnimplementedError();
+  Future<PurchaseList> updatePurchaseList(PurchaseList item) async {
+    try {
+      await purchaseDao.updateList(PurchaseListModel.fromEntity(item));
+      // Return the updated list with its purchase items
+      final updatedList = await getPurchaseListById(item.id!);
+      return updatedList;
+    } catch (e) {
+      throw Exception('Failed to update purchase list: $e');
+    }
   }
 
   @override

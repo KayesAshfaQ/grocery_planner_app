@@ -105,8 +105,12 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
 
   @override
   Future<Either<AppException, PurchaseList>> updatePurchaseList(
-      PurchaseList item) {
-    // TODO: implement updatePurchaseList
-    throw UnimplementedError();
+      PurchaseList item) async {
+    try {
+      await dataSource.updatePurchaseList(item);
+      return Right(item);
+    } catch (error) {
+      return Left(AppException(message: error.toString()));
+    }
   }
 }

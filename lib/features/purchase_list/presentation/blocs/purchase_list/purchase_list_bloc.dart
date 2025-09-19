@@ -39,7 +39,7 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
       // This is a simple, robust approach that works with any editor changes
       if (event is AddItemToPurchaseListEvent ||
           event is RemoveItemFromPurchaseListEvent ||
-          event is UpdatePurchaseListEvent ||
+          event is UpdatePurchaseItemEvent ||
           event is AddMultipleItemsToPurchaseListEvent) {
         add(GetAllPurchaseItemsEvent());
       }
@@ -56,7 +56,11 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
     GetAllPurchaseItemsEvent event,
     Emitter<PurchaseListState> emit,
   ) async {
-    emit(PurchaseListLoadingState());
+    // Only emit loading state if we don't have data yet
+    if (state is! PurchaseListLoadedState) {
+      emit(PurchaseListLoadingState());
+    }
+
     final result = await getAllPurchaseListUseCase();
     result.fold(
       (failure) => emit(PurchaseListErrorState(message: failure.toString())),

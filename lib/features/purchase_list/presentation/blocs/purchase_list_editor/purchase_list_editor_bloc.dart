@@ -13,6 +13,7 @@ import 'package:grocery_planner_app/features/catalog/domain/usecases/get_catalog
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_item_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
 
 part 'purchase_list_editor_event.dart';
@@ -26,6 +27,7 @@ class PurchaseListEditorBloc
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
   final AddPurchaseItemUsecase addPurchaseItemUsecase;
   final UpdatePurchaseItemUsecase updatePurchaseItemUsecase;
+  final UpdatePurchaseListUsecase updatePurchaseListUsecase;
   final RemovePurchaseItemUsecase removePurchaseItemUsecase;
   final AppEventBus _eventBus;
   late final StreamSubscription _eventSubscription;
@@ -37,6 +39,7 @@ class PurchaseListEditorBloc
     required this.getCatalogItemsUsecase,
     required this.addPurchaseItemUsecase,
     required this.updatePurchaseItemUsecase,
+    required this.updatePurchaseListUsecase,
     required this.removePurchaseItemUsecase,
     required AppEventBus eventBus,
   })  : _eventBus = eventBus,
@@ -48,7 +51,7 @@ class PurchaseListEditorBloc
     on<InsertCategoryEvent>(_onInsertCategory);
     on<AddItemToPurchaseListEvent>(_onAddItemToPurchaseList);
     on<AddMultipleItemsToPurchaseListEvent>(_onAddMultipleItemsToPurchaseList);
-    on<UpdatePurchaseListEvent>(_onUpdatePurchaseItem);
+    on<UpdatePurchaseItemEvent>(_onUpdatePurchaseItem);
     on<RemoveItemFromPurchaseListEvent>(_onRemoveItemFromPurchaseList);
 
     // Subscribe to events from the event bus
@@ -61,6 +64,22 @@ class PurchaseListEditorBloc
         // }
       }
     });
+  }
+
+  /// Helper method to update purchase list completion status based on its items
+  Future<void> _updatePurchaseListCompletionStatus(
+      PurchaseList purchaseList) async {
+    final purchaseItems = purchaseList.purchaseItems;
+    final isAllItemsPurchased = purchaseItems.isEmpty
+        ? false
+        : purchaseItems.every((item) => item.isPurchased);
+
+    // Only update if the completion status has changed
+    if (purchaseList.isCompleted != isAllItemsPurchased) {
+      final updatedList =
+          purchaseList.copyWith(isCompleted: isAllItemsPurchased);
+      await updatePurchaseListUsecase(updatedList);
+    }
   }
 
   FutureOr<void> _onLoadInitialData(
@@ -266,7 +285,7 @@ class PurchaseListEditorBloc
     );
   }
 
-  FutureOr<void> _onUpdatePurchaseItem(UpdatePurchaseListEvent event,
+  FutureOr<void> _onUpdatePurchaseItem(UpdatePurchaseItemEvent event,
       Emitter<PurchaseListEditorState> emit) async {
     if (state is! PurchaseListEditorLoadedState) {
       emit(PurchaseListEditorErrorState(
@@ -281,7 +300,7 @@ class PurchaseListEditorBloc
     result.fold(
       (failure) =>
           emit(PurchaseListEditorErrorState(message: failure.toString())),
-      (updatedItem) {
+      (updatedItem) async {
         // ✅ EFFICIENT: Update existing loaded state by replacing the item
         final currentItems = currentState.purchaseList?.purchaseItems ?? [];
         final updatedItems = currentItems.map((item) {
@@ -292,8 +311,13 @@ class PurchaseListEditorBloc
 
         emit(currentState.copyWith(purchaseList: updatedPurchaseList));
 
+        // 🔧 FIX: Update purchase list completion status
+        if (updatedPurchaseList != null) {
+          await _updatePurchaseListCompletionStatus(updatedPurchaseList);
+        }
+
         // 🔥 Fire existing BLoC event to notify main purchase list page to refresh
-        _eventBus.fire(UpdatePurchaseListEvent(item: updatedItem));
+        _eventBus.fire(UpdatePurchaseItemEvent(item: updatedItem));
       },
     );
   }

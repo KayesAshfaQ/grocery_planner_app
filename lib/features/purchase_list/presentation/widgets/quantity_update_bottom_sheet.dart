@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/purchase_item.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/bottom_sheets/app_bottom_sheet.dart';
 
@@ -72,16 +73,16 @@ class _QuantityUpdateBottomSheetState extends State<QuantityUpdateBottomSheet> {
 
   void _handleSave() {
     // Parse the unit price from the text field
-    final unitPrice = _priceController.text.isNotEmpty 
+    final unitPrice = _priceController.text.isNotEmpty
         ? double.tryParse(_priceController.text)
         : null;
-    
+
     final updatedItem = widget.item.copyWith(
       quantity: _currentQuantity,
       unitPrice: unitPrice,
     );
     widget.onUpdate(updatedItem);
-    Navigator.of(context).pop();
+    context.pop();
   }
 
   @override
@@ -182,7 +183,7 @@ class _QuantityUpdateBottomSheetState extends State<QuantityUpdateBottomSheet> {
             builder: (context) {
               final priceText = _priceController.text;
               final unitPrice = double.tryParse(priceText);
-              
+
               if (unitPrice != null && unitPrice > 0) {
                 final total = _currentQuantity * unitPrice;
                 return Text(

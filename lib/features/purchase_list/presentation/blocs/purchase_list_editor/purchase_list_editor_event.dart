@@ -82,13 +82,13 @@ class AddPurchaseListEvent extends PurchaseListEditorEvent implements AppEvent {
 }
 
 /// Event to update an existing purchase item
-class UpdatePurchaseListEvent extends PurchaseListEditorEvent
+class UpdatePurchaseItemEvent extends PurchaseListEditorEvent
     implements AppEvent {
   /// The purchase item to be updated
   final PurchaseItem item;
 
   /// Creates a new event to update a purchase item
-  const UpdatePurchaseListEvent({required this.item});
+  const UpdatePurchaseItemEvent({required this.item});
 
   @override
   List<Object?> get props => [item];

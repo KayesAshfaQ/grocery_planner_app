@@ -26,6 +26,7 @@ import 'package:grocery_planner_app/features/purchase_list/domain/repositories/p
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_item_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/get_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/mark_item_as_purchased_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
@@ -95,6 +96,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   // Use cases
   sl.registerLazySingleton(() => GetPurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => AddPurchaseListUsecase(sl()));
+  sl.registerLazySingleton(() => UpdatePurchaseListUsecase(sl()));
   sl.registerLazySingleton(() => RemovePurchaseListUsecase(sl()));
 
   sl.registerLazySingleton(() => AddPurchaseItemUsecase(sl()));
@@ -133,6 +135,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
         getCatalogItemsUsecase: sl(),
         addPurchaseItemUsecase: sl(),
         updatePurchaseItemUsecase: sl(),
+        updatePurchaseListUsecase: sl(),
         removePurchaseItemUsecase: sl(),
         eventBus: sl(),
       ));

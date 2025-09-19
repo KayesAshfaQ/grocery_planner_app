@@ -51,7 +51,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
       item: item,
       onUpdate: (updatedItem) {
         context.read<PurchaseListEditorBloc>().add(
-              UpdatePurchaseListEvent(item: updatedItem),
+              UpdatePurchaseItemEvent(item: updatedItem),
             );
       },
     );
@@ -357,7 +357,7 @@ class _PurchaseListEditorPageState extends State<PurchaseListEditorPage> {
                                         : null,
                                   );
                                   context.read<PurchaseListEditorBloc>().add(
-                                        UpdatePurchaseListEvent(
+                                        UpdatePurchaseItemEvent(
                                             item: updatedItem),
                                       );
 
