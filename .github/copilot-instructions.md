@@ -297,6 +297,96 @@ ListTile(
 )
 ```
 
+### Widget Refactoring Patterns
+
+#### **DRY Principle for Form Widgets** 🚨 CRITICAL
+When creating similar form widgets (add/edit operations), avoid code duplication by following these patterns:
+
+**❌ AVOID: Separate widgets for similar operations**
+```dart
+// Duplicated code with 70%+ similarity
+class AddItemBottomSheet extends StatefulWidget { ... }
+class EditItemBottomSheet extends StatefulWidget { ... }
+```
+
+**✅ PREFERRED: Unified widget with configuration-driven behavior**
+```dart
+// Single widget with mode-specific configuration
+class ItemFormBottomSheet extends StatefulWidget {
+  final ItemFormConfig config;
+  
+  factory ItemFormBottomSheet.forAdd() => ...
+  factory ItemFormBottomSheet.forEdit(Item item) => ...
+  
+  static Future<void> showAdd(BuildContext context) => ...
+  static Future<void> showEdit(BuildContext context, Item item) => ...
+}
+
+class ItemFormConfig {
+  final String title;
+  final Item? initialItem;
+  final bool isEditMode;
+  final String successMessage;
+  
+  factory ItemFormConfig.forAdd() => ...
+  factory ItemFormConfig.forEdit(Item item) => ...
+}
+```
+
+**Implementation Rules:**
+1. **Extract Common Utilities**: Create helper classes for shared logic (e.g., `IconUtils`, `ValidationUtils`)
+2. **Configuration Pattern**: Use configuration objects to drive different behaviors
+3. **Factory Constructors**: Provide clean APIs with `.forAdd()` and `.forEdit()` methods
+4. **Strategy Pattern**: Different submit strategies for different operations
+5. **Single Responsibility**: One widget handles the form, configuration handles the behavior
+
+**Benefits:**
+- ✅ **Reduces codebase by 40-70%** depending on similarity
+- ✅ **Single source of truth** for form logic and validation
+- ✅ **Easier maintenance** - one file to update instead of multiple
+- ✅ **Consistent UX** across add/edit operations
+- ✅ **Better testability** with unified logic
+- ✅ **Future-ready** for new modes (duplicate, template, etc.)
+
+**Example Implementation Structure:**
+```dart
+lib/features/{feature}/presentation/
+├── utils/
+│   └── {feature}_form_utils.dart     # Shared utilities
+├── widgets/
+│   └── {feature}_form_bottom_sheet.dart  # Unified form widget
+└── pages/
+    └── {feature}_page.dart           # Updated to use unified widget
+```
+
+**Real Implementation Example (Category Feature):**
+```dart
+// ✅ CategoryFormBottomSheet - Unified widget
+class CategoryFormBottomSheet extends StatefulWidget {
+  factory CategoryFormBottomSheet.forAdd() => ...
+  factory CategoryFormBottomSheet.forEdit(Category category) => ...
+  
+  static Future<void> showAdd(BuildContext context) => ...
+  static Future<void> showEdit(BuildContext context, Category category) => ...
+}
+
+// ✅ CategoryIconUtils - Shared utilities
+class CategoryIconUtils {
+  static IconData? parseIconFromUri(String? imageUri) => ...
+  static String? iconToUri(IconData? icon) => ...
+}
+
+// ✅ Usage in CategoryPage
+CategoryFormBottomSheet.showAdd(context);           // Add mode
+CategoryFormBottomSheet.showEdit(context, category); // Edit mode
+```
+
+**When to Refactor:**
+- When two or more widgets share >50% similar code
+- Form widgets with identical field structures
+- Add/edit operations with same validation logic
+- Similar UI patterns across different modes
+
 ### Error Handling
 - Use `dartz` Either<Failure, Success> pattern in use cases
 - Standardized error states in BLoCs
@@ -312,6 +402,7 @@ ListTile(
 5. **Route Parameters**: Parse IDs as integers for type safety (`int.tryParse(state.pathParameters['id'])`)
 6. **Entity Updates**: Use `copyWith` methods for immutable entity updates instead of creating new instances
 7. **Use Case Consolidation**: For related business operations (single vs bulk, variations of same purpose), use one use case class with multiple methods instead of creating separate use case classes
+8. **Widget Refactoring**: When creating similar form widgets (add/edit operations), use unified widgets with configuration-driven behavior to eliminate code duplication. Follow the Widget Refactoring Patterns above.
 
 ## Testing Approach
 - Use `bloc_test` for BLoC unit tests
