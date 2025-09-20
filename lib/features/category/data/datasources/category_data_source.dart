@@ -32,8 +32,8 @@ class CategoryLocalDataSourceImpl extends CategoryDataSource {
   Future<Category> addCategory(Category item) async {
     try {
       final catalogItemModel = CategoryModel.fromEntity(item);
-      await categoryItemDao.insertItem(catalogItemModel);
-      return item;
+      final insertedId = await categoryItemDao.insertItem(catalogItemModel);
+      return item.copyWith(id: insertedId);
     } catch (e) {
       throw Exception('Failed to add category item: $e');
     }

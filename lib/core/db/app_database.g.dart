@@ -257,8 +257,9 @@ class _$CategoryDao extends CategoryDao {
   }
 
   @override
-  Future<void> insertItem(CategoryModel item) async {
-    await _categoryModelInsertionAdapter.insert(item, OnConflictStrategy.abort);
+  Future<int> insertItem(CategoryModel item) {
+    return _categoryModelInsertionAdapter.insertAndReturnId(
+        item, OnConflictStrategy.abort);
   }
 
   @override

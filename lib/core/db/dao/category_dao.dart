@@ -14,7 +14,7 @@ abstract class CategoryDao {
 
   /// Insert a new category item
   @insert
-  Future<void> insertItem(CategoryModel item);
+  Future<int?> insertItem(CategoryModel item);
 
   /// Update an existing category item
   @update
