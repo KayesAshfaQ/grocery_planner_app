@@ -4,6 +4,7 @@ import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
 
 import '../blocs/category_bloc.dart';
+import '../utils/category_icon_utils.dart';
 import '../widgets/category_form_bottom_sheet.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -60,8 +61,14 @@ class _CategoryPageState extends State<CategoryPage> {
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
+
+                // Parse category icon or use default
+                final categoryIcon =
+                    CategoryIconUtils.parseIconFromUri(category.imageUri) ??
+                        Icons.category;
+
                 return ListTile(
-                  leading: Icon(Icons.category),
+                  leading: Icon(categoryIcon),
                   title: Text(category.name ?? 'Unnamed Category'),
                   subtitle: Text(category.description ?? ''),
                   trailing: Icon(Icons.edit_outlined),
