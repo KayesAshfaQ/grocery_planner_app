@@ -50,8 +50,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<AppException, Category>> updateCategory(Category item) {
-    // TODO: implement updateCategory
-    throw UnimplementedError();
+  Future<Either<AppException, Category>> updateCategory(Category item) async {
+    try {
+      final result = await dataSource.updateCategory(item);
+      return Right(result);
+    } catch (e) {
+      return Left(AppException(message: e.toString()));
+    }
   }
 }

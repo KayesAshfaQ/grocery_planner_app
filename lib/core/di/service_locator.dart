@@ -19,6 +19,7 @@ import 'package:grocery_planner_app/features/category/data/repositories/category
 import 'package:grocery_planner_app/features/category/domain/repositories/category_repository.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/add_category_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
+import 'package:grocery_planner_app/features/category/domain/usecases/update_category_usecase.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/data/repositories/purchase_repository_impl.dart';
 import 'package:grocery_planner_app/features/purchase_list/data/datasources/purchase_data_source.dart';
@@ -109,6 +110,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
 
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
+  sl.registerLazySingleton(() => UpdateCategoryUsecase(sl()));
 
   sl.registerLazySingleton(() => GetUserSettingsUsecase(repository: sl()));
   sl.registerLazySingleton(() => UpdateUserSettingsUsecase(repository: sl()));
@@ -143,6 +145,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerFactory(() => CategoryBloc(
         getCategoriesUsecase: sl(),
         addCategoryUsecase: sl(),
+        updateCategoryUsecase: sl(),
       ));
 
   sl.registerFactory(() => CatalogBloc(

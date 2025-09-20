@@ -75,8 +75,13 @@ class CategoryLocalDataSourceImpl extends CategoryDataSource {
   }
 
   @override
-  Future<Category> updateCategory(Category item) {
-    // TODO: implement updateCategory
-    throw UnimplementedError();
+  Future<Category> updateCategory(Category item) async {
+    try {
+      final catalogItemModel = CategoryModel.fromEntity(item);
+      await categoryItemDao.updateItem(catalogItemModel);
+      return item;
+    } catch (e) {
+      throw Exception('Failed to update category item: $e');
+    }
   }
 }

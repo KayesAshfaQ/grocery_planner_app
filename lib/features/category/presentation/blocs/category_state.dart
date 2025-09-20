@@ -18,15 +18,6 @@ class CategoryLoaded extends CategoryState {
   List<Object?> get props => [categories];
 }
 
-class CategoryAdded extends CategoryState {
-  final Category category;
-
-  CategoryAdded({required this.category});
-
-  @override
-  List<Object?> get props => [category];
-}
-
 class CategoryError extends CategoryState {
   final String message;
 
