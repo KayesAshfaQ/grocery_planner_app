@@ -26,10 +26,11 @@ abstract class CategoryDao {
 
   /// Delete a category item by ID
   @Query('DELETE FROM categories WHERE id = :id')
-  Future<void> deleteItemById(String id);
+  Future<void> deleteItemById(int id);
 
   /// Get category items by category
-  @Query('SELECT * FROM categories WHERE category = :category ORDER BY name ASC')
+  @Query(
+      'SELECT * FROM categories WHERE category = :category ORDER BY name ASC')
   Future<List<CategoryModel>> getItemsByCategory(String category);
 
   /// Search category items by name

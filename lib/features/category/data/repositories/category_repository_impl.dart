@@ -22,9 +22,13 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<AppException, void>> deleteCategory(String id) {
-    // TODO: implement deleteCategory
-    throw UnimplementedError();
+  Future<Either<AppException, void>> deleteCategory(int id) async {
+    try {
+      await dataSource.deleteCategory(id);
+      return const Right(null);
+    } catch (e) {
+      return Left(AppException(message: e.toString()));
+    }
   }
 
   @override
@@ -38,7 +42,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<AppException, Category>> getCategoryById(String id) {
+  Future<Either<AppException, Category>> getCategoryById(int id) {
     // TODO: implement getCategoryById
     throw UnimplementedError();
   }

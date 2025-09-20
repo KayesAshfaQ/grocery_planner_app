@@ -11,7 +11,7 @@ abstract class CategoryRepository {
   Future<Either<AppException, List<Category>>> searchCategories(String query);
 
   /// Get a specific category by ID
-  Future<Either<AppException, Category>> getCategoryById(String id);
+  Future<Either<AppException, Category>> getCategoryById(int id);
 
   /// Add a new category (typically used by administrators or for user-defined items)
   Future<Either<AppException, Category>> addCategory(Category item);
@@ -20,5 +20,5 @@ abstract class CategoryRepository {
   Future<Either<AppException, Category>> updateCategory(Category item);
 
   /// Delete a category
-  Future<Either<AppException, void>> deleteCategory(String id);
+  Future<Either<AppException, void>> deleteCategory(int id);
 }

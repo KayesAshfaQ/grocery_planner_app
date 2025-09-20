@@ -1,5 +1,3 @@
-
-
 part of 'category_bloc.dart';
 
 class CategoryEvent extends Equatable {
@@ -19,7 +17,7 @@ class AddCategoryEvent extends CategoryEvent {
 }
 
 class DeleteCategoryEvent extends CategoryEvent {
-  final String categoryId;
+  final int categoryId;
 
   DeleteCategoryEvent(this.categoryId);
 

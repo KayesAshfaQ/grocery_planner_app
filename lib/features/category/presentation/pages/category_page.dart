@@ -36,6 +36,41 @@ class _CategoryPageState extends State<CategoryPage> {
     CategoryFormBottomSheet.showEdit(context, category);
   }
 
+  /// Shows a confirmation dialog for deleting a category
+  Future<void> _showDeleteConfirmationDialog(
+      BuildContext context, Category category) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Category'),
+          content: Text(
+            'Are you sure you want to delete "${category.name}"?\n\nThis action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true && context.mounted) {
+      context.read<CategoryBloc>().add(
+            DeleteCategoryEvent(category.id!),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,10 +106,33 @@ class _CategoryPageState extends State<CategoryPage> {
                   leading: Icon(categoryIcon),
                   title: Text(category.name ?? 'Unnamed Category'),
                   subtitle: Text(category.description ?? ''),
-                  trailing: Icon(Icons.edit_outlined),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined),
+                        onPressed: () {
+                          _showEditCategoryBottomSheet(context, category);
+                        },
+                        tooltip: 'Edit category',
+                      ),
+                      IconButton(
+                        icon:
+                            const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () {
+                          _showDeleteConfirmationDialog(context, category);
+                        },
+                        tooltip: 'Delete category',
+                      ),
+                    ],
+                  ),
                   onTap: () {
                     // Handle category tap - open edit bottom sheet
                     _showEditCategoryBottomSheet(context, category);
+                  },
+                  onLongPress: () {
+                    // Long press to delete
+                    _showDeleteConfirmationDialog(context, category);
                   },
                 );
               },

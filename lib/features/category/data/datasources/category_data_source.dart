@@ -11,7 +11,7 @@ abstract class CategoryDataSource {
   Future<List<Category>> searchCategories(String query);
 
   /// Fetches a category by its ID
-  Future<Category> getCategoryById(String id);
+  Future<Category> getCategoryById(int id);
 
   /// Adds a new category to db
   Future<Category> addCategory(Category item);
@@ -20,7 +20,7 @@ abstract class CategoryDataSource {
   Future<Category> updateCategory(Category item);
 
   /// Deletes a category from db
-  Future<void> deleteCategory(String id);
+  Future<void> deleteCategory(int id);
 }
 
 class CategoryLocalDataSourceImpl extends CategoryDataSource {
@@ -40,7 +40,7 @@ class CategoryLocalDataSourceImpl extends CategoryDataSource {
   }
 
   @override
-  Future<void> deleteCategory(String id) async {
+  Future<void> deleteCategory(int id) async {
     try {
       await categoryItemDao.deleteItemById(id);
     } catch (e) {
@@ -63,7 +63,7 @@ class CategoryLocalDataSourceImpl extends CategoryDataSource {
   }
 
   @override
-  Future<Category> getCategoryById(String id) {
+  Future<Category> getCategoryById(int id) {
     // TODO: implement getCategoryById
     throw UnimplementedError();
   }

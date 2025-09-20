@@ -212,7 +212,7 @@ class _$CategoryDao extends CategoryDao {
   }
 
   @override
-  Future<void> deleteItemById(String id) async {
+  Future<void> deleteItemById(int id) async {
     await _queryAdapter
         .queryNoReturn('DELETE FROM categories WHERE id = ?1', arguments: [id]);
   }
