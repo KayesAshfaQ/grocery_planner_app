@@ -126,10 +126,6 @@ class _CategoryPageState extends State<CategoryPage> {
                       ),
                     ],
                   ),
-                  onTap: () {
-                    // Handle category tap - open edit bottom sheet
-                    _showEditCategoryBottomSheet(context, category);
-                  },
                   onLongPress: () {
                     // Long press to delete
                     _showDeleteConfirmationDialog(context, category);
