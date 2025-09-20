@@ -20,7 +20,7 @@ import 'package:grocery_planner_app/features/category/domain/repositories/catego
 import 'package:grocery_planner_app/features/category/domain/usecases/add_category_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
-import 'package:grocery_planner_app/features/dashboard/data/repositories/purchase_repository_impl.dart';
+import 'package:grocery_planner_app/features/purchase_list/data/repositories/purchase_repository_impl.dart';
 import 'package:grocery_planner_app/features/purchase_list/data/datasources/purchase_data_source.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/repositories/purchase_repository.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
