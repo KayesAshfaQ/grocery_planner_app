@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 import 'package:grocery_planner_app/features/catalog/domain/usecases/add_catalog_item_usecase.dart';
 import 'package:grocery_planner_app/features/catalog/domain/usecases/get_catalog_items_usecase.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/update_catalog_item_usecase.dart';
 
 part 'catalog_event.dart';
 part 'catalog_state.dart';
@@ -10,13 +11,39 @@ part 'catalog_state.dart';
 class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   final AddCatalogItemUsecase addCatalogItemUsecase;
   final GetCatalogItemsUsecase getCatalogItemsUsecase;
+  final UpdateCatalogItemUsecase updateCatalogItemUsecase;
 
-  CatalogBloc({required this.addCatalogItemUsecase, required this.getCatalogItemsUsecase}) : super(CatalogInitial()) {
+  CatalogBloc({
+    required this.addCatalogItemUsecase,
+    required this.getCatalogItemsUsecase,
+    required this.updateCatalogItemUsecase,
+  }) : super(CatalogInitial()) {
     on<AddCatalogEvent>(_onAddCatalog);
     on<LoadCatalogsEvent>(_onLoadCatalogs);
+    on<UpdateCatalogEvent>(_onUpdateCatalog);
+  }
+  Future<void> _onUpdateCatalog(
+      UpdateCatalogEvent event, Emitter<CatalogState> emit) async {
+    final result = await updateCatalogItemUsecase(event.catalog);
+    result.fold(
+      (failure) => emit(CatalogError(failure.toString())),
+      (updatedCatalog) {
+        if (state is CatalogLoaded) {
+          final currentState = state as CatalogLoaded;
+          final updatedCatalogs = currentState.catalogs
+              .map((item) =>
+                  item.id == updatedCatalog.id ? updatedCatalog : item)
+              .toList();
+          emit(CatalogLoaded(updatedCatalogs));
+        } else {
+          add(LoadCatalogsEvent());
+        }
+      },
+    );
   }
 
-  Future<void> _onAddCatalog(AddCatalogEvent event, Emitter<CatalogState> emit) async {
+  Future<void> _onAddCatalog(
+      AddCatalogEvent event, Emitter<CatalogState> emit) async {
     emit(CatalogLoading());
     final result = await addCatalogItemUsecase(event.catalog);
     result.fold(
@@ -25,7 +52,8 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
     );
   }
 
-  Future<void> _onLoadCatalogs(LoadCatalogsEvent event, Emitter<CatalogState> emit) async {
+  Future<void> _onLoadCatalogs(
+      LoadCatalogsEvent event, Emitter<CatalogState> emit) async {
     emit(CatalogLoading());
     final result = await getCatalogItemsUsecase();
     result.fold(

@@ -6,6 +6,24 @@ import 'package:grocery_planner_app/features/shared/domain/entities/category.dar
 /// [CatalogItem] is used to provide a database of common grocery items
 /// that users can select from when adding items to their shopping list.
 class CatalogItem extends Equatable {
+  CatalogItem copyWith({
+    int? id,
+    String? name,
+    String? defaultUnit,
+    String? barcode,
+    Category? category,
+    String? imageUri,
+  }) {
+    return CatalogItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      defaultUnit: defaultUnit ?? this.defaultUnit,
+      barcode: barcode ?? this.barcode,
+      category: category ?? this.category,
+      imageUri: imageUri ?? this.imageUri,
+    );
+  }
+
   /// Unique identifier for the catalog item
   final int? id;
 

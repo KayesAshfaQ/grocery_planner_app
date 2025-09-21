@@ -5,7 +5,7 @@ import 'package:grocery_planner_app/features/catalog/presentation/blocs/catalog_
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
 import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
 
-import '../widgets/add_catalog_item_bottom_sheet.dart';
+import '../widgets/catalog_item_form_bottom_sheet.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -42,7 +42,7 @@ class _CatalogPageState extends State<CatalogPage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              AddCatalogItemBottomSheet.show(context);
+              CatalogItemFormBottomSheet.showAdd(context);
             },
           ),
         ],
@@ -52,7 +52,8 @@ class _CatalogPageState extends State<CatalogPage> {
         listener: (context, state) {
           if (state is CatalogAdded) {
             // Show success message
-            AppToast.showSuccess(context, 'Catalog "${state.catalog.name}" added successfully');
+            AppToast.showSuccess(
+                context, 'Catalog "${state.catalog.name}" added successfully');
 
             // Reload catalogs when a new catalog is added
             context.read<CatalogBloc>().add(LoadCatalogsEvent());
@@ -76,9 +77,12 @@ class _CatalogPageState extends State<CatalogPage> {
                   return ListTile(
                     title: Text(item.name),
                     subtitle: Text(item.category?.name ?? 'No Category'),
-                    onTap: () {
-                      // Handle item tap
-                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        CatalogItemFormBottomSheet.showEdit(context, item);
+                      },
+                    ),
                   );
                 },
               );

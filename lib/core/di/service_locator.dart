@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grocery_planner_app/features/catalog/domain/usecases/add_catalog_item_usecase.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/update_catalog_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_list_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -108,6 +109,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
 
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => AddCatalogItemUsecase(sl()));
+  sl.registerLazySingleton(() => UpdateCatalogItemUsecase(sl()));
 
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
@@ -154,6 +156,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerFactory(() => CatalogBloc(
         getCatalogItemsUsecase: sl(),
         addCatalogItemUsecase: sl(),
+        updateCatalogItemUsecase: sl(),
       ));
 
   sl.registerFactory(() => SettingsBloc(

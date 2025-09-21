@@ -22,13 +22,15 @@ class CatalogRepositoryImpl implements CatalogRepository {
   }
 
   @override
-  Future<Either<AppException, List<CatalogItem>>> getCatalogItemsByCategory(String category) {
+  Future<Either<AppException, List<CatalogItem>>> getCatalogItemsByCategory(
+      String category) {
     // TODO: implement getCatalogItemsByCategory
     throw UnimplementedError();
   }
 
   @override
-  Future<Either<AppException, List<CatalogItem>>> searchCatalogItems(String query) {
+  Future<Either<AppException, List<CatalogItem>>> searchCatalogItems(
+      String query) {
     // TODO: implement searchCatalogItems
     throw UnimplementedError();
   }
@@ -40,7 +42,8 @@ class CatalogRepositoryImpl implements CatalogRepository {
   }
 
   @override
-  Future<Either<AppException, CatalogItem>> addCatalogItem(CatalogItem item) async {
+  Future<Either<AppException, CatalogItem>> addCatalogItem(
+      CatalogItem item) async {
     try {
       final result = await dataSource.addCatalog(item);
       return Right(result);
@@ -50,9 +53,14 @@ class CatalogRepositoryImpl implements CatalogRepository {
   }
 
   @override
-  Future<Either<AppException, CatalogItem>> updateCatalogItem(CatalogItem item) {
-    // TODO: implement updateCatalogItem
-    throw UnimplementedError();
+  Future<Either<AppException, CatalogItem>> updateCatalogItem(
+      CatalogItem item) async {
+    try {
+      final result = await dataSource.updateCatalog(item);
+      return Right(result);
+    } catch (e) {
+      return Left(AppException(message: e.toString()));
+    }
   }
 
   @override
