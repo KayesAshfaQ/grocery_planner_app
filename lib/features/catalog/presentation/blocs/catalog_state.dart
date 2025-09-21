@@ -18,15 +18,6 @@ class CatalogLoaded extends CatalogState {
   List<Object?> get props => [catalogs];
 }
 
-class CatalogAdded extends CatalogState {
-  final CatalogItem catalog;
-
-  CatalogAdded({required this.catalog});
-
-  @override
-  List<Object?> get props => [catalog];
-}
-
 class CatalogError extends CatalogState {
   final String message;
 

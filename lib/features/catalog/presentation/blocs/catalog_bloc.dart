@@ -44,11 +44,18 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
 
   Future<void> _onAddCatalog(
       AddCatalogEvent event, Emitter<CatalogState> emit) async {
-    emit(CatalogLoading());
     final result = await addCatalogItemUsecase(event.catalog);
     result.fold(
       (failure) => emit(CatalogError(failure.toString())),
-      (catalog) => emit(CatalogAdded(catalog: catalog)),
+      (catalog) {
+        if (state is CatalogLoaded) {
+          final currentState = state as CatalogLoaded;
+          final updatedCatalogs = [...currentState.catalogs, catalog];
+          emit(CatalogLoaded(updatedCatalogs));
+        } else {
+          add(LoadCatalogsEvent());
+        }
+      },
     );
   }
 
