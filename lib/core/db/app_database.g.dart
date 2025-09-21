@@ -381,8 +381,8 @@ class _$CatalogItemDao extends CatalogItemDao {
   }
 
   @override
-  Future<void> insertItem(CatalogItemModel item) async {
-    await _catalogItemModelInsertionAdapter.insert(
+  Future<int> insertItem(CatalogItemModel item) {
+    return _catalogItemModelInsertionAdapter.insertAndReturnId(
         item, OnConflictStrategy.abort);
   }
 

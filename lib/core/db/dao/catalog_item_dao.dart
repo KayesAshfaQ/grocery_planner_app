@@ -14,7 +14,7 @@ abstract class CatalogItemDao {
 
   /// Insert a new catalog item
   @insert
-  Future<void> insertItem(CatalogItemModel item);
+  Future<int?> insertItem(CatalogItemModel item);
 
   /// Update an existing catalog item
   @update

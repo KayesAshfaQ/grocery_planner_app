@@ -84,8 +84,8 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
   Future<CatalogItem> addCatalog(CatalogItem item) async {
     try {
       final catalogItemModel = CatalogItemModel.fromEntity(item);
-      await catalogItemDao.insertItem(catalogItemModel);
-      return item;
+      final insertedId = await catalogItemDao.insertItem(catalogItemModel);
+      return item.copyWith(id: insertedId);
     } catch (e) {
       throw Exception('Failed to add catalog item: $e');
     }
