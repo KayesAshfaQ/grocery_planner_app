@@ -1,19 +1,20 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:grocery_planner_app/features/catalog/domain/usecases/add_catalog_item_usecase.dart';
-import 'package:grocery_planner_app/features/catalog/domain/usecases/update_catalog_item_usecase.dart';
-import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_list_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:grocery_planner_app/core/api/api_client.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/event/app_event_bus.dart';
 import 'package:grocery_planner_app/core/network/network_info.dart';
+import 'package:grocery_planner_app/core/services/user_settings_service.dart';
 import 'package:grocery_planner_app/features/catalog/data/datasources/catalog_data_source.dart';
 import 'package:grocery_planner_app/features/catalog/data/repositories/catalog_repository_impl.dart';
 import 'package:grocery_planner_app/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/add_catalog_item_usecase.dart';
 import 'package:grocery_planner_app/features/catalog/domain/usecases/get_catalog_items_usecase.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/remove_catalog_item_usecase.dart';
+import 'package:grocery_planner_app/features/catalog/domain/usecases/update_catalog_item_usecase.dart';
 import 'package:grocery_planner_app/features/catalog/presentation/blocs/catalog_bloc.dart';
 import 'package:grocery_planner_app/features/category/data/datasources/category_data_source.dart';
 import 'package:grocery_planner_app/features/category/data/repositories/category_repository_impl.dart';
@@ -23,16 +24,17 @@ import 'package:grocery_planner_app/features/category/domain/usecases/delete_cat
 import 'package:grocery_planner_app/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:grocery_planner_app/features/category/domain/usecases/update_category_usecase.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
-import 'package:grocery_planner_app/features/purchase_list/data/repositories/purchase_repository_impl.dart';
 import 'package:grocery_planner_app/features/purchase_list/data/datasources/purchase_data_source.dart';
+import 'package:grocery_planner_app/features/purchase_list/data/repositories/purchase_repository_impl.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/repositories/purchase_repository.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_item_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_list_usecase.dart';
-import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_item_usecase.dart';
-import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/get_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/mark_item_as_purchased_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_item_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_list_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_item_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list/purchase_list_bloc.dart';
 import 'package:grocery_planner_app/features/purchase_list/presentation/blocs/purchase_list_editor/purchase_list_editor_bloc.dart';
 import 'package:grocery_planner_app/features/settings/data/datasources/local/settings_local_data_source.dart';
@@ -42,7 +44,6 @@ import 'package:grocery_planner_app/features/settings/domain/usecases/get_user_s
 import 'package:grocery_planner_app/features/settings/domain/usecases/update_default_currency_usecase.dart';
 import 'package:grocery_planner_app/features/settings/domain/usecases/update_user_settings_usecase.dart';
 import 'package:grocery_planner_app/features/settings/presentation/blocs/settings_bloc.dart';
-import 'package:grocery_planner_app/core/services/user_settings_service.dart';
 
 final sl = GetIt.instance;
 
@@ -110,6 +111,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
   sl.registerLazySingleton(() => GetCatalogItemsUsecase(sl()));
   sl.registerLazySingleton(() => AddCatalogItemUsecase(sl()));
   sl.registerLazySingleton(() => UpdateCatalogItemUsecase(sl()));
+  sl.registerLazySingleton(() => RemoveCatalogItemUsecase(sl()));
 
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => AddCategoryUsecase(sl()));
@@ -157,6 +159,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
         getCatalogItemsUsecase: sl(),
         addCatalogItemUsecase: sl(),
         updateCatalogItemUsecase: sl(),
+        removeCatalogItemUsecase: sl(),
       ));
 
   sl.registerFactory(() => SettingsBloc(

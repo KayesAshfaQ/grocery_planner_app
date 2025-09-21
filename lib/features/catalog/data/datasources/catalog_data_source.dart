@@ -16,7 +16,7 @@ abstract class CatalogDataSource {
   Future<List<CatalogItem>> searchCatalogs(String query);
 
   /// Fetches a catalog item by its ID
-  Future<CatalogItem> getCatalogById(String id);
+  Future<CatalogItem> getCatalogById(int id);
 
   /// Adds a new catalog item to db
   Future<CatalogItem> addCatalog(CatalogItem item);
@@ -25,7 +25,7 @@ abstract class CatalogDataSource {
   Future<CatalogItem> updateCatalog(CatalogItem item);
 
   /// Deletes a catalog item from db
-  Future<void> deleteCatalog(String id);
+  Future<void> deleteCatalog(int id);
 }
 
 class CatalogLocalDataSourceImpl extends CatalogDataSource {
@@ -92,13 +92,16 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
   }
 
   @override
-  Future<void> deleteCatalog(String id) {
-    // TODO: implement deleteCatalog
-    throw UnimplementedError();
+  Future<void> deleteCatalog(int id) async {
+    try {
+      await catalogItemDao.deleteItemById(id);
+    } catch (e) {
+      throw Exception('Failed to delete catalog item: $e');
+    }
   }
 
   @override
-  Future<CatalogItem> getCatalogById(String id) {
+  Future<CatalogItem> getCatalogById(int id) {
     // TODO: implement getCatalogById
     throw UnimplementedError();
   }

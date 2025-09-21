@@ -6,7 +6,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/category.dar
 import '../blocs/category_bloc.dart';
 import '../utils/category_icon_utils.dart';
 import '../widgets/category_form_bottom_sheet.dart';
-import 'package:grocery_planner_app/features/shared/presentation/widgets/app_delete_confirmation_dialog.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/dialogs/delete_confirmation_dialog.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -40,7 +40,7 @@ class _CategoryPageState extends State<CategoryPage> {
   /// Shows a confirmation dialog for deleting a category (now uses shared widget)
   Future<void> _showDeleteConfirmationDialog(
       BuildContext context, Category category) async {
-    final shouldDelete = await AppDeleteConfirmationDialog.show(
+    final shouldDelete = await DeleteConfirmationDialog.show(
       context,
       title: 'Delete Category',
       content:

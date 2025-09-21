@@ -36,7 +36,7 @@ class CatalogRepositoryImpl implements CatalogRepository {
   }
 
   @override
-  Future<Either<AppException, CatalogItem>> getCatalogItemById(String id) {
+  Future<Either<AppException, CatalogItem>> getCatalogItemById(int id) {
     // TODO: implement getCatalogItemById
     throw UnimplementedError();
   }
@@ -64,8 +64,12 @@ class CatalogRepositoryImpl implements CatalogRepository {
   }
 
   @override
-  Future<Either<AppException, void>> deleteCatalogItem(String id) {
-    // TODO: implement deleteCatalogItem
-    throw UnimplementedError();
+  Future<Either<AppException, void>> deleteCatalogItem(int id) async {
+    try {
+      await dataSource.deleteCatalog(id);
+      return const Right(null);
+    } catch (e) {
+      return Left(AppException(message: e.toString()));
+    }
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Reusable delete confirmation dialog for any entity
-class AppDeleteConfirmationDialog {
+class DeleteConfirmationDialog {
   static Future<bool?> show(
     BuildContext context, {
     required String title,

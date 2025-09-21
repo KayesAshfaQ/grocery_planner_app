@@ -26,7 +26,7 @@ abstract class CatalogItemDao {
 
   /// Delete a catalog item by ID
   @Query('DELETE FROM catalog_items WHERE id = :id')
-  Future<void> deleteItemById(String id);
+  Future<void> deleteItemById(int id);
 
   /// Search catalog items by name
   @Query('SELECT * FROM catalog_items WHERE name LIKE :query ORDER BY name ASC')
