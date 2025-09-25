@@ -130,6 +130,7 @@ Future<void> initServiceLocator(AppDatabase database) async {
         getAllPurchaseListUseCase: sl(),
         addPurchaseListUsecase: sl(),
         removePurchaseListUsecase: sl(),
+        updatePurchaseListUsecase: sl(),
         eventBus: sl(),
       ));
 

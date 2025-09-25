@@ -8,6 +8,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/purchase_lis
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/add_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/remove_purchase_list_usecase.dart';
 import 'package:grocery_planner_app/features/purchase_list/domain/usecases/get_purchase_list_usecase.dart';
+import 'package:grocery_planner_app/features/purchase_list/domain/usecases/update_purchase_list_usecase.dart';
 
 part 'purchase_list_event.dart';
 part 'purchase_list_state.dart';
@@ -17,6 +18,7 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
   final GetPurchaseListUsecase getAllPurchaseListUseCase;
   final AddPurchaseListUsecase addPurchaseListUsecase;
   final RemovePurchaseListUsecase removePurchaseListUsecase;
+  final UpdatePurchaseListUsecase updatePurchaseListUsecase;
   final AppEventBus _eventBus;
   late final StreamSubscription _eventSubscription;
 
@@ -25,13 +27,15 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
     required this.getAllPurchaseListUseCase,
     required this.addPurchaseListUsecase,
     required this.removePurchaseListUsecase,
+    required this.updatePurchaseListUsecase,
     required AppEventBus eventBus,
   })  : _eventBus = eventBus,
         super(PurchaseListInitialState()) {
     on<GetAllPurchaseItemsEvent>(_onGetAllPurchaseList);
     on<GetPurchaseListsByStatusEvent>(_onGetPurchaseListsByStatus);
     on<AddPurchaseListEvent>(_onAddPurchaseList);
-    // on<MarkPurchaseItemAsPurchasedEvent>(_onMarkPurchaseItemAsPurchased);
+    on<UpdatePurchaseListEvent>(_onUpdatePurchaseList);
+    on<RemovePurchaseListEvent>(_onRemovePurchaseList);
 
     // Subscribe to events from the event bus
     _eventSubscription = _eventBus.stream.listen((event) {
@@ -106,18 +110,56 @@ class PurchaseListBloc extends Bloc<PurchaseListEvent, PurchaseListState> {
     );
   }
 
-  /* FutureOr<void> _onMarkPurchaseItemAsPurchased(
-    MarkPurchaseItemAsPurchasedEvent event,
+  FutureOr<void> _onUpdatePurchaseList(
+    UpdatePurchaseListEvent event,
     Emitter<PurchaseListState> emit,
   ) async {
-    emit(PurchaseListLoadingState());
-    final result = await markItemAsPurchasedUsecase(
-      event.id,
-      actualPrice: event.actualPrice,
-    );
+    // Perform the actual update operation
+    final result = await updatePurchaseListUsecase(event.item);
     result.fold(
-      (failure) => emit(PurchaseListErrorState(message: failure.toString())),
-      (purchaseItem) => add(GetAllPurchaseItemsEvent()),
+      (failure) {
+        // Revert UI state on error
+        if (state is PurchaseListLoadedState) {
+          emit(PurchaseListErrorState(message: failure.toString()));
+          add(GetAllPurchaseItemsEvent()); // Refresh to get correct state
+        }
+      },
+      (updatedList) {
+        // Use efficient state updates - avoid loading state for better UX
+        if (state is PurchaseListLoadedState) {
+          final currentState = state as PurchaseListLoadedState;
+          final updatedLists = currentState.items
+              .map((list) => list.id == event.item.id ? event.item : list)
+              .toList();
+          emit(PurchaseListLoadedState(items: updatedLists));
+        }
+      },
     );
-  } */
+  }
+
+  FutureOr<void> _onRemovePurchaseList(
+    RemovePurchaseListEvent event,
+    Emitter<PurchaseListState> emit,
+  ) async {
+    // Perform the actual delete operation
+    final result = await removePurchaseListUsecase(event.id);
+    result.fold(
+      (failure) {
+        // Revert UI state on error
+        if (state is PurchaseListLoadedState) {
+          emit(PurchaseListErrorState(message: failure.toString()));
+          add(GetAllPurchaseItemsEvent()); // Refresh to get correct state
+        }
+      },
+      (_) {
+        // Update existing loaded state by removing the item
+        if (state is PurchaseListLoadedState) {
+          final currentState = state as PurchaseListLoadedState;
+          final updatedLists =
+              currentState.items.where((list) => list.id != event.id).toList();
+          emit(PurchaseListLoadedState(items: updatedLists));
+        }
+      },
+    );
+  }
 }

@@ -24,7 +24,6 @@ class GetPurchaseListsByStatusEvent extends PurchaseListEvent {
   List<Object> get props => [isPurchased];
 }
 
-
 /// Event to update an existing purchase item
 class UpdatePurchaseListEvent extends PurchaseListEvent {
   /// The purchase item to be updated
