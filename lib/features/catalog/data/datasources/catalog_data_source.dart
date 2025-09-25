@@ -16,7 +16,7 @@ abstract class CatalogDataSource {
   Future<List<CatalogItem>> searchCatalogs(String query);
 
   /// Fetches a catalog item by its ID
-  Future<CatalogItem> getCatalogById(String id);
+  Future<CatalogItem> getCatalogById(int id);
 
   /// Adds a new catalog item to db
   Future<CatalogItem> addCatalog(CatalogItem item);
@@ -25,14 +25,15 @@ abstract class CatalogDataSource {
   Future<CatalogItem> updateCatalog(CatalogItem item);
 
   /// Deletes a catalog item from db
-  Future<void> deleteCatalog(String id);
+  Future<void> deleteCatalog(int id);
 }
 
 class CatalogLocalDataSourceImpl extends CatalogDataSource {
   final CatalogItemDao catalogItemDao;
   final CategoryDao categoryDao;
 
-  CatalogLocalDataSourceImpl({required this.catalogItemDao, required this.categoryDao});
+  CatalogLocalDataSourceImpl(
+      {required this.catalogItemDao, required this.categoryDao});
 
   @override
   Future<List<CatalogItem>> getCatalogs() async {
@@ -52,7 +53,8 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
       // Fetch all needed categories in one batch
       Map<int, Category> categoryMap = {};
       if (categoryIds.isNotEmpty) {
-        final categories = await Future.wait(categoryIds.map((id) => categoryDao.getItemById(id)));
+        final categories = await Future.wait(
+            categoryIds.map((id) => categoryDao.getItemById(id)));
 
         // Create lookup map of ID -> Category
         for (var category in categories.where((c) => c != null)) {
@@ -68,7 +70,9 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
                 defaultUnit: model.defaultUnit,
                 barcode: model.barcode,
                 imageUri: model.imageUri,
-                category: model.categoryId != null ? categoryMap[model.categoryId] : null,
+                category: model.categoryId != null
+                    ? categoryMap[model.categoryId]
+                    : null,
               ))
           .toList();
     } catch (e) {
@@ -80,21 +84,24 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
   Future<CatalogItem> addCatalog(CatalogItem item) async {
     try {
       final catalogItemModel = CatalogItemModel.fromEntity(item);
-      await catalogItemDao.insertItem(catalogItemModel);
-      return item;
+      final insertedId = await catalogItemDao.insertItem(catalogItemModel);
+      return item.copyWith(id: insertedId);
     } catch (e) {
       throw Exception('Failed to add catalog item: $e');
     }
   }
 
   @override
-  Future<void> deleteCatalog(String id) {
-    // TODO: implement deleteCatalog
-    throw UnimplementedError();
+  Future<void> deleteCatalog(int id) async {
+    try {
+      await catalogItemDao.deleteItemById(id);
+    } catch (e) {
+      throw Exception('Failed to delete catalog item: $e');
+    }
   }
 
   @override
-  Future<CatalogItem> getCatalogById(String id) {
+  Future<CatalogItem> getCatalogById(int id) {
     // TODO: implement getCatalogById
     throw UnimplementedError();
   }
@@ -112,8 +119,13 @@ class CatalogLocalDataSourceImpl extends CatalogDataSource {
   }
 
   @override
-  Future<CatalogItem> updateCatalog(CatalogItem item) {
-    // TODO: implement updateCatalog
-    throw UnimplementedError();
+  Future<CatalogItem> updateCatalog(CatalogItem item) async {
+    try {
+      final catalogItemModel = CatalogItemModel.fromEntity(item);
+      await catalogItemDao.updateItem(catalogItemModel);
+      return item;
+    } catch (e) {
+      throw Exception('Failed to update catalog item: $e');
+    }
   }
 }

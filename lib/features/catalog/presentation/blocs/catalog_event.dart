@@ -17,7 +17,7 @@ class AddCatalogEvent extends CatalogEvent {
 }
 
 class DeleteCatalogEvent extends CatalogEvent {
-  final String catalogId;
+  final int catalogId;
 
   DeleteCatalogEvent(this.catalogId);
 

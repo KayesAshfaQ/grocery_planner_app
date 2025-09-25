@@ -16,7 +16,7 @@ abstract class CatalogRepository {
       String query);
 
   /// Get a specific catalog item by ID
-  Future<Either<AppException, CatalogItem>> getCatalogItemById(String id);
+  Future<Either<AppException, CatalogItem>> getCatalogItemById(int id);
 
   /// Add a new catalog item (typically used by administrators or for user-defined items)
   Future<Either<AppException, CatalogItem>> addCatalogItem(CatalogItem item);
@@ -25,6 +25,6 @@ abstract class CatalogRepository {
   Future<Either<AppException, CatalogItem>> updateCatalogItem(CatalogItem item);
 
   /// Delete a catalog item
-  Future<Either<AppException, void>> deleteCatalogItem(String id);
+  Future<Either<AppException, void>> deleteCatalogItem(int id);
 
 }

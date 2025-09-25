@@ -6,6 +6,7 @@ import 'package:grocery_planner_app/features/shared/domain/entities/category.dar
 import '../blocs/category_bloc.dart';
 import '../utils/category_icon_utils.dart';
 import '../widgets/category_form_bottom_sheet.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/dialogs/delete_confirmation_dialog.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -36,34 +37,15 @@ class _CategoryPageState extends State<CategoryPage> {
     CategoryFormBottomSheet.showEdit(context, category);
   }
 
-  /// Shows a confirmation dialog for deleting a category
+  /// Shows a confirmation dialog for deleting a category (now uses shared widget)
   Future<void> _showDeleteConfirmationDialog(
       BuildContext context, Category category) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Category'),
-          content: Text(
-            'Are you sure you want to delete "${category.name}"?\n\nThis action cannot be undone.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
+    final shouldDelete = await DeleteConfirmationDialog.show(
+      context,
+      title: 'Delete Category',
+      content:
+          'Are you sure you want to delete "${category.name}"?\n\nThis action cannot be undone.',
     );
-
     if (shouldDelete == true && context.mounted) {
       context.read<CategoryBloc>().add(
             DeleteCategoryEvent(category.id!),
@@ -126,10 +108,6 @@ class _CategoryPageState extends State<CategoryPage> {
                       ),
                     ],
                   ),
-                  onLongPress: () {
-                    // Long press to delete
-                    _showDeleteConfirmationDialog(context, category);
-                  },
                 );
               },
             );

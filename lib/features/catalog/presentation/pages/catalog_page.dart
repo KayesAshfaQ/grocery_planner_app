@@ -3,9 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
 import 'package:grocery_planner_app/features/catalog/presentation/blocs/catalog_bloc.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
-import 'package:grocery_planner_app/features/shared/presentation/widgets/toast/app_toast.dart';
+import 'package:grocery_planner_app/features/shared/domain/entities/catalog_item.dart';
 
-import '../widgets/add_catalog_item_bottom_sheet.dart';
+import '../widgets/catalog_item_form_bottom_sheet.dart';
+import 'package:grocery_planner_app/features/shared/presentation/widgets/dialogs/delete_confirmation_dialog.dart';
 
 class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key});
@@ -33,6 +34,20 @@ class CatalogPage extends StatefulWidget {
 }
 
 class _CatalogPageState extends State<CatalogPage> {
+  /// Shows a confirmation dialog for deleting a category (now uses shared widget)
+  Future<void> _showDeleteConfirmationDialog(
+      BuildContext context, CatalogItem item) async {
+    final shouldDelete = await DeleteConfirmationDialog.show(
+      context,
+      title: 'Delete Catalog Item',
+      content:
+          'Are you sure you want to delete "${item.name}"?\n\nThis action cannot be undone.',
+    );
+    if (shouldDelete == true && context.mounted) {
+      context.read<CatalogBloc>().add(DeleteCatalogEvent(item.id!));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,55 +57,57 @@ class _CatalogPageState extends State<CatalogPage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              AddCatalogItemBottomSheet.show(context);
+              CatalogItemFormBottomSheet.showAdd(context);
             },
           ),
         ],
       ),
-      body: BlocListener<CatalogBloc, CatalogState>(
-        listenWhen: (previous, current) => current is CatalogAdded,
-        listener: (context, state) {
-          if (state is CatalogAdded) {
-            // Show success message
-            AppToast.showSuccess(context, 'Catalog "${state.catalog.name}" added successfully');
-
-            // Reload catalogs when a new catalog is added
-            context.read<CatalogBloc>().add(LoadCatalogsEvent());
+      body: BlocBuilder<CatalogBloc, CatalogState>(
+        builder: (context, state) {
+          if (state is CatalogLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is CatalogLoaded) {
+            final catalogs = state.catalogs;
+            if (catalogs.isEmpty) {
+              return const Center(child: Text('No catalogs found.'));
+            }
+            return ListView.builder(
+              itemCount: catalogs.length,
+              itemBuilder: (context, index) {
+                final item = catalogs[index];
+                return ListTile(
+                  title: Text(item.name),
+                  subtitle: Text(item.category?.name ?? 'No Category'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          CatalogItemFormBottomSheet.showEdit(context, item);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          await _showDeleteConfirmationDialog(context, item);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else if (state is CatalogError) {
+            return Center(child: Text('Error: ${state.message}'));
+          } else {
+            return const Center(
+              child: Text('Failed to load catalog'),
+            );
           }
         },
-        child: BlocBuilder<CatalogBloc, CatalogState>(
-          builder: (context, state) {
-            if (state is CatalogLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state is CatalogLoaded) {
-              final catalogs = state.catalogs;
-              if (catalogs.isEmpty) {
-                return const Center(child: Text('No catalogs found.'));
-              }
-              return ListView.builder(
-                itemCount: catalogs.length,
-                itemBuilder: (context, index) {
-                  final item = catalogs[index];
-                  return ListTile(
-                    title: Text(item.name),
-                    subtitle: Text(item.category?.name ?? 'No Category'),
-                    onTap: () {
-                      // Handle item tap
-                    },
-                  );
-                },
-              );
-            } else if (state is CatalogError) {
-              return Center(child: Text('Error: ${state.message}'));
-            } else {
-              return const Center(
-                child: Text('Failed to load catalog'),
-              );
-            }
-          },
-        ),
       ),
     );
   }

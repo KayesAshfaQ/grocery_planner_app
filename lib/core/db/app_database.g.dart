@@ -353,7 +353,7 @@ class _$CatalogItemDao extends CatalogItemDao {
   }
 
   @override
-  Future<void> deleteItemById(String id) async {
+  Future<void> deleteItemById(int id) async {
     await _queryAdapter.queryNoReturn('DELETE FROM catalog_items WHERE id = ?1',
         arguments: [id]);
   }
@@ -381,8 +381,8 @@ class _$CatalogItemDao extends CatalogItemDao {
   }
 
   @override
-  Future<void> insertItem(CatalogItemModel item) async {
-    await _catalogItemModelInsertionAdapter.insert(
+  Future<int> insertItem(CatalogItemModel item) {
+    return _catalogItemModelInsertionAdapter.insertAndReturnId(
         item, OnConflictStrategy.abort);
   }
 
