@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// ignore: depend_on_referenced_packages, library_prefixes
 import 'package:flutter_iconpicker/flutter_iconpicker.dart'
-    as flutter_icon_picker;
+    // ignore: library_prefixes
+    as flutterIconPicker;
 import 'package:flutter_iconpicker/Models/configuration.dart';
+import 'package:grocery_planner_app/flutter_iconpicker_packs/LineIcons/LineIcons.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grocery_planner_app/config/theme/app_icons.dart';
 import 'package:grocery_planner_app/features/category/presentation/blocs/category_bloc.dart';
 import 'package:grocery_planner_app/features/category/presentation/utils/category_icon_utils.dart';
 import 'package:grocery_planner_app/features/shared/domain/entities/category.dart';
@@ -135,10 +134,16 @@ class _CategoryFormBottomSheetState extends State<CategoryFormBottomSheet> {
 
   /// Handle icon picker selection
   Future<void> _pickIcon() async {
-    var icon = await flutter_icon_picker.showIconPicker(
+    var icon = await flutterIconPicker.showIconPicker(
       context,
       configuration: SinglePickerConfiguration(
-        customIconPack: kDebugMode ? AppIcons.foodIcons : null,
+        // Option A: use generated enum pack if available
+        iconPackModes: [flutterIconPicker.IconPack.lineAwesomeIcons],
+
+        // Option B: use the generated Map directly as a custom pack
+        // iconPackModes: [flutterIconPicker.IconPack.custom],
+        customIconPack: lineAwesomeIcons,
+
         showTooltips: true,
         adaptiveDialog: true,
       ),
