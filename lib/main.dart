@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:grocery_planner_app/config/routes/app_router.dart';
 
+import 'package:grocery_planner_app/config/routes/app_router.dart';
 import 'package:grocery_planner_app/config/theme/app_theme.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
+import 'package:grocery_planner_app/core/services/user_settings_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,8 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
 
   // Initialize database
@@ -23,6 +26,10 @@ Future<void> main() async {
 
   // Initialize service locator
   await initServiceLocator(database);
+
+  // Initialize user settings service
+  final userSettingsService = sl<UserSettingsService>();
+  await userSettingsService.initialize();
 
   runApp(const GroceryPlannerApp());
 }
@@ -34,7 +41,7 @@ class GroceryPlannerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Grocery Planner',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,

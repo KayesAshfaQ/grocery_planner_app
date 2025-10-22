@@ -72,11 +72,11 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  GroceryItemDao? _groceryItemDaoInstance;
+  CategoryDao? _categoryDaoInstance;
 
   CatalogItemDao? _catalogItemDaoInstance;
 
-  CategoryDao? _categoryItemDaoInstance;
+  PurchaseDao? _purchaseDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -100,31 +100,23 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `CategorySpendingModel` (`id` TEXT NOT NULL, `category` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `categories` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `description` TEXT, `image_uri` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `grocery_items` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` REAL NOT NULL, `unit` TEXT NOT NULL, `unitPrice` REAL NOT NULL, `categoryId` INTEGER NOT NULL, `note` TEXT, `isPurchased` INTEGER NOT NULL, `createdAtMillis` INTEGER NOT NULL, `purchasedAtMillis` INTEGER, `purchasedPrice` REAL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `catalog_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `default_unit` TEXT, `barcode` TEXT, `category_id` INTEGER, `image_uri` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `catalog_items` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `availableUnitsCSV` TEXT NOT NULL, `defaultUnit` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, `averagePrice` REAL, `imageUrl` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `price_history` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `catalog_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `category` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `imageUrl` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `is_completed` INTEGER, `budget` REAL, `currency_symbol` TEXT, `note` TEXT, `created_at` INTEGER)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `categories` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `description` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `purchase_list_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `catalog_id` INTEGER, `custom_name` TEXT, `quantity` REAL NOT NULL, `unit_price` REAL, `note` TEXT, `is_purchased` INTEGER NOT NULL, `purchased_at` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `catalog_items` (`catalogId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `default_unit` TEXT NOT NULL, `barcode` TEXT, `category_id` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `purchase_price_history` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `item_id` INTEGER, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `price_history` (`historyId` INTEGER PRIMARY KEY AUTOINCREMENT, `catalog_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `purchase_schedules` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `market_date` INTEGER NOT NULL, `notify_at` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_lists` (`listId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `budget` REAL, `note` TEXT, `created_at` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `purchase_locations` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `latitude` REAL, `longitude` REAL, `address` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_list_items` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `catalog_id` INTEGER, `custom_name` TEXT, `quantity` REAL NOT NULL, `unit_price` REAL, `total_price` REAL, `note` TEXT, `is_purchased` INTEGER NOT NULL, `purchased_at` TEXT)');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_price_history` (`historyId` INTEGER PRIMARY KEY AUTOINCREMENT, `item_id` INTEGER NOT NULL, `price` REAL NOT NULL, `recorded_at` TEXT NOT NULL)');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_schedules` (`scheduleId` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `market_date` INTEGER NOT NULL, `notify_at` INTEGER NOT NULL)');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `purchase_locations` (`locationId` INTEGER PRIMARY KEY AUTOINCREMENT, `list_id` INTEGER NOT NULL, `latitude` REAL, `longitude` REAL, `address` TEXT)');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `recipes` (`recipeId` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `instructions` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `recipes` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `instructions` TEXT)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `recipe_ingredients` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `recipe_id` INTEGER NOT NULL, `catalog_id` INTEGER NOT NULL, `quantity` REAL, `unit` TEXT)');
 
@@ -135,9 +127,8 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  GroceryItemDao get groceryItemDao {
-    return _groceryItemDaoInstance ??=
-        _$GroceryItemDao(database, changeListener);
+  CategoryDao get categoryDao {
+    return _categoryDaoInstance ??= _$CategoryDao(database, changeListener);
   }
 
   @override
@@ -147,65 +138,44 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  CategoryDao get categoryItemDao {
-    return _categoryItemDaoInstance ??= _$CategoryDao(database, changeListener);
+  PurchaseDao get purchaseDao {
+    return _purchaseDaoInstance ??= _$PurchaseDao(database, changeListener);
   }
 }
 
-class _$GroceryItemDao extends GroceryItemDao {
-  _$GroceryItemDao(
+class _$CategoryDao extends CategoryDao {
+  _$CategoryDao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _groceryItemModelInsertionAdapter = InsertionAdapter(
+        _categoryModelInsertionAdapter = InsertionAdapter(
             database,
-            'grocery_items',
-            (GroceryItemModel item) => <String, Object?>{
+            'categories',
+            (CategoryModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'quantity': item.quantity,
-                  'unit': item.unit,
-                  'unitPrice': item.unitPrice,
-                  'categoryId': item.categoryId,
-                  'note': item.note,
-                  'isPurchased': item.isPurchased ? 1 : 0,
-                  'createdAtMillis': item.createdAtMillis,
-                  'purchasedAtMillis': item.purchasedAtMillis,
-                  'purchasedPrice': item.purchasedPrice
+                  'description': item.description,
+                  'image_uri': item.imageUri
                 }),
-        _groceryItemModelUpdateAdapter = UpdateAdapter(
+        _categoryModelUpdateAdapter = UpdateAdapter(
             database,
-            'grocery_items',
+            'categories',
             ['id'],
-            (GroceryItemModel item) => <String, Object?>{
+            (CategoryModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'quantity': item.quantity,
-                  'unit': item.unit,
-                  'unitPrice': item.unitPrice,
-                  'categoryId': item.categoryId,
-                  'note': item.note,
-                  'isPurchased': item.isPurchased ? 1 : 0,
-                  'createdAtMillis': item.createdAtMillis,
-                  'purchasedAtMillis': item.purchasedAtMillis,
-                  'purchasedPrice': item.purchasedPrice
+                  'description': item.description,
+                  'image_uri': item.imageUri
                 }),
-        _groceryItemModelDeletionAdapter = DeletionAdapter(
+        _categoryModelDeletionAdapter = DeletionAdapter(
             database,
-            'grocery_items',
+            'categories',
             ['id'],
-            (GroceryItemModel item) => <String, Object?>{
+            (CategoryModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'quantity': item.quantity,
-                  'unit': item.unit,
-                  'unitPrice': item.unitPrice,
-                  'categoryId': item.categoryId,
-                  'note': item.note,
-                  'isPurchased': item.isPurchased ? 1 : 0,
-                  'createdAtMillis': item.createdAtMillis,
-                  'purchasedAtMillis': item.purchasedAtMillis,
-                  'purchasedPrice': item.purchasedPrice
+                  'description': item.description,
+                  'image_uri': item.imageUri
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -214,117 +184,92 @@ class _$GroceryItemDao extends GroceryItemDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<GroceryItemModel> _groceryItemModelInsertionAdapter;
+  final InsertionAdapter<CategoryModel> _categoryModelInsertionAdapter;
 
-  final UpdateAdapter<GroceryItemModel> _groceryItemModelUpdateAdapter;
+  final UpdateAdapter<CategoryModel> _categoryModelUpdateAdapter;
 
-  final DeletionAdapter<GroceryItemModel> _groceryItemModelDeletionAdapter;
+  final DeletionAdapter<CategoryModel> _categoryModelDeletionAdapter;
 
   @override
-  Future<List<GroceryItemModel>> getAllItems() async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM grocery_items ORDER BY createdAtMillis DESC',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(
-            id: row['id'] as String,
-            name: row['name'] as String,
-            quantity: row['quantity'] as double,
-            unit: row['unit'] as String,
-            unitPrice: row['unitPrice'] as double,
-            categoryId: row['categoryId'] as int,
-            note: row['note'] as String?,
-            isPurchased: (row['isPurchased'] as int) != 0,
-            createdAtMillis: row['createdAtMillis'] as int,
-            purchasedAtMillis: row['purchasedAtMillis'] as int?,
-            purchasedPrice: row['purchasedPrice'] as double?));
+  Future<List<CategoryModel>> getAllItems() async {
+    return _queryAdapter.queryList('SELECT * FROM categories ORDER BY name ASC',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int?,
+            name: row['name'] as String?,
+            description: row['description'] as String?,
+            imageUri: row['image_uri'] as String?));
   }
 
   @override
-  Future<List<GroceryItemModel>> getItemsByStatus(bool isPurchased) async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM grocery_items WHERE isPurchased = ?1 ORDER BY createdAtMillis DESC',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(id: row['id'] as String, name: row['name'] as String, quantity: row['quantity'] as double, unit: row['unit'] as String, unitPrice: row['unitPrice'] as double, categoryId: row['categoryId'] as int, note: row['note'] as String?, isPurchased: (row['isPurchased'] as int) != 0, createdAtMillis: row['createdAtMillis'] as int, purchasedAtMillis: row['purchasedAtMillis'] as int?, purchasedPrice: row['purchasedPrice'] as double?),
-        arguments: [isPurchased ? 1 : 0]);
-  }
-
-  @override
-  Future<GroceryItemModel?> getItemById(String id) async {
-    return _queryAdapter.query('SELECT * FROM grocery_items WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(
-            id: row['id'] as String,
-            name: row['name'] as String,
-            quantity: row['quantity'] as double,
-            unit: row['unit'] as String,
-            unitPrice: row['unitPrice'] as double,
-            categoryId: row['categoryId'] as int,
-            note: row['note'] as String?,
-            isPurchased: (row['isPurchased'] as int) != 0,
-            createdAtMillis: row['createdAtMillis'] as int,
-            purchasedAtMillis: row['purchasedAtMillis'] as int?,
-            purchasedPrice: row['purchasedPrice'] as double?),
+  Future<CategoryModel?> getItemById(int id) async {
+    return _queryAdapter.query('SELECT * FROM categories WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int?,
+            name: row['name'] as String?,
+            description: row['description'] as String?,
+            imageUri: row['image_uri'] as String?),
         arguments: [id]);
   }
 
   @override
-  Future<void> deleteItemById(String id) async {
-    await _queryAdapter.queryNoReturn('DELETE FROM grocery_items WHERE id = ?1',
-        arguments: [id]);
+  Future<void> deleteItemById(int id) async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM categories WHERE id = ?1', arguments: [id]);
   }
 
   @override
-  Future<List<GroceryItemModel>> getItemsByCategory(String category) async {
+  Future<List<CategoryModel>> getItemsByCategory(String category) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM grocery_items WHERE category = ?1 ORDER BY createdAtMillis DESC',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(id: row['id'] as String, name: row['name'] as String, quantity: row['quantity'] as double, unit: row['unit'] as String, unitPrice: row['unitPrice'] as double, categoryId: row['categoryId'] as int, note: row['note'] as String?, isPurchased: (row['isPurchased'] as int) != 0, createdAtMillis: row['createdAtMillis'] as int, purchasedAtMillis: row['purchasedAtMillis'] as int?, purchasedPrice: row['purchasedPrice'] as double?),
+        'SELECT * FROM categories WHERE category = ?1 ORDER BY name ASC',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int?,
+            name: row['name'] as String?,
+            description: row['description'] as String?,
+            imageUri: row['image_uri'] as String?),
         arguments: [category]);
   }
 
   @override
-  Future<List<GroceryItemModel>> getItemsByDateRange(
-    int startMillis,
-    int endMillis,
-  ) async {
+  Future<List<CategoryModel>> searchItemsByName(String query) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM grocery_items WHERE createdAtMillis BETWEEN ?1 AND ?2',
-        mapper: (Map<String, Object?> row) => GroceryItemModel(
-            id: row['id'] as String,
-            name: row['name'] as String,
-            quantity: row['quantity'] as double,
-            unit: row['unit'] as String,
-            unitPrice: row['unitPrice'] as double,
-            categoryId: row['categoryId'] as int,
-            note: row['note'] as String?,
-            isPurchased: (row['isPurchased'] as int) != 0,
-            createdAtMillis: row['createdAtMillis'] as int,
-            purchasedAtMillis: row['purchasedAtMillis'] as int?,
-            purchasedPrice: row['purchasedPrice'] as double?),
-        arguments: [startMillis, endMillis]);
+        'SELECT * FROM categories WHERE name LIKE ?1 ORDER BY name ASC',
+        mapper: (Map<String, Object?> row) => CategoryModel(
+            id: row['id'] as int?,
+            name: row['name'] as String?,
+            description: row['description'] as String?,
+            imageUri: row['image_uri'] as String?),
+        arguments: [query]);
   }
 
   @override
-  Future<List<CategorySpendingModel>> getTotalSpendingByCategory(
-    int startMillis,
-    int endMillis,
-  ) async {
+  Future<List<String>> getAllCategories() async {
     return _queryAdapter.queryList(
-        'SELECT category, SUM(CASE WHEN purchasedPrice IS NOT NULL THEN purchasedPrice ELSE unitPrice * quantity END) as value     FROM grocery_items     WHERE isPurchased = 1 AND purchasedAtMillis BETWEEN ?1 AND ?2     GROUP BY category',
-        mapper: (Map<String, Object?> row) => CategorySpendingModel(id: row['id'] as String, category: row['category'] as String, value: row['value'] as double),
-        arguments: [startMillis, endMillis]);
+        'SELECT DISTINCT categories FROM category ORDER BY category ASC',
+        mapper: (Map<String, Object?> row) => row.values.first as String);
   }
 
   @override
-  Future<void> insertItem(GroceryItemModel item) async {
-    await _groceryItemModelInsertionAdapter.insert(
+  Future<int?> checkItemExists(String name) async {
+    return _queryAdapter.query(
+        'SELECT COUNT(*) FROM categories WHERE name = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [name]);
+  }
+
+  @override
+  Future<int> insertItem(CategoryModel item) {
+    return _categoryModelInsertionAdapter.insertAndReturnId(
         item, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> updateItem(GroceryItemModel item) async {
-    await _groceryItemModelUpdateAdapter.update(item, OnConflictStrategy.abort);
+  Future<void> updateItem(CategoryModel item) async {
+    await _categoryModelUpdateAdapter.update(item, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> deleteItem(GroceryItemModel item) async {
-    await _groceryItemModelDeletionAdapter.delete(item);
+  Future<void> deleteItem(CategoryModel item) async {
+    await _categoryModelDeletionAdapter.delete(item);
   }
 }
 
@@ -339,11 +284,10 @@ class _$CatalogItemDao extends CatalogItemDao {
             (CatalogItemModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'availableUnitsCSV': item.availableUnitsCSV,
-                  'defaultUnit': item.defaultUnit,
-                  'categoryId': item.categoryId,
-                  'averagePrice': item.averagePrice,
-                  'imageUrl': item.imageUrl
+                  'default_unit': item.defaultUnit,
+                  'barcode': item.barcode,
+                  'category_id': item.categoryId,
+                  'image_uri': item.imageUri
                 }),
         _catalogItemModelUpdateAdapter = UpdateAdapter(
             database,
@@ -352,11 +296,10 @@ class _$CatalogItemDao extends CatalogItemDao {
             (CatalogItemModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'availableUnitsCSV': item.availableUnitsCSV,
-                  'defaultUnit': item.defaultUnit,
-                  'categoryId': item.categoryId,
-                  'averagePrice': item.averagePrice,
-                  'imageUrl': item.imageUrl
+                  'default_unit': item.defaultUnit,
+                  'barcode': item.barcode,
+                  'category_id': item.categoryId,
+                  'image_uri': item.imageUri
                 }),
         _catalogItemModelDeletionAdapter = DeletionAdapter(
             database,
@@ -365,11 +308,10 @@ class _$CatalogItemDao extends CatalogItemDao {
             (CatalogItemModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'availableUnitsCSV': item.availableUnitsCSV,
-                  'defaultUnit': item.defaultUnit,
-                  'categoryId': item.categoryId,
-                  'averagePrice': item.averagePrice,
-                  'imageUrl': item.imageUrl
+                  'default_unit': item.defaultUnit,
+                  'barcode': item.barcode,
+                  'category_id': item.categoryId,
+                  'image_uri': item.imageUri
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -389,48 +331,31 @@ class _$CatalogItemDao extends CatalogItemDao {
     return _queryAdapter.queryList(
         'SELECT * FROM catalog_items ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
-            availableUnitsCSV: row['availableUnitsCSV'] as String,
-            defaultUnit: row['defaultUnit'] as String,
-            categoryId: row['categoryId'] as int,
-            averagePrice: row['averagePrice'] as double?,
-            imageUrl: row['imageUrl'] as String?));
+            defaultUnit: row['default_unit'] as String?,
+            barcode: row['barcode'] as String?,
+            categoryId: row['category_id'] as int?,
+            imageUri: row['image_uri'] as String?));
   }
 
   @override
-  Future<CatalogItemModel?> getItemById(String id) async {
+  Future<CatalogItemModel?> getItemById(int id) async {
     return _queryAdapter.query('SELECT * FROM catalog_items WHERE id = ?1',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
-            availableUnitsCSV: row['availableUnitsCSV'] as String,
-            defaultUnit: row['defaultUnit'] as String,
-            categoryId: row['categoryId'] as int,
-            averagePrice: row['averagePrice'] as double?,
-            imageUrl: row['imageUrl'] as String?),
+            defaultUnit: row['default_unit'] as String?,
+            barcode: row['barcode'] as String?,
+            categoryId: row['category_id'] as int?,
+            imageUri: row['image_uri'] as String?),
         arguments: [id]);
   }
 
   @override
-  Future<void> deleteItemById(String id) async {
+  Future<void> deleteItemById(int id) async {
     await _queryAdapter.queryNoReturn('DELETE FROM catalog_items WHERE id = ?1',
         arguments: [id]);
-  }
-
-  @override
-  Future<List<CatalogItemModel>> getItemsByCategory(String category) async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM catalog_items WHERE category = ?1 ORDER BY name ASC',
-        mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as int,
-            name: row['name'] as String,
-            availableUnitsCSV: row['availableUnitsCSV'] as String,
-            defaultUnit: row['defaultUnit'] as String,
-            categoryId: row['categoryId'] as int,
-            averagePrice: row['averagePrice'] as double?,
-            imageUrl: row['imageUrl'] as String?),
-        arguments: [category]);
   }
 
   @override
@@ -438,21 +363,13 @@ class _$CatalogItemDao extends CatalogItemDao {
     return _queryAdapter.queryList(
         'SELECT * FROM catalog_items WHERE name LIKE ?1 ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => CatalogItemModel(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
-            availableUnitsCSV: row['availableUnitsCSV'] as String,
-            defaultUnit: row['defaultUnit'] as String,
-            categoryId: row['categoryId'] as int,
-            averagePrice: row['averagePrice'] as double?,
-            imageUrl: row['imageUrl'] as String?),
+            defaultUnit: row['default_unit'] as String?,
+            barcode: row['barcode'] as String?,
+            categoryId: row['category_id'] as int?,
+            imageUri: row['image_uri'] as String?),
         arguments: [query]);
-  }
-
-  @override
-  Future<List<String>> getAllCategories() async {
-    return _queryAdapter.queryList(
-        'SELECT DISTINCT category FROM catalog_items ORDER BY category ASC',
-        mapper: (Map<String, Object?> row) => row.values.first as String);
   }
 
   @override
@@ -464,8 +381,8 @@ class _$CatalogItemDao extends CatalogItemDao {
   }
 
   @override
-  Future<void> insertItem(CatalogItemModel item) async {
-    await _catalogItemModelInsertionAdapter.insert(
+  Future<int> insertItem(CatalogItemModel item) {
+    return _catalogItemModelInsertionAdapter.insertAndReturnId(
         item, OnConflictStrategy.abort);
   }
 
@@ -480,39 +397,101 @@ class _$CatalogItemDao extends CatalogItemDao {
   }
 }
 
-class _$CategoryDao extends CategoryDao {
-  _$CategoryDao(
+class _$PurchaseDao extends PurchaseDao {
+  _$PurchaseDao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _categoryModelInsertionAdapter = InsertionAdapter(
+        _purchaseListModelInsertionAdapter = InsertionAdapter(
             database,
-            'category',
-            (CategoryModel item) => <String, Object?>{
+            'purchase_lists',
+            (PurchaseListModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'description': item.description,
-                  'imageUrl': item.imageUrl
+                  'is_completed': item.isCompleted == null
+                      ? null
+                      : (item.isCompleted! ? 1 : 0),
+                  'budget': item.budget,
+                  'currency_symbol': item.currencySymbol,
+                  'note': item.note,
+                  'created_at':
+                      _nullableDateTimeConverter.encode(item.createdAt)
                 }),
-        _categoryModelUpdateAdapter = UpdateAdapter(
+        _purchaseItemModelInsertionAdapter = InsertionAdapter(
             database,
-            'category',
-            ['id'],
-            (CategoryModel item) => <String, Object?>{
+            'purchase_list_items',
+            (PurchaseItemModel item) => <String, Object?>{
                   'id': item.id,
-                  'name': item.name,
-                  'description': item.description,
-                  'imageUrl': item.imageUrl
+                  'list_id': item.listId,
+                  'catalog_id': item.catalogId,
+                  'custom_name': item.customName,
+                  'quantity': item.quantity,
+                  'unit_price': item.unitPrice,
+                  'note': item.note,
+                  'is_purchased': item.isPurchased ? 1 : 0,
+                  'purchased_at': item.purchasedAt
                 }),
-        _categoryModelDeletionAdapter = DeletionAdapter(
+        _purchaseListModelUpdateAdapter = UpdateAdapter(
             database,
-            'category',
+            'purchase_lists',
             ['id'],
-            (CategoryModel item) => <String, Object?>{
+            (PurchaseListModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'description': item.description,
-                  'imageUrl': item.imageUrl
+                  'is_completed': item.isCompleted == null
+                      ? null
+                      : (item.isCompleted! ? 1 : 0),
+                  'budget': item.budget,
+                  'currency_symbol': item.currencySymbol,
+                  'note': item.note,
+                  'created_at':
+                      _nullableDateTimeConverter.encode(item.createdAt)
+                }),
+        _purchaseItemModelUpdateAdapter = UpdateAdapter(
+            database,
+            'purchase_list_items',
+            ['id'],
+            (PurchaseItemModel item) => <String, Object?>{
+                  'id': item.id,
+                  'list_id': item.listId,
+                  'catalog_id': item.catalogId,
+                  'custom_name': item.customName,
+                  'quantity': item.quantity,
+                  'unit_price': item.unitPrice,
+                  'note': item.note,
+                  'is_purchased': item.isPurchased ? 1 : 0,
+                  'purchased_at': item.purchasedAt
+                }),
+        _purchaseListModelDeletionAdapter = DeletionAdapter(
+            database,
+            'purchase_lists',
+            ['id'],
+            (PurchaseListModel item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'is_completed': item.isCompleted == null
+                      ? null
+                      : (item.isCompleted! ? 1 : 0),
+                  'budget': item.budget,
+                  'currency_symbol': item.currencySymbol,
+                  'note': item.note,
+                  'created_at':
+                      _nullableDateTimeConverter.encode(item.createdAt)
+                }),
+        _purchaseItemModelDeletionAdapter = DeletionAdapter(
+            database,
+            'purchase_list_items',
+            ['id'],
+            (PurchaseItemModel item) => <String, Object?>{
+                  'id': item.id,
+                  'list_id': item.listId,
+                  'catalog_id': item.catalogId,
+                  'custom_name': item.customName,
+                  'quantity': item.quantity,
+                  'unit_price': item.unitPrice,
+                  'note': item.note,
+                  'is_purchased': item.isPurchased ? 1 : 0,
+                  'purchased_at': item.purchasedAt
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -521,92 +500,177 @@ class _$CategoryDao extends CategoryDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<CategoryModel> _categoryModelInsertionAdapter;
+  final InsertionAdapter<PurchaseListModel> _purchaseListModelInsertionAdapter;
 
-  final UpdateAdapter<CategoryModel> _categoryModelUpdateAdapter;
+  final InsertionAdapter<PurchaseItemModel> _purchaseItemModelInsertionAdapter;
 
-  final DeletionAdapter<CategoryModel> _categoryModelDeletionAdapter;
+  final UpdateAdapter<PurchaseListModel> _purchaseListModelUpdateAdapter;
+
+  final UpdateAdapter<PurchaseItemModel> _purchaseItemModelUpdateAdapter;
+
+  final DeletionAdapter<PurchaseListModel> _purchaseListModelDeletionAdapter;
+
+  final DeletionAdapter<PurchaseItemModel> _purchaseItemModelDeletionAdapter;
 
   @override
-  Future<List<CategoryModel>> getAllItems() async {
-    return _queryAdapter.queryList('SELECT * FROM category ORDER BY name ASC',
-        mapper: (Map<String, Object?> row) => CategoryModel(
-            id: row['id'] as int,
-            name: row['name'] as String,
-            description: row['description'] as String?,
-            imageUrl: row['imageUrl'] as String?));
+  Future<List<PurchaseListModel>> getAllLists() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_lists ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(
+            id: row['id'] as int?,
+            name: row['name'] as String?,
+            isCompleted: row['is_completed'] == null
+                ? null
+                : (row['is_completed'] as int) != 0,
+            budget: row['budget'] as double?,
+            currencySymbol: row['currency_symbol'] as String?,
+            note: row['note'] as String?,
+            createdAt:
+                _nullableDateTimeConverter.decode(row['created_at'] as int?)));
   }
 
   @override
-  Future<CategoryModel?> getItemById(String id) async {
-    return _queryAdapter.query('SELECT * FROM category WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => CategoryModel(
-            id: row['id'] as int,
-            name: row['name'] as String,
-            description: row['description'] as String?,
-            imageUrl: row['imageUrl'] as String?),
+  Future<PurchaseListModel?> getListById(int id) async {
+    return _queryAdapter.query('SELECT * FROM purchase_lists WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(
+            id: row['id'] as int?,
+            name: row['name'] as String?,
+            isCompleted: row['is_completed'] == null
+                ? null
+                : (row['is_completed'] as int) != 0,
+            budget: row['budget'] as double?,
+            currencySymbol: row['currency_symbol'] as String?,
+            note: row['note'] as String?,
+            createdAt:
+                _nullableDateTimeConverter.decode(row['created_at'] as int?)),
         arguments: [id]);
   }
 
   @override
-  Future<void> deleteItemById(String id) async {
-    await _queryAdapter
-        .queryNoReturn('DELETE FROM category WHERE id = ?1', arguments: [id]);
+  Future<void> deleteListById(int id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM purchase_lists WHERE id = ?1',
+        arguments: [id]);
   }
 
   @override
-  Future<List<CategoryModel>> getItemsByCategory(String category) async {
+  Future<List<PurchaseListModel>> getListsByDateRange(
+    int startTime,
+    int endTime,
+  ) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM category WHERE category = ?1 ORDER BY name ASC',
-        mapper: (Map<String, Object?> row) => CategoryModel(
-            id: row['id'] as int,
-            name: row['name'] as String,
-            description: row['description'] as String?,
-            imageUrl: row['imageUrl'] as String?),
-        arguments: [category]);
+        'SELECT * FROM purchase_lists WHERE created_at BETWEEN ?1 AND ?2 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [startTime, endTime]);
   }
 
   @override
-  Future<List<CategoryModel>> searchItemsByName(String query) async {
+  Future<List<PurchaseListModel>> getListsCreatedToday(int todayStart) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM category WHERE name LIKE ?1 ORDER BY name ASC',
-        mapper: (Map<String, Object?> row) => CategoryModel(
-            id: row['id'] as int,
-            name: row['name'] as String,
-            description: row['description'] as String?,
-            imageUrl: row['imageUrl'] as String?),
-        arguments: [query]);
+        'SELECT * FROM purchase_lists WHERE created_at >= ?1 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [todayStart]);
   }
 
   @override
-  Future<List<String>> getAllCategories() async {
+  Future<List<PurchaseListModel>> getListsCreatedThisWeek(int weekStart) async {
     return _queryAdapter.queryList(
-        'SELECT DISTINCT category FROM category ORDER BY category ASC',
-        mapper: (Map<String, Object?> row) => row.values.first as String);
+        'SELECT * FROM purchase_lists WHERE created_at >= ?1 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [weekStart]);
   }
 
   @override
-  Future<int?> checkItemExists(String name) async {
-    return _queryAdapter.query('SELECT COUNT(*) FROM category WHERE name = ?1',
-        mapper: (Map<String, Object?> row) => row.values.first as int,
-        arguments: [name]);
+  Future<List<PurchaseListModel>> getListsCreatedThisMonth(
+      int monthStart) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_lists WHERE created_at >= ?1 ORDER BY created_at DESC',
+        mapper: (Map<String, Object?> row) => PurchaseListModel(id: row['id'] as int?, name: row['name'] as String?, isCompleted: row['is_completed'] == null ? null : (row['is_completed'] as int) != 0, budget: row['budget'] as double?, currencySymbol: row['currency_symbol'] as String?, note: row['note'] as String?, createdAt: _nullableDateTimeConverter.decode(row['created_at'] as int?)),
+        arguments: [monthStart]);
   }
 
   @override
-  Future<void> insertItem(CategoryModel item) async {
-    await _categoryModelInsertionAdapter.insert(item, OnConflictStrategy.abort);
+  Future<List<PurchaseItemModel>> getAllItemsByListId(int listId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM purchase_list_items WHERE list_id = ?1 ORDER BY id DESC',
+        mapper: (Map<String, Object?> row) => PurchaseItemModel(
+            id: row['id'] as int?,
+            listId: row['list_id'] as int,
+            catalogId: row['catalog_id'] as int?,
+            customName: row['custom_name'] as String?,
+            quantity: row['quantity'] as double,
+            unitPrice: row['unit_price'] as double?,
+            note: row['note'] as String?,
+            isPurchased: (row['is_purchased'] as int) != 0,
+            purchasedAt: row['purchased_at'] as String?),
+        arguments: [listId]);
   }
 
   @override
-  Future<void> updateItem(CategoryModel item) async {
-    await _categoryModelUpdateAdapter.update(item, OnConflictStrategy.abort);
+  Future<PurchaseItemModel?> getItemById(int id) async {
+    return _queryAdapter.query(
+        'SELECT * FROM purchase_list_items WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => PurchaseItemModel(
+            id: row['id'] as int?,
+            listId: row['list_id'] as int,
+            catalogId: row['catalog_id'] as int?,
+            customName: row['custom_name'] as String?,
+            quantity: row['quantity'] as double,
+            unitPrice: row['unit_price'] as double?,
+            note: row['note'] as String?,
+            isPurchased: (row['is_purchased'] as int) != 0,
+            purchasedAt: row['purchased_at'] as String?),
+        arguments: [id]);
   }
 
   @override
-  Future<void> deleteItem(CategoryModel item) async {
-    await _categoryModelDeletionAdapter.delete(item);
+  Future<void> deleteItemById(int id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM purchase_list_items WHERE id = ?1',
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> insertList(PurchaseListModel item) async {
+    await _purchaseListModelInsertionAdapter.insert(
+        item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> insertItem(PurchaseItemModel item) {
+    return _purchaseItemModelInsertionAdapter.insertAndReturnId(
+        item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> insertItems(List<PurchaseItemModel> items) {
+    return _purchaseItemModelInsertionAdapter.insertListAndReturnIds(
+        items, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateList(PurchaseListModel item) async {
+    await _purchaseListModelUpdateAdapter.update(
+        item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateItem(PurchaseItemModel item) async {
+    await _purchaseItemModelUpdateAdapter.update(
+        item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteList(PurchaseListModel item) async {
+    await _purchaseListModelDeletionAdapter.delete(item);
+  }
+
+  @override
+  Future<void> deleteItem(PurchaseItemModel item) async {
+    await _purchaseItemModelDeletionAdapter.delete(item);
   }
 }
 
 // ignore_for_file: unused_element
 final _dateTimeConverter = DateTimeConverter();
+final _nullableDateTimeConverter = NullableDateTimeConverter();

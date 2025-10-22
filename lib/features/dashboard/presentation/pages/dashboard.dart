@@ -15,26 +15,24 @@ class Dashboard extends StatelessWidget {
   // List of icons for the bottom navigation
   static const List<IconData> _navigationIcons = [
     Icons.shopping_cart,
+    Icons.store,
     Icons.category,
     Icons.calendar_today,
-    Icons.bar_chart,
+    Icons.settings,
   ];
 
   // List of labels for the bottom navigation
   static const List<String> _navigationLabels = [
     'Grocery List',
     'Catalog',
+    'Category',
     'Schedule',
-    'Reports',
+    'Settings',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_navigationLabels[navigationShell.currentIndex]),
-        elevation: 0,
-      ),
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

@@ -1,13 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/blocs/grocery/grocery_bloc.dart';
+
+import 'package:grocery_planner_app/features/catalog/presentation/pages/catalog_page.dart';
+import 'package:grocery_planner_app/features/category/presentation/pages/category_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/dashboard.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_item_editor_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/reports_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/catalog_page.dart';
-import 'package:grocery_planner_app/features/dashboard/presentation/pages/grocery_list_page.dart';
 import 'package:grocery_planner_app/features/dashboard/presentation/pages/schedule_page.dart';
+import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_editor_page.dart';
+import 'package:grocery_planner_app/features/purchase_list/presentation/pages/purchase_list_page.dart';
+import 'package:grocery_planner_app/features/settings/presentation/pages/settings_page.dart';
 
 // Create keys for `root` & `section` navigator avoiding unnecessary rebuilds
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -24,7 +26,7 @@ class AppRouter {
   /// Private router instance
   static final _router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: GroceryListPage.routePath,
+    initialLocation: PurchaseListPage.routePath,
     debugLogDiagnostics: true,
     routes: [
       // Main stateful shell route for the bottom navigation
@@ -35,23 +37,32 @@ class AppRouter {
           return Dashboard(navigationShell: navigationShell);
         },
         branches: [
-          // Grocery List Branch
+          // Purchase List Branch
           StatefulShellBranch(
             navigatorKey: _sectionNavigatorKey,
             routes: [
+              // Main route for the Purchase List
               GoRoute(
-                path: GroceryListPage.routePath,
-                builder: (context, state) => const GroceryListShell(),
+                path: PurchaseListPage.routePath,
+                builder: (context, state) => const PurchaseListShell(),
                 routes: [
+                  // Route for Purchase List Editor
                   GoRoute(
-                    path: GroceryItemEditorPage.routePath,
+                    path: '${PurchaseListEditorPage.routePath}/:purchaseListId',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
-                      final groceryBloc = state.extra as GroceryBloc;
-                      return BlocProvider<GroceryBloc>.value(
-                        value: groceryBloc,
-                        child: const GroceryItemEditorPage(),
-                      );
+                      // Parse the ID as int for efficiency and type safety
+                      final purchaseListId = int.tryParse(
+                          state.pathParameters['purchaseListId'] ?? '');
+                      if (purchaseListId == null) {
+                        throw Exception(
+                            'Invalid Purchase List ID: $purchaseListId');
+                      }
+
+                      // log the purchaseListId for debugging
+                      log('Purchase List ID: $purchaseListId');
+
+                      return PurchaseListEditorPage.create(id: purchaseListId);
                     },
                   ),
                 ],
@@ -64,9 +75,21 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: CatalogPage.routePath,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: CatalogPage(),
-                ),
+                builder: (context, state) {
+                  return CatalogPage.create();
+                },
+              ),
+            ],
+          ),
+
+          // Category Branch
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: CategoryPage.routePath,
+                builder: (context, state) {
+                  return CategoryPage.create();
+                },
               ),
             ],
           ),
@@ -86,7 +109,8 @@ class AppRouter {
                       final id = state.pathParameters['id'];
                       return Scaffold(
                         body: Center(
-                          child: Text('Schedule Detail Screen for ID: $id - Implement me'),
+                          child: Text(
+                              'Schedule Detail Screen for ID: $id - Implement me'),
                         ),
                       );
                     },
@@ -96,27 +120,14 @@ class AppRouter {
             ],
           ),
 
-          // Reports Branch
+          // Settings Branch
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: ReportsPage.routePath,
+                path: SettingsPage.routePath,
                 pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ReportsPage(),
+                  child: SettingsPage(),
                 ),
-                routes: [
-                  GoRoute(
-                    path: 'price-history/:itemId',
-                    builder: (context, state) {
-                      final itemId = state.pathParameters['itemId'];
-                      return Scaffold(
-                        body: Center(
-                          child: Text('Price History Screen for Item ID: $itemId - Implement me'),
-                        ),
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -131,12 +142,12 @@ class AppRouter {
   );
 }
 
-/// A simple wrapper for the GroceryListPage with BlocProvider
-class GroceryListShell extends StatelessWidget {
-  const GroceryListShell({super.key});
+/// A simple wrapper for the PurchaseListPage with BlocProvider
+class PurchaseListShell extends StatelessWidget {
+  const PurchaseListShell({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GroceryListPage.create();
+    return PurchaseListPage.create();
   }
 }
