@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-// Import generated LineIcons pack for fallback resolution
-import 'package:grocery_planner_app/flutter_iconpicker_packs/LineIcons/LineIcons.dart';
+import 'package:grocery_planner_app/config/theme/app_icons.dart';
 
 /// Utility class for handling category icon serialization and resolution.
 ///
@@ -55,7 +54,7 @@ class CategoryIconUtils {
   static IconData? _findIconInPack(int codePoint,
       {required String package, String? family}) {
     try {
-      for (final pickerIcon in lineAwesomeIcons.values) {
+      for (final pickerIcon in AppIcons.lineIcons.values) {
         final data = pickerIcon.data;
         if (data.codePoint != codePoint) continue;
         if (data.fontPackage == package) return data;
@@ -74,7 +73,7 @@ class CategoryIconUtils {
   static Map<int, IconData> _buildCodePointCache() {
     final map = <int, IconData>{};
     try {
-      for (final pickerIcon in lineAwesomeIcons.values) {
+      for (final pickerIcon in AppIcons.lineIcons.values) {
         map[pickerIcon.data.codePoint] = pickerIcon.data;
       }
     } catch (_) {

@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+import 'package:flutter_iconpicker/Models/icon_picker_icon.dart';
 
-//TODO: Refactor this file to use IconPickerIcon instead of IconData directly for consistency and future-proofing.
+part 'icon_picker_packs/line_icons.g.dart';
+
 class AppIcons {
-  // Food categories
-  static const Map<String, IconPickerIcon> foodIcons = {
-    'apple': IconPickerIcon(name: 'apple', data: IconData(0xf04be, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'egg': IconPickerIcon(name: 'egg', data: IconData(0xf04f8, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'pizza': IconPickerIcon(name: 'pizza', data: IconData(0xe3a0, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'coffee': IconPickerIcon(name: 'coffee', data: IconData(0xe178, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'cake': IconPickerIcon(name: 'cake', data: IconData(0xe120, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'restaurant': IconPickerIcon(name: 'restaurant', data: IconData(0xe390, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'fastFood': IconPickerIcon(name: 'fastFood', data: IconData(0xe25a, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'drink': IconPickerIcon(name: 'drink', data: IconData(0xe391, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'wine': IconPickerIcon(name: 'wine', data: IconData(0xe6f1, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'rice': IconPickerIcon(name: 'rice', data: IconData(0xe538, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'ramen': IconPickerIcon(name: 'ramen', data: IconData(0xe506, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'grill': IconPickerIcon(name: 'grill', data: IconData(0xe463, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'cookie': IconPickerIcon(name: 'cookie', data: IconData(0xf04d9, fontFamily: 'MaterialIcons'), pack: IconPack.material),
-    'setMeal': IconPickerIcon(name: 'setMeal', data: IconData(0xe57e, fontFamily: 'MaterialIcons'), pack: IconPack.material),
+
+  // line icons
+  static const Map<String, IconPickerIcon> lineIcons = _lineAwesomeIcons;
+
+  // Food related
+  static const Map<String, IconData> foodIcons = {
+    'apple': Icons.apple,
+    'banana': Icons.emoji_food_beverage,
+    'bread': Icons.bakery_dining,
+    'cheese': Icons.emoji_food_beverage,
+    'meat': Icons.set_meal,
+    'fish': Icons.set_meal,
+    'egg': Icons.egg,
+    'carrot': Icons.emoji_food_beverage,
+    'broccoli': Icons.emoji_food_beverage,
+    'grape': Icons.emoji_food_beverage,
+    'watermelon': Icons.emoji_food_beverage,
+    'pizza': Icons.local_pizza,
+    'burger': Icons.fastfood,
+    'fries': Icons.fastfood,
+    'iceCream': Icons.icecream,
+    'cake': Icons.cake,
+    'coffee': Icons.coffee,
+    'tea': Icons.emoji_food_beverage,
+    'soup': Icons.ramen_dining,
   };
 
   // Shopping related
