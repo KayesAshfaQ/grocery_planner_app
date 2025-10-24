@@ -2,13 +2,17 @@ import 'package:grocery_planner_app/features/settings/domain/entities/user_setti
 import 'package:grocery_planner_app/features/settings/domain/usecases/get_user_settings_usecase.dart';
 import 'package:grocery_planner_app/features/settings/domain/usecases/update_default_currency_usecase.dart';
 
+import '../di/service_locator.dart';
+
 /// Simple service to provide easy access to user settings
 /// This can be used across the app without needing BLoC
 class UserSettingsService {
   final GetUserSettingsUsecase _getUserSettingsUsecase;
   final UpdateDefaultCurrencyUsecase _updateDefaultCurrencyUsecase;
 
-  UserSettings? _cachedSettings;
+  UserSettings? _userSettings;
+
+  static final instance = sl<UserSettingsService>();
 
   UserSettingsService({
     required GetUserSettingsUsecase getUserSettingsUsecase,
@@ -18,17 +22,17 @@ class UserSettingsService {
 
   /// Get current default currency synchronously (uses cache or defaults)
   String get defaultCurrency {
-    return _cachedSettings?.defaultCurrency ?? '\$';
+    return _userSettings?.defaultCurrency ?? '\$';
   }
 
   /// Get current theme mode synchronously (uses cache or defaults)
   String get themeMode {
-    return _cachedSettings?.themeMode ?? 'system';
+    return _userSettings?.themeMode ?? 'system';
   }
 
   /// Get current notifications enabled synchronously (uses cache or defaults)
   bool get notificationsEnabled {
-    return _cachedSettings?.notificationsEnabled ?? true;
+    return _userSettings?.notificationsEnabled ?? true;
   }
 
   /// Initialize the service by loading settings
@@ -37,10 +41,10 @@ class UserSettingsService {
     result.fold(
       (exception) {
         // Use defaults if loading fails
-        _cachedSettings = UserSettings.defaults();
+        _userSettings = UserSettings.defaults();
       },
       (settings) {
-        _cachedSettings = settings;
+        _userSettings = settings;
       },
     );
   }
@@ -52,9 +56,9 @@ class UserSettingsService {
       (exception) => false,
       (updatedCurrency) {
         // Update cache
-        if (_cachedSettings != null) {
-          _cachedSettings =
-              _cachedSettings!.copyWith(defaultCurrency: updatedCurrency);
+        if (_userSettings != null) {
+          _userSettings =
+              _userSettings!.copyWith(defaultCurrency: updatedCurrency);
         }
         return true;
       },
@@ -67,7 +71,7 @@ class UserSettingsService {
     return result.fold(
       (exception) => UserSettings.defaults(),
       (settings) {
-        _cachedSettings = settings;
+        _userSettings = settings;
         return settings;
       },
     );

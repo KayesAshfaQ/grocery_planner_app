@@ -7,7 +7,8 @@ import 'package:grocery_planner_app/config/routes/app_router.dart';
 import 'package:grocery_planner_app/config/theme/app_theme.dart';
 import 'package:grocery_planner_app/core/db/app_database.dart';
 import 'package:grocery_planner_app/core/di/service_locator.dart';
-import 'package:grocery_planner_app/core/services/user_settings_service.dart';
+
+import 'core/services/app_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +29,7 @@ Future<void> main() async {
   await initServiceLocator(database);
 
   // Initialize user settings service
-  final userSettingsService = sl<UserSettingsService>();
-  await userSettingsService.initialize();
+  await initAppServices();
 
   runApp(const GroceryPlannerApp());
 }
